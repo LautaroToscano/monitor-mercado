@@ -167,6 +167,10 @@ con los puntos huecos. Si la fecha no fue hábil, se toma la última rueda
 anterior. Los papeles apagados en las fichas salen también de la curva vieja,
 para que las dos se armen igual.
 
+Junto con las fotos se guarda el breakeven de la rueda
+(`public/historico/breakeven/`), una vez por rueda y nunca incompleto: es lo
+que sirve el endpoint, y de paso deja su historia.
+
 **De dónde sale.** Una foto por rueda y por curva en `public/historico/`
 (`indice.json` y un archivo por día, unos 9 KB entre las dos curvas), con los
 rendimientos ya calculados: la foto de un día es lo que la pantalla mostró ese

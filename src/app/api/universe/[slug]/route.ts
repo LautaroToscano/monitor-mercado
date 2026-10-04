@@ -27,7 +27,13 @@ const CACHE_EN_RUEDA = 20;
  * apertura. Un minuto alcanza para descargar la fuente sin que se note.
  */
 const CACHE_CERRADO = 60;
-const STALE_WHILE_REVALIDATE = 60;
+/**
+ * Vencido el cache, el CDN sirve la última respuesta en el acto y la renueva
+ * por detrás. El primero que entra después de un rato no espera las treinta
+ * series de BYMA: ve la curva de hace unos minutos y el tablero, que vuelve a
+ * pedir enseguida, recibe la nueva.
+ */
+const STALE_WHILE_REVALIDATE = 600;
 
 export async function GET(
   _request: Request,

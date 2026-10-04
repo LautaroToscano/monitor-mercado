@@ -11,6 +11,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { AVISO_SIN_CIERRE, buildBreakeven } from '../src/lib/breakeven';
 import { buildUniverse } from '../src/lib/build';
 import { fotoDesde, type IndiceHistorico } from '../src/lib/historico';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
@@ -52,7 +53,46 @@ async function main() {
     console.log(`${universo.slug}: ${foto.tradeDate}, ${foto.instrumentos.length} instrumentos`);
   }
 
+  await guardarBreakeven(indice);
   writeFileSync(INDICE, JSON.stringify(indice, null, 1) + '\n');
+}
+
+/**
+ * El breakeven de la misma rueda, ya calculado: el endpoint lo sirve de acá
+ * en vez de calcularlo en cada visita, y de paso queda su historia.
+ *
+ * Se escribe una sola vez por rueda —un feriado no lo reescribe con otra
+ * hora de cálculo— y nunca incompleto: si a una curva le faltó un papel, no
+ * se guarda y el endpoint lo sigue calculando en vivo. Un fallo acá no frena
+ * las fotos, que son lo que no se puede recuperar.
+ */
+async function guardarBreakeven(indice: IndiceHistorico) {
+  try {
+    const be = await buildBreakeven(new Date());
+    const carpeta = join(DIR, 'breakeven');
+    const archivo = join(carpeta, `${be.tradeDate}.json`);
+    if (existsSync(archivo)) {
+      console.log(`breakeven: ${be.tradeDate} ya estaba guardado`);
+      return;
+    }
+    const fotos = indice['tasa-cer'] ?? [];
+    if (fotos[fotos.length - 1] !== be.tradeDate) {
+      console.log(`breakeven: la rueda ${be.tradeDate} no es la de las fotos; no se guarda`);
+      return;
+    }
+    if (be.warnings.some((w) => w.startsWith(AVISO_SIN_CIERRE))) {
+      console.log(`breakeven: incompleto el ${be.tradeDate}; no se guarda`);
+      return;
+    }
+    mkdirSync(carpeta, { recursive: true });
+    writeFileSync(archivo, JSON.stringify(be) + '\n');
+    const fechas = new Set(indice.breakeven ?? []);
+    fechas.add(be.tradeDate);
+    indice.breakeven = [...fechas].sort();
+    console.log(`breakeven: ${be.tradeDate}, ${be.meses.length} meses`);
+  } catch (err) {
+    console.error(`breakeven: no se pudo guardar (${(err as Error).message})`);
+  }
 }
 
 main().catch((err) => {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { BreakevenResponse } from '@/lib/breakeven';
 import { escalaLineal, marcasLimpias } from '@/lib/escala';
 import { fechaCorta, pct } from '@/lib/format';
+import { pedirJson, ultimoValor } from '@/lib/pedidos';
 import estilos from './PanelBreakeven.module.css';
 
 /**
@@ -14,6 +15,7 @@ import estilos from './PanelBreakeven.module.css';
 const REFRESCO_MS = 10 * 60_000;
 const REINTENTOS = 2;
 const ESPERA_REINTENTO_MS = 3_000;
+export const RUTA_BREAKEVEN = '/api/breakeven';
 
 const ALTO_BARRAS = 200;
 const PAD_SUP = 26;
@@ -52,7 +54,11 @@ interface Barra {
 }
 
 export function PanelBreakeven() {
-  const [datos, setDatos] = useState<BreakevenResponse | null>(null);
+  // Si ya se trajo antes —en esta pestaña o precargado desde la otra— se
+  // dibuja en el acto.
+  const [datos, setDatos] = useState<BreakevenResponse | null>(() =>
+    ultimoValor<BreakevenResponse>(RUTA_BREAKEVEN),
+  );
   const [error, setError] = useState<string | null>(null);
   const [ancho, setAncho] = useState(960);
 
@@ -61,13 +67,10 @@ export function PanelBreakeven() {
    * Suele ser un corte de segundos, así que se reintenta antes de mostrar
    * el error.
    */
-  const traer = useCallback(async () => {
+  const traer = useCallback(async (vigenciaMs = 0) => {
     for (let intento = 0; ; intento++) {
       try {
-        const res = await fetch('/api/breakeven');
-        const cuerpo = await res.json();
-        if (!res.ok) throw new Error(cuerpo.detail ?? `El servidor respondió ${res.status}`);
-        setDatos(cuerpo as BreakevenResponse);
+        setDatos(await pedirJson<BreakevenResponse>(RUTA_BREAKEVEN, intento === 0 ? vigenciaMs : 0));
         setError(null);
         return;
       } catch (err) {
@@ -81,7 +84,9 @@ export function PanelBreakeven() {
   }, []);
 
   useEffect(() => {
-    traer();
+    // El tablero ya lo pidió al montarse, en paralelo con la curva: si ese
+    // pedido sigue en vuelo o es reciente, se usa el mismo.
+    traer(REFRESCO_MS);
     const id = setInterval(() => {
       if (document.visibilityState === 'visible') traer();
     }, REFRESCO_MS);

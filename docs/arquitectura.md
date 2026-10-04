@@ -35,6 +35,22 @@ Para sumar una curva: generar su referencia, escribir su `UniverseDefinition`
 y registrarla en `src/lib/universes/index.ts`. Ni los endpoints ni el
 frontend cambian.
 
+## Velocidad
+
+- **Breakeven guardado.** Calcularlo en frío son cuarenta series de BYMA, el
+  CER y el IPC: unos diez segundos. El proceso diario lo guarda en
+  `public/historico/breakeven/` y el endpoint sirve ese archivo cuando es el
+  de la última rueda terminada; entre el cierre y el proceso diario lo
+  calcula como siempre.
+- **CDN con `stale-while-revalidate`.** Vencido el cache, el CDN sirve la
+  última respuesta en el acto y la renueva por detrás: diez minutos para las
+  curvas, un día para el breakeven, que cambia una vez por rueda.
+- **Pestañas sin recarga.** Se navega con `next/link` y lo traído queda en
+  memoria (`src/lib/pedidos.ts`): volver a una curva la dibuja en el acto y
+  la refresca por detrás. Con una curva en pantalla se precargan las otras y
+  el breakeven, y en la CER el breakeven se pide junto con la curva, no
+  después.
+
 ## Comandos de validación
 
 | comando | qué hace |
@@ -50,5 +66,6 @@ frontend cambian.
 
 GitHub Actions corre dos tareas y sube el resultado si cambió algo:
 
-- **Guardar cierre**, de lunes a viernes a las 18:00: la foto de cada curva.
+- **Guardar cierre**, de lunes a viernes a las 18:00: la foto de cada curva y
+  el breakeven de esa rueda, ya calculado.
 - **Refrescar referencia**, lunes y jueves: las especies vigentes según BYMA.

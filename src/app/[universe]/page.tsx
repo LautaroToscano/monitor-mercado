@@ -27,12 +27,17 @@ export default async function PaginaUniverso({
   params: Promise<{ universe: string }>;
 }) {
   const { universe } = await params;
-  if (!getUniverse(universe)) notFound();
+  const def = getUniverse(universe);
+  if (!def) notFound();
 
+  // La clave hace que cada curva arranque su propio tablero al navegar entre
+  // pestañas, sin arrastrar las elecciones ni los datos de la otra.
   return (
     <Tablero
+      key={universe}
       slug={universe}
       universos={listUniverses().map(({ slug, label }) => ({ slug, label }))}
+      conBreakeven={def.vista.breakeven}
     />
   );
 }

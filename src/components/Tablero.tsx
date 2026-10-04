@@ -1,9 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { UniverseResponse } from '@/lib/types';
 import { NOMBRE_METRICA, PanelCurva, type Metrica } from './PanelCurva';
-import { PanelBreakeven } from './PanelBreakeven';
+import { PanelBreakeven, RUTA_BREAKEVEN } from './PanelBreakeven';
+import { pedirJson, precargar, ultimoValor } from '@/lib/pedidos';
 import { SelectorComparacion } from './SelectorComparacion';
 import type { FotoCurva } from '@/lib/historico';
 import { SelectorInstrumentos } from './SelectorInstrumentos';
@@ -42,12 +44,23 @@ const ETIQUETA_SESION: Record<UniverseResponse['session'], string> = {
 interface Props {
   slug: string;
   universos: { slug: string; label: string }[];
+  /** Si esta curva lleva el panel de breakeven: se pide junto con la curva. */
+  conBreakeven: boolean;
 }
 
-export function Tablero({ slug, universos }: Props) {
-  const [datos, setDatos] = useState<UniverseResponse | null>(null);
+const rutaUniverso = (slug: string) => `/api/universe/${slug}`;
+
+/** Lo que se trajo hace menos que esto se usa sin volver a pedirlo. */
+const VIGENCIA_AL_ENTRAR_MS = 30_000;
+
+export function Tablero({ slug, universos, conBreakeven }: Props) {
+  // Al volver a una curva ya vista, se dibuja lo último que se tenía y se
+  // refresca por detrás.
+  const [datos, setDatos] = useState<UniverseResponse | null>(() =>
+    ultimoValor<UniverseResponse>(rutaUniverso(slug)),
+  );
   const [error, setError] = useState<string | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(() => datos === null);
   const [metricaElegida, setMetrica] = useState<Metrica>('tea');
   // Sólo guardamos lo que el lector decidió a mano. El resto lo define el
   // default, así que un papel que se acerca al vencimiento sale solo de la
@@ -78,14 +91,12 @@ export function Tablero({ slug, universos }: Props) {
     [excluidos],
   );
 
-  const traer = useCallback(async () => {
+  const traer = useCallback(async (vigenciaMs = 0) => {
     setCargando(true);
     try {
       // Sin 'no-store': así el CDN puede servir la respuesta cacheada y la
       // función —y con ella la fuente— sólo se toca cuando el cache vence.
-      const res = await fetch(`/api/universe/${slug}`);
-      if (!res.ok) throw new Error(`El servidor respondió ${res.status}`);
-      setDatos((await res.json()) as UniverseResponse);
+      setDatos(await pedirJson<UniverseResponse>(rutaUniverso(slug), vigenciaMs));
       setError(null);
     } catch (err) {
       setError((err as Error).message);
@@ -94,8 +105,27 @@ export function Tablero({ slug, universos }: Props) {
     }
   }, [slug]);
 
+  // El breakeven sale, en el acto, en paralelo con la curva: antes se pedía
+  // recién cuando la curva había llegado y las dos esperas se sumaban.
   useEffect(() => {
-    traer();
+    if (conBreakeven) pedirJson(RUTA_BREAKEVEN, VIGENCIA_AL_ENTRAR_MS).catch(() => undefined);
+  }, [conBreakeven]);
+
+  // Con la curva en pantalla, se precarga lo de las otras pestañas para que
+  // pasar de una a otra no espere a nadie.
+  const cargada = datos !== null;
+  useEffect(() => {
+    if (!cargada) return;
+    precargar([
+      ...universos.filter((u) => u.slug !== slug).map((u) => rutaUniverso(u.slug)),
+      RUTA_BREAKEVEN,
+    ]);
+  }, [cargada, slug, universos]);
+
+  useEffect(() => {
+    // Al entrar, o cuando cambia la sesión, alcanza con lo recién traído: sin
+    // la vigencia, la llegada de la primera respuesta disparaba otro pedido.
+    traer(VIGENCIA_AL_ENTRAR_MS);
     const cada =
       datos?.session === 'cierre' ? REFRESCO_CERRADO_MS : REFRESCO_EN_RUEDA_MS;
     const id = setInterval(() => {
@@ -145,7 +175,7 @@ export function Tablero({ slug, universos }: Props) {
         <div className={estilos.falla}>
           <h1>No se pudieron traer los datos</h1>
           <p>{error}</p>
-          <button type="button" onClick={traer} className={estilos.botonReintentar}>
+          <button type="button" onClick={() => traer()} className={estilos.botonReintentar}>
             Reintentar
           </button>
         </div>
@@ -160,14 +190,14 @@ export function Tablero({ slug, universos }: Props) {
           <span className={estilos.marcaTitulo}>Monitor</span>
           <nav className={estilos.universos} aria-label="Universos">
             {universos.map((u) => (
-              <a
+              <Link
                 key={u.slug}
                 href={`/${u.slug}`}
                 aria-current={u.slug === slug ? 'page' : undefined}
                 className={estilos.universo}
               >
                 {u.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>

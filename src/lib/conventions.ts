@@ -173,6 +173,17 @@ export function ruedaDeHoySinCerrar(now: Date = new Date()): boolean {
 }
 
 /**
+ * La última rueda con cierre: hoy si ya cerró, si no el hábil anterior.
+ * Se lee con el reloj del feed (`momentoVisible`), que es el de la pantalla.
+ */
+export function ultimaRuedaTerminada(now: Date = new Date()): IsoDate {
+  const visible = momentoVisible(now);
+  const hoy = marketToday(visible);
+  if (isBusinessDay(hoy) && !ruedaDeHoySinCerrar(visible)) return toIsoDate(hoy);
+  return toIsoDate(restarDiasHabiles(hoy, 1));
+}
+
+/**
  * Días hábiles entre dos fechas, sin contar la de partida.
  *
  * Es lo que dice cuánta vida operativa le queda a un papel: dos fechas a tres

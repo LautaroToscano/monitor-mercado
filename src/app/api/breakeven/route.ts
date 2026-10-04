@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { AVISO_SIN_CIERRE, buildBreakeven } from '@/lib/breakeven';
+import { AVISO_SIN_CIERRE, buildBreakeven, type BreakevenResponse } from '@/lib/breakeven';
+import { ultimaRuedaTerminada } from '@/lib/conventions';
+import { RUTA_HISTORICO } from '@/lib/historico';
 
 /**
  * Inflación breakeven, calculada entera en el backend: arma las dos curvas
@@ -18,16 +20,47 @@ export const maxDuration = 60;
  * cerrar la rueda, el cálculo nuevo aparece a lo sumo diez minutos después.
  */
 const CACHE_S = 600;
-const STALE_WHILE_REVALIDATE = 600;
+/**
+ * Pasado eso, el CDN sigue sirviendo la última respuesta al instante y la
+ * renueva por detrás. Como el dato cambia una vez por día, servir el de hace
+ * un rato a un solo visitante no se nota; esperar el cálculo, sí.
+ */
+const STALE_WHILE_REVALIDATE = 86_400;
+/** Techo para leer el breakeven guardado; si no llega, se calcula. */
+const GUARDADO_TIMEOUT_MS = 3_000;
 /**
  * Si a alguna curva le faltó un papel, la respuesta se retiene sólo un
  * minuto: un hueco pasajero de BYMA no puede quedar servido veinte.
  */
 const CACHE_INCOMPLETO_S = 60;
 
-export async function GET() {
+/**
+ * El breakeven de la última rueda terminada, si ya está guardado.
+ *
+ * El proceso diario lo guarda junto con las fotos de cierre (ver
+ * `scripts/guardar-historico.ts`). Leerlo es un archivo estático; calcularlo
+ * son cuarenta series de BYMA, el CER y el IPC, unos diez segundos en frío.
+ * Entre el cierre de la rueda y el proceso diario todavía no está, y se
+ * calcula como siempre.
+ */
+async function guardado(origen: string): Promise<BreakevenResponse | null> {
+  const fecha = ultimaRuedaTerminada();
   try {
-    const payload = await buildBreakeven();
+    const res = await fetch(`${origen}${RUTA_HISTORICO}/breakeven/${fecha}.json`, {
+      signal: AbortSignal.timeout(GUARDADO_TIMEOUT_MS),
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const payload = (await res.json()) as BreakevenResponse;
+    return payload.tradeDate === fecha ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const payload = (await guardado(new URL(request.url).origin)) ?? (await buildBreakeven());
     const incompleto = payload.warnings.some((w) => w.startsWith(AVISO_SIN_CIERRE));
     return NextResponse.json(payload, {
       headers: {
