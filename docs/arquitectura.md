@@ -42,6 +42,12 @@ frontend cambian.
   `public/historico/breakeven/` y el endpoint sirve ese archivo cuando es el
   de la última rueda terminada; entre el cierre y el proceso diario lo
   calcula como siempre.
+- **Último cierre guardado.** Con el mercado cerrado cada curva sale de la
+  serie histórica de BYMA, un pedido por papel: en frío, 2,5 s tasa fija y
+  8 s la CER. El proceso diario deja la respuesta completa de cada curva en
+  `public/historico/ultimo/`, y fuera de rueda el endpoint la sirve si es de
+  la última rueda terminada (`src/lib/ultimo-cierre.ts`). Con la rueda
+  abierta, siempre en vivo.
 - **CDN con `stale-while-revalidate`.** Vencido el cache, el CDN sirve la
   última respuesta en el acto y la renueva por detrás: diez minutos para las
   curvas, un día para el breakeven, que cambia una vez por rueda.
@@ -66,6 +72,6 @@ frontend cambian.
 
 GitHub Actions corre dos tareas y sube el resultado si cambió algo:
 
-- **Guardar cierre**, de lunes a viernes a las 18:00: la foto de cada curva y
-  el breakeven de esa rueda, ya calculado.
+- **Guardar cierre**, de lunes a viernes a las 18:00: la foto de cada curva,
+  la respuesta completa del último cierre y el breakeven de esa rueda.
 - **Refrescar referencia**, lunes y jueves: las especies vigentes según BYMA.

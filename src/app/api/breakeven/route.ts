@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { AVISO_SIN_CIERRE, buildBreakeven, type BreakevenResponse } from '@/lib/breakeven';
 import { ultimaRuedaTerminada } from '@/lib/conventions';
-import { RUTA_HISTORICO } from '@/lib/historico';
+import { leerGuardado } from '@/lib/ultimo-cierre';
 
 /**
  * Inflación breakeven, calculada entera en el backend: arma las dos curvas
@@ -26,8 +26,7 @@ const CACHE_S = 600;
  * un rato a un solo visitante no se nota; esperar el cálculo, sí.
  */
 const STALE_WHILE_REVALIDATE = 86_400;
-/** Techo para leer el breakeven guardado; si no llega, se calcula. */
-const GUARDADO_TIMEOUT_MS = 3_000;
+
 /**
  * Si a alguna curva le faltó un papel, la respuesta se retiene sólo un
  * minuto: un hueco pasajero de BYMA no puede quedar servido veinte.
@@ -40,23 +39,13 @@ const CACHE_INCOMPLETO_S = 60;
  * El proceso diario lo guarda junto con las fotos de cierre (ver
  * `scripts/guardar-historico.ts`). Leerlo es un archivo estático; calcularlo
  * son cuarenta series de BYMA, el CER y el IPC, unos diez segundos en frío.
- * Entre el cierre de la rueda y el proceso diario todavía no está, y se
- * calcula como siempre.
+ * Sale de cierres, así que vale también con la rueda abierta. Entre el
+ * cierre y el proceso diario todavía no está, y se calcula como siempre.
  */
-async function guardado(origen: string): Promise<BreakevenResponse | null> {
-  const fecha = ultimaRuedaTerminada();
-  try {
-    const res = await fetch(`${origen}${RUTA_HISTORICO}/breakeven/${fecha}.json`, {
-      signal: AbortSignal.timeout(GUARDADO_TIMEOUT_MS),
-      cache: 'no-store',
-    });
-    if (!res.ok) return null;
-    const payload = (await res.json()) as BreakevenResponse;
-    return payload.tradeDate === fecha ? payload : null;
-  } catch {
-    return null;
-  }
-}
+const guardado = (origen: string) =>
+  leerGuardado<BreakevenResponse>(origen, `breakeven/${ultimaRuedaTerminada()}.json`, {
+    tambienEnRueda: true,
+  });
 
 export async function GET(request: Request) {
   try {

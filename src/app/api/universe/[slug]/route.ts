@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { buildUniverse } from '@/lib/build';
 import { getUniverse, listUniverses } from '@/lib/universes';
+import type { UniverseResponse } from '@/lib/types';
+import { CARPETA_ULTIMO_CIERRE, leerGuardado } from '@/lib/ultimo-cierre';
 
 /**
  * Proxy server-side hacia la fuente de mercado.
@@ -36,7 +38,7 @@ const CACHE_CERRADO = 60;
 const STALE_WHILE_REVALIDATE = 600;
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
@@ -50,7 +52,12 @@ export async function GET(
   }
 
   try {
-    const payload = await buildUniverse(universe);
+    // Con el mercado cerrado, el último cierre ya calculado si está guardado.
+    const payload =
+      (await leerGuardado<UniverseResponse>(
+        new URL(request.url).origin,
+        `${CARPETA_ULTIMO_CIERRE}/${slug}.json`,
+      )) ?? (await buildUniverse(universe));
     // Una sesión desconocida es un estado degradado: se cachea corto para
     // volver a intentar apenas la fuente se recupere.
     const maxAge = payload.session === 'cierre' ? CACHE_CERRADO : CACHE_EN_RUEDA;

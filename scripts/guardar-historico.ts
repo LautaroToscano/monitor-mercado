@@ -14,6 +14,8 @@ import { fileURLToPath } from 'node:url';
 import { AVISO_SIN_CIERRE, buildBreakeven } from '../src/lib/breakeven';
 import { buildUniverse } from '../src/lib/build';
 import { fotoDesde, type IndiceHistorico } from '../src/lib/historico';
+import type { UniverseResponse } from '../src/lib/types';
+import { CARPETA_ULTIMO_CIERRE } from '../src/lib/ultimo-cierre';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 
@@ -46,6 +48,7 @@ async function main() {
     const carpeta = join(DIR, universo.slug);
     mkdirSync(carpeta, { recursive: true });
     writeFileSync(join(carpeta, `${foto.tradeDate}.json`), JSON.stringify(foto) + '\n');
+    guardarUltimoCierre(respuesta);
 
     const fechas = new Set(indice[universo.slug] ?? []);
     fechas.add(foto.tradeDate);
@@ -55,6 +58,33 @@ async function main() {
 
   await guardarBreakeven(indice);
   writeFileSync(INDICE, JSON.stringify(indice, null, 1) + '\n');
+}
+
+/**
+ * La respuesta completa del endpoint para este cierre, la que sirve con el
+ * mercado cerrado (ver `src/lib/ultimo-cierre.ts`). Se pisa la de la rueda
+ * anterior: no es historia, es la última. No se reescribe la misma rueda —un
+ * feriado sólo cambiaría la hora de cálculo— ni se guarda si a algún cero
+ * cupón le faltó el precio.
+ */
+function guardarUltimoCierre(respuesta: UniverseResponse) {
+  const archivo = join(DIR, CARPETA_ULTIMO_CIERRE, `${respuesta.universe}.json`);
+  if (existsSync(archivo)) {
+    const previa = JSON.parse(readFileSync(archivo, 'utf8')) as UniverseResponse;
+    if (previa.tradeDate === respuesta.tradeDate) return;
+  }
+  const sinPrecio = respuesta.instruments.filter(
+    (i) => i.estructura === 'cero-cupon' && i.lastPrice === null,
+  );
+  if (sinPrecio.length > 0) {
+    console.log(
+      `${respuesta.universe}: último cierre sin guardar, faltan ${sinPrecio.map((i) => i.ticker).join(', ')}`,
+    );
+    return;
+  }
+  mkdirSync(dirname(archivo), { recursive: true });
+  writeFileSync(archivo, JSON.stringify(respuesta) + '\n');
+  console.log(`${respuesta.universe}: último cierre ${respuesta.tradeDate}`);
 }
 
 /**
