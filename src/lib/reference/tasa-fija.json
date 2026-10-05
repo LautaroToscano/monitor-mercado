@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-01T18:11:04.668Z",
+  "generatedAt": "2026-10-05T20:31:17.061Z",
   "source": "BYMA ficha técnica (bnown/fichatecnica/especies/general)",
   "instruments": [
     {
@@ -94,6 +94,11 @@
       "symbol": "SFN27",
       "name": "BONOS DE INFRAESTRUCTURA VIAL PARA LOGÍSTICA DE EXPORTACIONES EN LA PROVINCIA DE SANTA FE - EJERCICIO 2024",
       "reason": "no es cero cupón capitalizable (paga cupones o es otro tipo)"
+    },
+    {
+      "symbol": "SJO35",
+      "name": "TÍTULOS DE DEUDA - VENCIMIENTO 2035",
+      "reason": "moneda Dólares"
     },
     {
       "symbol": "TB27",
