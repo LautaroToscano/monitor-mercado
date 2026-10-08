@@ -75,7 +75,7 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
     const fuera = new Set<string>();
     for (const i of datos?.instruments ?? []) {
       const decision = decisiones[i.ticker];
-      const porDefecto = !entraALaCurvaPorDefecto(i);
+      const porDefecto = !entraALaCurvaPorDefecto(i, datos?.vista);
       if (decision ? decision === 'fuera' : porDefecto) fuera.add(i.ticker);
     }
     return fuera;

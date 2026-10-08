@@ -32,14 +32,21 @@ export const NOMBRE_METRICA: Record<Metrica, string> = { tea: 'TIR', tem: 'TEM' 
  * corre la constante del logaritmo, la curva dibujada es la misma.
  */
 export function plazoEnEje(
-  i: Pick<InstrumentRow, 'daysToMaturity' | 'durationDays'>,
+  i: Pick<InstrumentRow, 'daysToMaturity' | 'durationDays' | 'dolarLinked'>,
   eje: VistaUniverso['ejeX'],
 ): number {
+  if (eje === 'duration-modificada') {
+    return i.dolarLinked?.durationModificada ?? (i.durationDays ?? i.daysToMaturity) / 365;
+  }
   return eje === 'duration' ? (i.durationDays ?? i.daysToMaturity) / 365 : i.daysToMaturity;
 }
 
 /** Rango mínimo del eje, para que dos papeles cortos no llenen el gráfico. */
-const MINIMO_EJE: Record<VistaUniverso['ejeX'], number> = { vencimiento: 30, duration: 0.25 };
+const MINIMO_EJE: Record<VistaUniverso['ejeX'], number> = {
+  vencimiento: 30,
+  duration: 0.25,
+  'duration-modificada': 0.25,
+};
 
 interface Props {
   instrumentos: InstrumentRow[];

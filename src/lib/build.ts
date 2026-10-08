@@ -393,6 +393,7 @@ export async function buildUniverse(
       tea: valuation?.tea ?? null,
       finalPayment: valuation?.finalPayment ?? null,
       cer: valuation?.cer ?? null,
+      ...(valuation?.dolarLinked && { dolarLinked: valuation.dolarLinked }),
       bid: quote.bid,
       ask: quote.ask,
       volumeAmount: quote.volumeAmount,

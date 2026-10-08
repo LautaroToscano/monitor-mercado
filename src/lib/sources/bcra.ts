@@ -17,6 +17,13 @@ const REQUEST_TIMEOUT_MS = 8_000;
 const ID_CER = 30;
 
 /**
+ * Tipo de cambio mayorista de referencia de la Comunicación "A" 3500. Es el
+ * que fija cuánto paga cada título dólar linked y con cuántos pesos se
+ * suscribió: no el cierre del mercado de cambios, que es otro número.
+ */
+const ID_A3500 = 5;
+
+/**
  * La API devuelve como mucho 3000 filas por pedido, unos ocho años de CER.
  * Los títulos del canje de 2005 toman su CER base de diciembre de 2003, así
  * que hacen falta tres o cuatro páginas. Se pagina por `Offset` hasta que una
@@ -39,6 +46,8 @@ export interface SerieDiaria {
   valor(fecha: IsoDate): number | null;
   /** Última fecha publicada. El CER llega hasta semanas adelante de hoy. */
   ultimaFecha: IsoDate | null;
+  /** Todas las fechas publicadas, en orden. */
+  fechas: readonly IsoDate[];
 }
 
 interface RespuestaSerie {
@@ -54,6 +63,14 @@ interface RespuestaSerie {
  */
 export function fetchCer(desde: IsoDate, signal?: AbortSignal): Promise<SerieDiaria> {
   return memo(`bcra:cer:${desde}`, TTL_CER_MS, () => traerSerie(ID_CER, desde, signal));
+}
+
+/**
+ * Serie del A3500 desde `desde`. Se publica una vez por rueda y no cambia;
+ * la hora de cache es la misma que la del CER.
+ */
+export function fetchA3500(desde: IsoDate, signal?: AbortSignal): Promise<SerieDiaria> {
+  return memo(`bcra:a3500:${desde}`, TTL_CER_MS, () => traerSerie(ID_A3500, desde, signal));
 }
 
 async function traerSerie(
@@ -73,6 +90,7 @@ async function traerSerie(
   return {
     valor: (fecha) => porFecha.get(fecha) ?? null,
     ultimaFecha: fechas[fechas.length - 1] ?? null,
+    fechas,
   };
 }
 

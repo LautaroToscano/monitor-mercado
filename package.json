@@ -11,6 +11,7 @@
     "validate": "tsx scripts/validate.ts",
     "validate:breakeven": "tsx scripts/validate-breakeven.ts",
     "validate:modelos": "tsx scripts/comparar-modelos.ts",
+    "validate:dolar-linked": "tsx scripts/validate-dolar-linked.ts",
     "historico:guardar": "tsx scripts/guardar-historico.ts",
     "historico:reconstruir": "tsx scripts/reconstruir-historico.ts"
   },

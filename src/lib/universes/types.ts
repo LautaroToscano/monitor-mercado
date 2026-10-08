@@ -1,7 +1,14 @@
 import type { ConventionsMeta } from '../conventions';
 import type { BymaPanel } from '../sources/byma';
 import type { QualityThresholds } from '../quality';
-import type { CerDetalle, InstrumentReference, Quote, VistaUniverso } from '../types';
+import type {
+  CerDetalle,
+  DolarLinkedDetalle,
+  InstrumentReference,
+  Quote,
+  UniverseResponse,
+  VistaUniverso,
+} from '../types';
 
 /**
  * Un universo es un conjunto de instrumentos con un mismo motor de
@@ -21,6 +28,7 @@ export interface UniverseValuation {
   /** Duration de Macaulay en días. Si falta, es el plazo al vencimiento. */
   durationDays?: number;
   cer?: CerDetalle;
+  dolarLinked?: DolarLinkedDetalle;
 }
 
 /**
@@ -74,6 +82,13 @@ export interface UniverseDefinition<R extends InstrumentReference = InstrumentRe
     liquidacion: Date,
     signal?: AbortSignal,
   ): Promise<C>;
+  /**
+   * Arma la respuesta completa cuando el universo no se resuelve con un solo
+   * pedido de precios. Dólar linked lo usa para que bonos, LECAPs, spot y
+   * futuros salgan de la misma rueda. Si falta, el endpoint usa
+   * `buildUniverse` con precios en vivo.
+   */
+  construir?(ahora: Date): Promise<UniverseResponse>;
   valuate(
     ref: R,
     quote: Quote,
