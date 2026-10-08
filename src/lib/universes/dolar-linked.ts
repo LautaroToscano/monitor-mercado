@@ -11,7 +11,12 @@ import {
 } from '../conventions';
 import { buildUniverse, type Precios } from '../build';
 import { DEFAULT_THRESHOLDS } from '../quality';
-import { fetchAjustesDolar, fetchCierresMayorista, type AjusteFuturo } from '../sources/a3';
+import {
+  fetchAjustesDolar,
+  fetchCierresMayorista,
+  fetchMayoristaEnVivo,
+  type AjusteFuturo,
+} from '../sources/a3';
 import { fetchA3500, type SerieDiaria } from '../sources/bcra';
 import { valuateDolarLinked } from '../pricing/dolar-linked';
 import type { DolarLinkedReference, TipoDeCambio, UniverseResponse } from '../types';
@@ -86,6 +91,7 @@ export const dolarLinked: UniverseDefinition<DolarLinkedReference, ContextoDolar
     breakeven: false,
     curvaEnTem: true,
     sinMinimoDeHabiles: true,
+    fueraDelAjuste: ['dual'],
   },
   candidateSymbol: CANDIDATE_SYMBOL,
   thresholds: DEFAULT_THRESHOLDS,
@@ -95,20 +101,23 @@ export const dolarLinked: UniverseDefinition<DolarLinkedReference, ContextoDolar
   unresolved: referenceData.unresolved as string[],
 
   /**
-   * El spot es el cierre mayorista de A3 de la rueda de los precios. La rueda
-   * sale de la liquidación, que es su T+1: no se toma el de otro día. Si A3
-   * no lo publicó, los papeles salen sin TIR.
+   * El spot es el mayorista de A3 de la misma rueda que los precios. La curva
+   * va en vivo como las otras: con la rueda abierta, el último mayorista de
+   * hoy; con el mercado cerrado, el cierre de la rueda de los precios. La
+   * rueda sale de la liquidación, que es su T+1, y el spot de otro día no se
+   * usa: si no está el de esa rueda, los papeles salen sin TIR.
    */
   async prepararValuacion(vigentes, liquidacion, signal) {
     const rueda = toIsoDate(restarDiasHabiles(liquidacion, 1));
     const { desde, hasta } = ventana(rueda);
-    const [cierres, a3500] = await Promise.all([
-      fetchCierresMayorista(desde, hasta, signal),
+    const [vivo, cierres, a3500] = await Promise.all([
+      fetchMayoristaEnVivo(signal).catch(() => null),
+      fetchCierresMayorista(desde, hasta, signal).catch(() => new Map<IsoDate, never>()),
       fetchA3500(inicioA3500(vigentes), signal).catch(() => null),
     ]);
-    const cierre = cierres.get(rueda);
-    if (!cierre) throw new Error(`A3 no publicó el cierre mayorista del ${rueda}`);
-    return { spot: { fecha: rueda, valor: cierre.cierre, fuente: FUENTE_SPOT }, a3500 };
+    const valor = vivo?.fecha === rueda ? vivo.cierre : cierres.get(rueda)?.cierre;
+    if (!valor) throw new Error(`A3 no tiene el mayorista del ${rueda}`);
+    return { spot: { fecha: rueda, valor, fuente: FUENTE_SPOT }, a3500 };
   },
 
   valuate(ref, _quote, price, settlement, contexto) {
@@ -135,23 +144,18 @@ export const dolarLinked: UniverseDefinition<DolarLinkedReference, ContextoDolar
   },
 
   descubrir: (simbolos, signal) => descubrirPorFicha(simbolos, reglasDolarLinked, signal),
-
-  construir: construirDolarLinked,
 };
 
 /**
- * La ventana dólar linked con los cuatro insumos de la misma rueda: bonos,
+ * Los cuatro insumos de la devaluación implícita de la misma rueda: bonos,
  * LECAPs, mayorista de A3 y ajuste de los futuros.
  *
  * Siempre con el cierre de la última rueda terminada, como el breakeven: con
  * el mercado abierto, el de ayer. Si a esa rueda le falta alguno de los
  * cuatro no se mezclan fechas: se baja a la anterior en que estén todos, y la
- * respuesta dice cuál se usó y de qué rueda es cada uno.
+ * respuesta dice cuál se usó y de qué rueda es cada uno. La curva de la
+ * pantalla no pasa por acá: va en vivo.
  */
-async function construirDolarLinked(ahora: Date): Promise<UniverseResponse> {
-  return (await armarRueda(ahora)).dolarLinked;
-}
-
 /** Lo que sale de una rueda común: las dos curvas y los futuros de ese día. */
 export interface RuedaDolarLinked {
   dolarLinked: UniverseResponse & { insumos: NonNullable<UniverseResponse['insumos']> };
@@ -160,10 +164,6 @@ export interface RuedaDolarLinked {
   futuros: AjusteFuturo[];
 }
 
-/**
- * Arma la rueda común de los cuatro insumos. La usan la curva y la
- * devaluación implícita, para que las dos salgan del mismo día.
- */
 export async function armarRueda(ahora: Date): Promise<RuedaDolarLinked> {
   const pedida = ultimaRuedaTerminada(ahora);
   const { desde, hasta } = ventana(pedida);

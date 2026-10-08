@@ -90,6 +90,37 @@ export function fetchCierresMayorista(
   });
 }
 
+/** En rueda el mayorista cambia operación a operación; se retiene medio minuto. */
+const TTL_VIVO_MS = 30_000;
+
+interface LineaResumen {
+  ticker: string;
+  plazo: string;
+  segmento: string;
+  ultimo: number | null;
+  fechaLiquidacion: string | null;
+  datosGrafico?: { precios?: { time: number; value: number }[] };
+}
+
+/**
+ * El mayorista de la rueda en curso: último precio de UST$T contado,
+ * segmento mayorista.
+ *
+ * Sale del resumen de A3 y no del listado completo porque el resumen trae la
+ * fecha de liquidación, que en contado es la de la rueda. Sin fecha no se
+ * puede saber si el precio es de hoy o quedó de ayer, y un spot de otro día
+ * contra precios de hoy es justo la mezcla que no se hace. Null si no hay
+ * línea con precio.
+ */
+export function fetchMayoristaEnVivo(signal?: AbortSignal): Promise<CierreMayorista | null> {
+  return memo('a3:mayorista:vivo', TTL_VIVO_MS, async () => {
+    const lineas = await getJson<LineaResumen[]>(`${BASE_MAE}/mercado/resumen/FOR`, signal);
+    const linea = lineas.find((l) => l.ticker === 'UST$T' && l.plazo === '000' && l.segmento === 'M');
+    if (!linea?.ultimo || !linea.fechaLiquidacion) return null;
+    return { fecha: linea.fechaLiquidacion.slice(0, 10), cierre: linea.ultimo, volumen: 0 };
+  });
+}
+
 // ─── Futuros de dólar ────────────────────────────────────────────────────
 
 export interface AjusteFuturo {

@@ -15,6 +15,7 @@ import { buildDevaluacion } from '../src/lib/devaluacion';
 import type { InstrumentRow } from '../src/lib/types';
 import { dolarLinked } from '../src/lib/universes/dolar-linked';
 import { CONDICIONES_DOLAR_LINKED } from '../src/lib/universes/dolar-linked-condiciones';
+import { buildUniverse } from '../src/lib/build';
 
 const pct = (v: number | null, d = 2) => (v === null ? '—' : `${(v * 100).toFixed(d)}%`);
 const num = (v: number | null | undefined, d = 2) =>
@@ -31,16 +32,12 @@ function ajustar(instrumentos: InstrumentRow[]): AjusteLogaritmico | null {
 }
 
 async function main() {
-  const r = await dolarLinked.construir!(new Date());
-  const ins = r.insumos!;
+  // La curva va en vivo, como la pantalla: precios de BYMA y mayorista de A3 de la misma rueda.
+  const r = await buildUniverse(dolarLinked, new Date(), 'vivo');
+  const spot = r.instruments.find((i) => i.dolarLinked)?.dolarLinked?.spot;
 
-  console.log(`\nDÓLAR LINKED  rueda ${ins.rueda} (pedida ${ins.ruedaPedida})  liquidación ${r.settlementDate}  sesión ${r.session}`);
-  console.log('\nInsumos');
-  console.log(`  bonos     ${ins.bonos.rueda}   cierre ${ins.bonos.cierre}   ${ins.bonos.fuente}`);
-  console.log(`  LECAPs    ${ins.lecaps.rueda}   cierre ${ins.lecaps.cierre}   ${ins.lecaps.fuente}`);
-  console.log(`  spot A3   ${ins.spot?.fecha}   ${num(ins.spot?.valor ?? null, 2)}   cierre ${ins.spot?.cierre}`);
-  console.log(`  futuros   ${ins.futuros.rueda}   ${ins.futuros.contratos.length} contratos   cierre ${ins.futuros.cierre}`);
-  console.log(`  A3500     ${ins.a3500?.fecha}   ${num(ins.a3500?.valor ?? null, 4)}   (sólo referencia: no valúa)`);
+  console.log(`\nDÓLAR LINKED  rueda ${r.tradeDate}  liquidación ${r.settlementDate}  sesión ${r.session}`);
+  console.log(`  mayorista A3 ${spot ? `${num(spot.valor)} del ${spot.fecha}` : '—'}`);
 
   console.log('\nTabla');
   console.log(
@@ -93,9 +90,9 @@ async function main() {
   }
 
   // Cierre de A3 contra A3500, veinte ruedas.
-  const desde = toIsoDate(addDays(parseIsoDate(ins.rueda), -40));
+  const desde = toIsoDate(addDays(parseIsoDate(r.tradeDate), -40));
   const [cierres, a3500] = await Promise.all([
-    fetchCierresMayorista(desde, ins.rueda),
+    fetchCierresMayorista(desde, r.tradeDate),
     fetchA3500(desde),
   ]);
   const fechas = [...cierres.keys()].filter((f) => a3500.valor(f) !== null).sort().slice(-20);

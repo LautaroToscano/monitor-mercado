@@ -5,10 +5,12 @@ Dónde vive cada cosa. Volver al [README](../README.md).
 ## Rutas
 
     /                              redirige al primer universo
-    /tasa-fija, /tasa-cer          tablero de cada curva
+    /tasa-fija, /tasa-cer,
+    /dolar-linked                  tablero de cada curva
     GET /api/universe              catálogo de universos
     GET /api/universe/[slug]       un universo completo, ya calculado
     GET /api/breakeven             inflación breakeven por mes INDEC
+    GET /api/devaluacion           devaluación implícita (futuros y bonos), sin pantalla todavía
 
 Los avisos de cada cálculo viajan en el campo `warnings` de la respuesta; en
 pantalla no se muestran.
@@ -23,7 +25,8 @@ pantalla no se muestran.
     src/lib/build.ts              orquestador: fuente + referencia + cálculo + calidad
     src/lib/historico.ts          fotos de cierre
     src/lib/cache.ts              cache en proceso y cortacircuitos
-    src/lib/sources/              BYMA, BCRA, INDEC, Secretaría de Finanzas
+    src/lib/devaluacion.ts        devaluación implícita de futuros y de bonos
+    src/lib/sources/              BYMA, BCRA, INDEC, A3, Secretaría de Finanzas
     src/lib/universes/            registro de universos y clasificación de especies
     src/lib/reference/            especies vigentes, generado y versionado
     src/lib/format.ts, escala.ts  formateo y geometría de los gráficos (ningún cálculo)
@@ -65,6 +68,7 @@ frontend cambian.
 | `npm run validate -- --json` | JSON crudo del endpoint |
 | `npm run validate -- --universe=tasa-cer` | la curva CER, con el detalle del ajuste por CER |
 | `npm run validate:breakeven` | tabla del breakeven por mes INDEC |
+| `npm run validate:dolar-linked` | curva dólar linked, A3 contra A3500 y devaluación implícita |
 | `npm run validate:modelos` | logaritmo contra Nelson-Siegel sobre la historia guardada |
 | `npm run historico:reconstruir -- --desde=AAAA-MM-DD --hasta=AAAA-MM-DD` | rehace fotos de días pasados |
 

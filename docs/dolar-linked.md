@@ -48,6 +48,16 @@ precio incluye además la opción de cobrar TAMAR.
 Eje X: **duration modificada**, plazo / 365 / (1 + TIR). Son cero cupón, así
 que la de Macaulay es el plazo.
 
+## La pantalla
+
+Curva y tabla de precios, nada más (la devaluación implícita no va acá).
+En la cabecera, el mayorista de A3 con que se calcula la TIR. La tabla
+lleva precio, variación, TEM, TIR, TC implícito (precio / 100) y TC
+inicial; la duration modificada es el eje de la curva y no va en la
+tabla. El dual se dibuja hueco y fuera del ajuste
+(`vista.fueraDelAjuste`). La foto diaria guarda la duration modificada
+para que la comparación con otra rueda use el mismo eje.
+
 ## La curva
 
 Mismo ajuste que tasa fija, `TIR = a + b · ln(duration)`. Entran los cero
@@ -59,24 +69,33 @@ propio plazo, 0,8 pp a seis meses y −1,3 pp a dos años (R² 0,40 con, 0,67
 sin). La forma logarítmica describe mal esta curva: el tramo corto viene de
 4,9% a 1,5% y los dos papeles de 2028 saltan a 10,6–11,5%.
 
-## Una sola rueda para los cuatro insumos
+## En vivo, con el mayorista de la misma rueda
 
-Bonos, LECAPs, spot de A3 y futuros de A3 salen del cierre de la última
-rueda terminada, como el breakeven: con el mercado abierto, el de ayer. Si a
-esa rueda le falta alguno no se mezclan fechas: se baja a la anterior en que
-estén los cuatro, y `insumos` en la respuesta dice de qué rueda es cada uno.
+La curva va en vivo como tasa fija y CER: con la rueda abierta, precios del
+panel de BYMA y el último mayorista de A3 de hoy; con el mercado cerrado,
+el cierre de la última rueda. El mayorista se toma siempre de la misma
+rueda que los precios. El de hoy sale del resumen de A3, que trae la fecha
+de liquidación (en contado, la de la rueda): sin fecha no se sabría si el
+precio quedó de ayer. Si no hay mayorista de esa rueda, los papeles salen
+sin TIR. Sólo el breakeven y la devaluación implícita usan cierres.
+
+La devaluación implícita (sección siguiente) pide además los cuatro
+insumos de la misma rueda: bonos, LECAPs, mayorista y futuros. Si a la
+última rueda terminada le falta alguno, baja a la anterior en que estén
+todos, y `insumos` en la respuesta dice de qué rueda es cada uno.
 
 | insumo | fuente | cierra | disponible |
 |---|---|---|---|
-| bonos dólar linked | BYMA | 17:00 | 17:20 (feed con 20 min de retraso) |
-| LECAP / BONCAP | BYMA | 17:00 | 17:20 |
-| mayorista | A3, mercado de cambios | 15:00 | en la API de A3 a la noche |
-| futuros DLR | A3 (ex Matba Rofex), precio de ajuste | 15:00 | en la API de A3 a la noche |
+| bonos dólar linked | BYMA | 17:00 | en vivo, 20 min de retraso |
+| LECAP / BONCAP | BYMA | 17:00 | en vivo, 20 min de retraso |
+| mayorista | A3, mercado de cambios | 15:00 | en vivo; el histórico, a la noche |
+| futuros DLR | A3 (ex Matba Rofex), precio de ajuste | 15:00 | a la noche |
 | A3500 | BCRA | — | en la API el mismo día |
 
-**Desfasaje:** spot y futuros son de las 15:00 y los bonos de las 17:00. Lo
-que se mueva el dólar en esas dos horas queda en los precios de los bonos y
-no en el spot. No hay un mayorista a las 17: el mercado de cambios ya cerró.
+**Desfasaje:** el mercado de cambios cierra a las 15:00 y los bonos siguen
+hasta las 17:00. Después de las 15 la TIR se calcula con el último
+mayorista del día: lo que se mueva el dólar en esas dos horas queda en los
+precios de los bonos y no en el spot.
 
 La API de cierres de A3 devuelve como mucho 100 filas sin avisar que cortó;
 con doce contratos por rueda se pide de a una semana.

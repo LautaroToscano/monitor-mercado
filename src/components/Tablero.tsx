@@ -11,7 +11,7 @@ import type { FotoCurva } from '@/lib/historico';
 import { SelectorInstrumentos } from './SelectorInstrumentos';
 import { TablaPrecios } from './TablaPrecios';
 import { SelectorTema } from './SelectorTema';
-import { fechaCorta } from '@/lib/format';
+import { fechaCorta, precio } from '@/lib/format';
 import { momentoVisible } from '@/lib/conventions';
 import estilos from './Tablero.module.css';
 import { entraALaCurvaPorDefecto } from '@/lib/ajuste';
@@ -169,6 +169,10 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
    */
   const hora = useMemo(() => HORA_PLAZA.format(momentoVisible(new Date(ahora))), [ahora]);
 
+  // En dólar linked la TIR sale del mayorista de A3 de la misma rueda: es
+  // uno solo para todos los papeles y va en la cabecera, no en la tabla.
+  const mayorista = datos?.instruments.find((i) => i.dolarLinked)?.dolarLinked?.spot ?? null;
+
   if (error && !datos) {
     return (
       <main className={estilos.pagina}>
@@ -215,7 +219,10 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
                 </span>
               </div>
               <Dato etiqueta="Hora" valor={hora} mono />
-              <Dato etiqueta="Fuente" valor={datos.source.toUpperCase()} />
+              {mayorista && (
+                <Dato etiqueta="Mayorista A3" valor={precio(mayorista.valor)} mono />
+              )}
+              <Dato etiqueta="Fuente" valor={mayorista ? 'BYMA · A3' : datos.source.toUpperCase()} />
             </>
           )}
           <SelectorTema />
@@ -284,7 +291,7 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
               <PanelCurva
                 instrumentos={datos.instruments}
                 metrica={metrica}
-                ejeX={datos.vista.ejeX}
+                vista={datos.vista}
                 excluidos={excluidos}
                 onToggle={alternarInstrumento}
                 comparacion={comparacion}

@@ -57,8 +57,7 @@ export async function GET(
       (await leerGuardado<UniverseResponse>(
         new URL(request.url).origin,
         `${CARPETA_ULTIMO_CIERRE}/${slug}.json`,
-      )) ??
-      (await (universe.construir ? universe.construir(new Date()) : buildUniverse(universe)));
+      )) ?? (await buildUniverse(universe));
     // Una sesión desconocida es un estado degradado: se cachea corto para
     // volver a intentar apenas la fuente se recupere.
     const maxAge = payload.session === 'cierre' ? CACHE_CERRADO : CACHE_EN_RUEDA;

@@ -1,7 +1,8 @@
 # Monitor Mercado
 
-Monitor del mercado argentino en pesos: curva de tasa fija,
-curva CER e inflación breakeven, con datos públicos de BYMA, BCRA e INDEC.
+Monitor del mercado argentino en pesos: curva de tasa fija, curva CER,
+curva dólar linked e inflación breakeven, con datos públicos de BYMA, A3,
+BCRA e INDEC.
 
 **En vivo: <https://monitor-mercado-4net.vercel.app>**
 
@@ -13,6 +14,9 @@ curva CER e inflación breakeven, con datos públicos de BYMA, BCRA e INDEC.
   tabla con precio, variación del día, pago final y volumen.
 - **CER.** BONCER y LECER cero cupón, bonos con cupón, los del canje y los
   duales CER/TAMAR: TIR real contra duration y capital ajustado por CER.
+- **Dólar linked.** Letras y bonos vinculados al dólar oficial y el dual
+  TAMAR / dólar: TIR sobre el dólar contra duration modificada, con el
+  mayorista de A3 de la misma rueda.
 - **Inflación breakeven.** La inflación de cada mes que descuenta el mercado
   al comparar las dos curvas, alineada con los meses del INDEC.
 - **Historia.** Cada curva se puede comparar con la de cualquier rueda
@@ -38,6 +42,7 @@ El detalle de cada decisión está en [`docs/`](docs):
 |---|---|
 | [Curvas](docs/curvas.md) | convenciones de cálculo, ajuste de la curva, rendimiento real de los CER |
 | [Breakeven](docs/breakeven.md) | método, mapeo a meses INDEC, controles, por qué logaritmo y no Nelson-Siegel |
+| [Dólar linked](docs/dolar-linked.md) | tipo de cambio de cada título, TIR sobre el dólar, horarios de cada fuente |
 | [Datos](docs/datos.md) | fuentes, límites de BYMA, calidad del dato, historia, mantenimiento |
 | [Arquitectura](docs/arquitectura.md) | rutas, módulos, comandos de validación, procesos automáticos |
 
@@ -80,7 +85,8 @@ Abre en <http://localhost:3000>.
 
 ## Fuentes
 
-[BYMA](https://open.bymadata.com.ar) para precios, el
-[BCRA](https://www.bcra.gob.ar) para el CER y el
+[BYMA](https://open.bymadata.com.ar) para precios,
+[A3 Mercados](https://a3mercados.com.ar) para el dólar mayorista y los
+futuros, el [BCRA](https://www.bcra.gob.ar) para el CER y el A3500, y el
 [INDEC](https://www.indec.gob.ar), por la API de Series de Tiempo, para el
 IPC.

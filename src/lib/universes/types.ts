@@ -6,7 +6,6 @@ import type {
   DolarLinkedDetalle,
   InstrumentReference,
   Quote,
-  UniverseResponse,
   VistaUniverso,
 } from '../types';
 
@@ -82,13 +81,6 @@ export interface UniverseDefinition<R extends InstrumentReference = InstrumentRe
     liquidacion: Date,
     signal?: AbortSignal,
   ): Promise<C>;
-  /**
-   * Arma la respuesta completa cuando el universo no se resuelve con un solo
-   * pedido de precios. Dólar linked lo usa para que bonos, LECAPs, spot y
-   * futuros salgan de la misma rueda. Si falta, el endpoint usa
-   * `buildUniverse` con precios en vivo.
-   */
-  construir?(ahora: Date): Promise<UniverseResponse>;
   valuate(
     ref: R,
     quote: Quote,

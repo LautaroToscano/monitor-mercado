@@ -129,6 +129,27 @@ const CAPITAL_AJUSTADO: Columna = {
   celda: (i) => precio(i.cer?.capitalAjustado ?? null),
 };
 
+const TC_IMPLICITO: Columna = {
+  clave: 'tcImplicito',
+  titulo: 'TC implícito',
+  ayuda: 'Pesos por dólar de valor nominal que se pagan hoy: precio / 100. Comparado con el mayorista, da la TIR.',
+  numerica: true,
+  valor: (i) => i.dolarLinked?.tcImplicito ?? null,
+  celda: (i) => precio(i.dolarLinked?.tcImplicito ?? null),
+};
+
+const TC_INICIAL: Columna = {
+  clave: 'tcInicial',
+  titulo: 'TC inicial',
+  ayuda:
+    'A3500 con el que se suscribió la emisión original: el del día hábil previo a la licitación. No entra en la TIR; en el dual es la base de la pata TAMAR.',
+  numerica: true,
+  valor: (i) => i.dolarLinked?.tcInicial?.valor ?? null,
+  celda: (i) => precio(i.dolarLinked?.tcInicial?.valor ?? null),
+  titleCelda: (i) =>
+    i.dolarLinked?.tcInicial ? `A3500 del ${fechaCorta(i.dolarLinked.tcInicial.fecha)}` : undefined,
+};
+
 const VOLUMEN: Columna = {
   clave: 'volumeAmount',
   titulo: 'Volumen',
@@ -143,6 +164,14 @@ const VOLUMEN: Columna = {
 
 /** Las columnas de cada curva. Las de CER cambian el pago final, que no se conoce, por el capital ajustado. */
 function columnas(ejeX: VistaUniverso['ejeX']): Columna[] {
+  if (ejeX === 'duration-modificada') {
+    return [
+      TICKER, VENCE, DIAS, PRECIO, VARIACION, VARIACION_PCT,
+      tem('Rendimiento sobre el dólar oficial, efectivo mensual'),
+      tir('Rendimiento sobre el dólar oficial, efectivo anual, actual/365: (100 × mayorista A3 / precio)^(365/días) − 1. En el dual, el de la pata dólar.'),
+      TC_IMPLICITO, TC_INICIAL, VOLUMEN,
+    ];
+  }
   if (ejeX === 'duration') {
     return [
       TICKER, VENCE, DIAS, DURATION, PRECIO, VARIACION, VARIACION_PCT,

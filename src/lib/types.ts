@@ -263,6 +263,12 @@ export interface VistaUniverso {
    * decidió dejarlo siempre.
    */
   sinMinimoDeHabiles?: boolean;
+  /**
+   * Estructuras que se dibujan pero no entran al ajuste. En dólar linked, el
+   * dual: su TIR es la de la pata dólar, un piso, y el precio lleva además
+   * la opción de cobrar TAMAR.
+   */
+  fueraDelAjuste?: Estructura[];
 }
 
 export interface UniverseResponse {
