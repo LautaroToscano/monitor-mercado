@@ -118,3 +118,8 @@ porque el tramo corto no es monótono (4,9%, 3,7%, 1,5%, 2,5%, 3,1%). Medido
 el 07/10, la devaluación acumulada a mayo de 2027 da 15,1% en futuros, 13,5%
 con la curva entera y 16,3% con la del tramo. La de bonos depende del
 ajuste en más de un punto; la de futuros no.
+
+Decisión (08/10/2026): la curva dólar linked va con **todos los papeles de
+la familia**, también para la devaluación de bonos, aunque los de 2028 la
+empinen. No se ajusta por tramo como la curva real del breakeven. Quedan
+afuera sólo el dual y los marcados por calidad, como en la pantalla.
