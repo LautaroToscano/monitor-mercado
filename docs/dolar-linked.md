@@ -80,3 +80,41 @@ no en el spot. No hay un mayorista a las 17: el mercado de cambios ya cerró.
 
 La API de cierres de A3 devuelve como mucho 100 filas sin avisar que cortó;
 con doce contratos por rueda se pide de a una semana.
+
+## Devaluación implícita
+
+`GET /api/devaluacion`, de la misma rueda que la curva (`armarRueda`).
+
+**De futuros, la principal.** Cada contrato mensual de A3 liquida contra el
+A3500 del último hábil de su mes. Por contrato: precio de ajuste / spot A3
+− 1 hasta ese día, mensualizada a 30 días, TNA (directa × 365 / días) y
+TEA. Mes a mes: cada contrato contra el anterior; el primero, contra el
+spot. No usa bonos ni tasa fija.
+
+**De bonos, la secundaria.** Fisher entre la curva de tasa fija y la dólar
+linked, las dos ajustadas contra los días al vencimiento y leídas en la
+misma fecha:
+
+    1 + devaluación = ((1 + TEA tasa fija) / (1 + TIR dólar linked))^(días/365)
+
+La fecha sale de la convención de pago: un dólar linked que vence en t
+cobra el A3500 de t − 3 hábiles, así que para el futuro de un mes se leen
+las curvas en (último hábil del mes) + 3 hábiles. Los dos miden el mismo
+A3500. Sólo dentro del tramo que cubren las dos curvas; hoy el techo lo
+pone tasa fija (265 días).
+
+Las dos lecturas parten del spot de A3 y llegan a un A3500, así que el
+primer mes carga además la diferencia entre los dos (el 07/10, el cierre de
+A3 estuvo 0,24% abajo del A3500).
+
+Si la diferencia bonos − futuros cambia de signo o se mueve más de 0,25 pp
+de un mes al siguiente, va a `warnings`. No se suaviza.
+
+**Lo que no cierra.** La curva dólar linked con todos los papeles pasa
+lejos de los del tramo corto: los dos bonos de 2028 (10,6–11,5%) la
+empinan y a 174 días da 5,6% contra 2,5% de D31M7. Ajustándola sólo con los
+papeles del tramo común queda pegada a ellos pero el R² sigue en 0,46,
+porque el tramo corto no es monótono (4,9%, 3,7%, 1,5%, 2,5%, 3,1%). Medido
+el 07/10, la devaluación acumulada a mayo de 2027 da 15,1% en futuros, 13,5%
+con la curva entera y 16,3% con la del tramo. La de bonos depende del
+ajuste en más de un punto; la de futuros no.

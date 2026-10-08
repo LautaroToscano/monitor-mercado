@@ -149,6 +149,22 @@ export const dolarLinked: UniverseDefinition<DolarLinkedReference, ContextoDolar
  * respuesta dice cuál se usó y de qué rueda es cada uno.
  */
 async function construirDolarLinked(ahora: Date): Promise<UniverseResponse> {
+  return (await armarRueda(ahora)).dolarLinked;
+}
+
+/** Lo que sale de una rueda común: las dos curvas y los futuros de ese día. */
+export interface RuedaDolarLinked {
+  dolarLinked: UniverseResponse & { insumos: NonNullable<UniverseResponse['insumos']> };
+  /** La curva de tasa fija de la misma rueda. Null si BYMA no la dio. */
+  lecaps: UniverseResponse | null;
+  futuros: AjusteFuturo[];
+}
+
+/**
+ * Arma la rueda común de los cuatro insumos. La usan la curva y la
+ * devaluación implícita, para que las dos salgan del mismo día.
+ */
+export async function armarRueda(ahora: Date): Promise<RuedaDolarLinked> {
   const pedida = ultimaRuedaTerminada(ahora);
   const { desde, hasta } = ventana(pedida);
 
@@ -206,7 +222,7 @@ async function construirDolarLinked(ahora: Date): Promise<UniverseResponse> {
   const futuros = ajustes.get(rueda) ?? [];
   const a3500Rueda = a3500?.valor(rueda) ?? null;
 
-  return {
+  const respuesta = {
     ...bonosRueda,
     warnings: [...bonosRueda.warnings, ...warnings],
     insumos: {
@@ -231,5 +247,10 @@ async function construirDolarLinked(ahora: Date): Promise<UniverseResponse> {
       },
       a3500: a3500Rueda === null ? null : { fecha: rueda, valor: a3500Rueda, fuente: FUENTE_A3500 },
     },
+  };
+  return {
+    dolarLinked: respuesta,
+    lecaps: lecapsRueda?.tradeDate === rueda ? lecapsRueda : null,
+    futuros,
   };
 }

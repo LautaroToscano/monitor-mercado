@@ -216,6 +216,28 @@ export function restarDiasHabiles(fecha: Date, n: number): Date {
   return cursor;
 }
 
+/** La fecha que está `n` días hábiles después de otra. */
+export function sumarDiasHabiles(fecha: Date, n: number): Date {
+  let cursor = fecha;
+  let restantes = n;
+  while (restantes > 0) {
+    cursor = addDays(cursor, 1);
+    if (isBusinessDay(cursor)) restantes -= 1;
+  }
+  return cursor;
+}
+
+/**
+ * Último día hábil de un mes 'YYYY-MM'. Es el vencimiento de los futuros
+ * mensuales de dólar de A3, que liquidan contra el A3500 de ese día.
+ */
+export function ultimoHabilDelMes(mes: string): Date {
+  const [y, m] = mes.split('-').map(Number);
+  let cursor = new Date(Date.UTC(y, m, 0, 12, 0, 0));
+  while (!isBusinessDay(cursor)) cursor = addDays(cursor, -1);
+  return cursor;
+}
+
 /**
  * Fecha de liquidación T+1: el siguiente día hábil posterior a la rueda.
  * Si la rueda cae en día no hábil, primero se rolea al hábil anterior.

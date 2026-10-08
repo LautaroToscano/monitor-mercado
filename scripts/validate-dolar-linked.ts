@@ -11,6 +11,7 @@ import { regresionLogaritmica, type AjusteLogaritmico } from '../src/lib/ajuste'
 import { addDays, parseIsoDate, toIsoDate } from '../src/lib/conventions';
 import { fetchCierresMayorista } from '../src/lib/sources/a3';
 import { fetchA3500 } from '../src/lib/sources/bcra';
+import { buildDevaluacion } from '../src/lib/devaluacion';
 import type { InstrumentRow } from '../src/lib/types';
 import { dolarLinked } from '../src/lib/universes/dolar-linked';
 import { CONDICIONES_DOLAR_LINKED } from '../src/lib/universes/dolar-linked-condiciones';
@@ -44,7 +45,7 @@ async function main() {
   console.log('\nTabla');
   console.log(
     [
-      'ticker'.padEnd(6), 'vence'.padEnd(10), 'días'.padStart(4), 'dur.mod'.padStart(7),
+      'ticker'.padEnd(6), 'vence'.padEnd(10), 'días'.padStart(4),
       'precio'.padStart(10), 'TC impl.'.padStart(9), 'TC inicial'.padStart(22), 'spot A3'.padStart(8),
       'TIR TEA'.padStart(8), 'TEM'.padStart(7), 'fija pago'.padStart(10), 'ajuste', 'norma',
     ].join('  '),
@@ -57,7 +58,6 @@ async function main() {
         i.ticker.padEnd(6),
         i.maturityDate,
         String(i.daysToMaturity).padStart(4),
-        num(dl?.durationModificada ?? null, 3).padStart(7),
         num(i.lastPrice, 2).padStart(10),
         num(dl?.tcImplicito ?? null, 2).padStart(9),
         ini.padStart(22),
@@ -115,6 +115,48 @@ async function main() {
   if (sinA3.length) console.log(`  con A3500 y sin cierre de A3: ${sinA3.join(', ')}`);
 
   if (r.warnings.length) console.log('\nwarnings\n  ' + r.warnings.join('\n  '));
+
+  // ── Fase 2: devaluación implícita ──
+  const d = await buildDevaluacion(new Date());
+  const c = d.curvas;
+  console.log(`\nDEVALUACIÓN IMPLÍCITA  rueda ${d.rueda}  spot A3 ${num(d.spot)}  liquidación ${d.settlementDate}`);
+  for (const [n, k] of [['tasa fija', c.nominal], ['dólar linked', c.dolarLinked]] as const) {
+    console.log(
+      `  curva ${n.padEnd(12)} ${k ? `a ${pct(k.a, 3)}  b ${pct(k.b, 3)}  R² ${k.r2.toFixed(3)}  n ${k.n}  de ${k.desde} a ${k.hasta} días  (${k.papeles.join(' ')})` : '—'}`,
+    );
+  }
+  console.log(`  tramo común: ${c.tramoComun ? `${c.tramoComun.desde} a ${c.tramoComun.hasta} días` : '—'}`);
+  console.log(
+    '\n  mes      fijación    días  futuro    directa  mensual  TNA      TEA      | DL equiv.   días  TF nom.  TIR DL   TC bonos  directa  | m/m fut  m/m bonos  dif',
+  );
+  for (const m of d.meses) {
+    const t = m.futuros.tasas;
+    const b = m.bonos;
+    console.log(
+      [
+        `  ${m.mes}`,
+        m.fijacion,
+        String(m.dias).padStart(4),
+        num(m.futuros.ajuste, 1).padStart(8),
+        pct(t.directa).padStart(7),
+        pct(t.mensual).padStart(7),
+        pct(t.tna).padStart(7),
+        pct(t.tea).padStart(7),
+        '|',
+        b ? b.vencimientoEquivalente : '—'.padEnd(10),
+        b ? String(b.diasCurvas).padStart(4) : '    ',
+        b ? pct(b.teaNominal).padStart(7) : '       ',
+        b ? pct(b.teaDolarLinked).padStart(7) : '       ',
+        b ? num(b.tipoDeCambio, 1).padStart(8) : '        ',
+        b ? pct(b.tasas.directa).padStart(7) : '       ',
+        '|',
+        pct(m.futuros.mesAMes).padStart(6),
+        (b?.mesAMes == null ? '—' : pct(b.mesAMes)).padStart(8),
+        (m.diferencia === null ? '—' : `${(m.diferencia * 100).toFixed(2)} pp`).padStart(9),
+      ].join('  '),
+    );
+  }
+  if (d.warnings.length) console.log('\n  warnings\n    ' + d.warnings.join('\n    '));
 }
 
 main().catch((err) => {
