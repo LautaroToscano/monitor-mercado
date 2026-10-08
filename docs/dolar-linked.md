@@ -85,6 +85,10 @@ con doce contratos por rueda se pide de a una semana.
 
 `GET /api/devaluacion`, de la misma rueda que la curva (`armarRueda`).
 
+**No se muestra en la ventana dólar linked** (decisión del 08/10/2026): la
+ventana es la curva y la tabla de precios. La devaluación implícita queda
+calculada para una futura sección de futuros.
+
 **De futuros, la principal.** Cada contrato mensual de A3 liquida contra el
 A3500 del último hábil de su mes. Por contrato: precio de ajuste / spot A3
 − 1 hasta ese día, mensualizada a 30 días, TNA (directa × 365 / días) y
