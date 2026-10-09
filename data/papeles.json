@@ -404,6 +404,11 @@
   "desde": "2024-10-14",
   "hasta": "2025-10-16"
  },
+ "T2X5": {
+  "descripcion": "T2X5P  (BONOS TESORO CER+4,25% 14/2/25)",
+  "desde": "2024-09-09",
+  "hasta": "2025-02-13"
+ },
  "T30A7": {
   "descripcion": "T30A7  (BONCAP $ 2,55% 30/04/27)",
   "desde": "2025-10-31",
@@ -428,6 +433,21 @@
   "descripcion": "T31Y7  (BONCAP $ 2,4 % 31/05/27)",
   "desde": "2025-12-15",
   "hasta": "2026-10-09"
+ },
+ "T4X4": {
+  "descripcion": "T4X4P  (BONOS TESORO CER+4,0% 14/10/24)",
+  "desde": "2024-09-09",
+  "hasta": "2024-10-10"
+ },
+ "T4X5": {
+  "descripcion": "T4X5P  (BONOS TESORO CER+4,25 23/05/25)",
+  "desde": "2025-04-10",
+  "hasta": "2025-05-19"
+ },
+ "T5X4": {
+  "descripcion": "T5X4P  (BONOS TESORO CER+4,25 13/12/24)",
+  "desde": "2024-09-09",
+  "hasta": "2024-12-11"
  },
  "TDE25": {
   "descripcion": "TDE25  (BONOS DUAL ENERO 2025)",

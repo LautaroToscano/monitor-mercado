@@ -40,7 +40,14 @@ const USER_AGENT = 'monitor-mercado/1.0 (+https://github.com/LautaroToscano/moni
 const PAUSA_A3_MS = 300;
 const PAUSA_BYMA_MS = 400;
 
-const esCandidato = (t: string) => FIJA.test(t) || CER.test(t) || DL.test(t);
+/**
+ * A3 nombra a algunos bonos CER con cupón con una P al final (T2X5P) y BYMA
+ * sin ella (T2X5). Se guarda con el nombre de BYMA, que es el de la serie.
+ */
+const CER_CUPON_A3 = /^(T[0-9]X[0-9])P$/;
+const aBYMA = (t: string) => t.replace(CER_CUPON_A3, '$1');
+const esCandidato = (t: string) =>
+  FIJA.test(t) || CER.test(t) || DL.test(t) || CER_CUPON_A3.test(t);
 const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const arg = (nombre: string) =>
   process.argv.find((a) => a.startsWith(`--${nombre}=`))?.split('=')[1];
@@ -88,8 +95,10 @@ async function listarPapeles(desde: string, hasta: string): Promise<Record<strin
       console.warn(`${fecha}: sin detalle de A3 (${(err as Error).message})`);
       continue;
     }
-    for (const { ticker, descripcion } of filas) {
-      if (!esCandidato(ticker)) continue;
+    for (const fila of filas) {
+      if (!esCandidato(fila.ticker)) continue;
+      const ticker = aBYMA(fila.ticker);
+      const { descripcion } = fila;
       const p = papeles[ticker];
       if (!p) papeles[ticker] = { descripcion: descripcion.trim(), desde: fecha, hasta: fecha };
       else {
