@@ -31,6 +31,8 @@ export type FotoInstrumento = Pick<
 > & {
   /** Nivel de calidad del dato ese día: decide si entraba al ajuste. */
   calidad: InstrumentRow['quality']['level'];
+  /** Sólo en dólar linked: el eje de su curva, en años. */
+  durationModificada?: number;
 };
 
 export interface FotoCurva {
@@ -64,6 +66,9 @@ export function fotoDesde(u: UniverseResponse): FotoCurva {
         tem: redondear(i.tem),
         tea: redondear(i.tea),
         calidad: i.quality.level,
+        ...(i.dolarLinked && {
+          durationModificada: Math.round(i.dolarLinked.durationModificada * 1e6) / 1e6,
+        }),
       })),
   };
 }

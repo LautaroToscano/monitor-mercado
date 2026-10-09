@@ -32,19 +32,41 @@ export const NOMBRE_METRICA: Record<Metrica, string> = { tea: 'TIR', tem: 'TEM' 
  * corre la constante del logaritmo, la curva dibujada es la misma.
  */
 export function plazoEnEje(
-  i: Pick<InstrumentRow, 'daysToMaturity' | 'durationDays'>,
+  i: Pick<InstrumentRow, 'daysToMaturity' | 'durationDays'> & {
+    dolarLinked?: { durationModificada: number } | null;
+    /** Así viene en las fotos guardadas. */
+    durationModificada?: number;
+  },
   eje: VistaUniverso['ejeX'],
 ): number {
+  if (eje === 'duration-modificada') {
+    return (
+      i.dolarLinked?.durationModificada ??
+      i.durationModificada ??
+      (i.durationDays ?? i.daysToMaturity) / 365
+    );
+  }
   return eje === 'duration' ? (i.durationDays ?? i.daysToMaturity) / 365 : i.daysToMaturity;
 }
 
+const ETIQUETA_EJE: Record<VistaUniverso['ejeX'], string> = {
+  vencimiento: 'días al vencimiento',
+  duration: 'duration (años)',
+  'duration-modificada': 'duration modificada (años)',
+};
+
 /** Rango mínimo del eje, para que dos papeles cortos no llenen el gráfico. */
-const MINIMO_EJE: Record<VistaUniverso['ejeX'], number> = { vencimiento: 30, duration: 0.25 };
+const MINIMO_EJE: Record<VistaUniverso['ejeX'], number> = {
+  vencimiento: 30,
+  duration: 0.25,
+  'duration-modificada': 0.25,
+};
 
 interface Props {
   instrumentos: InstrumentRow[];
   metrica: Metrica;
-  ejeX: VistaUniverso['ejeX'];
+  /** Eje, mínimo de días y estructuras fuera del ajuste: los decide el universo. */
+  vista: VistaUniverso;
   /** Tickers sacados a mano del ajuste. */
   excluidos: ReadonlySet<string>;
   onToggle: (ticker: string) => void;
@@ -64,11 +86,17 @@ const ALTO_TOTAL = PAD_SUP + ALTO_CURVA + ALTO_EJE;
 export function PanelCurva({
   instrumentos,
   metrica,
-  ejeX,
+  vista,
   excluidos,
   onToggle,
   comparacion,
 }: Props) {
+  const ejeX = vista.ejeX;
+  /** Se dibuja pero no define la curva: el dual de dólar linked. */
+  const fueraDelAjuste = useCallback(
+    (estructura: InstrumentRow['estructura']) => vista.fueraDelAjuste?.includes(estructura) ?? false,
+    [vista],
+  );
   const [ancho, setAncho] = useState(960);
   const [activo, setActivo] = useState<string | null>(null);
 
@@ -102,10 +130,10 @@ export function PanelCurva({
       (comparacion?.instrumentos ?? []).filter(
         (i) =>
           !excluidos.has(i.ticker) &&
-          i.businessDaysToMaturity >= HABILES_MINIMOS_EN_CURVA &&
+          (vista.sinMinimoDeHabiles || i.businessDaysToMaturity >= HABILES_MINIMOS_EN_CURVA) &&
           i[metrica] !== null,
       ),
-    [comparacion, excluidos, metrica],
+    [comparacion, excluidos, metrica, vista],
   );
 
   const geometria = useMemo(() => {
@@ -150,10 +178,10 @@ export function PanelCurva({
     () =>
       regresionLogaritmica(
         visibles
-          .filter((i) => i.quality.level === 'ok' && i[metrica] !== null)
+          .filter((i) => i.quality.level === 'ok' && !fueraDelAjuste(i.estructura) && i[metrica] !== null)
           .map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
       ),
-    [visibles, metrica, ejeX],
+    [visibles, metrica, ejeX, fueraDelAjuste],
   );
 
   /** La curva vieja se ajusta igual que la de hoy: sin los papeles marcados ese día. */
@@ -161,10 +189,10 @@ export function PanelCurva({
     () =>
       regresionLogaritmica(
         pasados
-          .filter((i) => i.calidad === 'ok')
+          .filter((i) => i.calidad === 'ok' && !fueraDelAjuste(i.estructura))
           .map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
       ),
-    [pasados, metrica, ejeX],
+    [pasados, metrica, ejeX, fueraDelAjuste],
   );
 
   const trazo = useMemo(() => trazar(ajuste, x, y), [ajuste, x, y]);
@@ -191,7 +219,7 @@ export function PanelCurva({
   );
 
   const etiquetaMetrica = NOMBRE_METRICA[metrica];
-  const etiquetaEje = ejeX === 'duration' ? 'duration' : 'días al vencimiento';
+  const etiquetaEje = ETIQUETA_EJE[ejeX];
 
   const conRendimiento = visibles.filter((i) => i[metrica] !== null).length;
 
@@ -264,6 +292,8 @@ export function PanelCurva({
           const cx = x(plazoEnEje(i, ejeX));
           const cy = y(v);
           const marcado = i.quality.level !== 'ok';
+          // Fuera del ajuste por lo que es, no por el dato: hueco pero de trazo lleno.
+          const aparte = !marcado && fueraDelAjuste(i.estructura);
           const esActivo = i.ticker === activo;
           const arriba = idx % 2 === 0;
 
@@ -290,7 +320,7 @@ export function PanelCurva({
                 cx={cx}
                 cy={cy}
                 r={RADIO_PUNTO}
-                className={marcado ? estilos.puntoHueco : estilos.puntoPleno}
+                className={marcado || aparte ? estilos.puntoHueco : estilos.puntoPleno}
                 strokeDasharray={marcado ? '2 2' : undefined}
               />
               {esActivo && (
@@ -325,12 +355,12 @@ export function PanelCurva({
               className={estilos.eje}
             />
             <text x={x(d)} y={geometria.curvaInf + 19} className={estilos.marcaX}>
-              {ejeX === 'duration' ? d.toLocaleString('es-AR', { maximumFractionDigits: 2 }) : entero(d)}
+              {ejeX === 'vencimiento' ? entero(d) : d.toLocaleString('es-AR', { maximumFractionDigits: 2 })}
             </text>
           </g>
         ))}
         <text x={geometria.x1} y={geometria.curvaInf + 37} className={estilos.tituloEjeX}>
-          {ejeX === 'duration' ? 'DURATION (AÑOS)' : 'DÍAS AL VENCIMIENTO'}
+          {ETIQUETA_EJE[ejeX].toUpperCase()}
         </text>
       </svg>
 
@@ -339,6 +369,7 @@ export function PanelCurva({
           instrumento={instrumentoActivo}
           metrica={metrica}
           ejeX={ejeX}
+          aparte={fueraDelAjuste(instrumentoActivo.estructura)}
           izquierda={x(plazoEnEje(instrumentoActivo, ejeX))}
           ancho={ancho}
         />
@@ -351,12 +382,15 @@ function Globo({
   instrumento: i,
   metrica,
   ejeX,
+  aparte,
   izquierda,
   ancho,
 }: {
   instrumento: InstrumentRow;
   metrica: Metrica;
   ejeX: VistaUniverso['ejeX'];
+  /** Se dibuja pero no entra al ajuste (el dual de dólar linked). */
+  aparte: boolean;
   izquierda: number;
   ancho: number;
 }) {
@@ -390,6 +424,12 @@ function Globo({
         {ejeX === 'duration' && (
           <Fila etiqueta="Duration" valor={`${anios(i.durationDays ?? i.daysToMaturity)} años`} />
         )}
+        {ejeX === 'duration-modificada' && i.dolarLinked && (
+          <Fila
+            etiqueta="Duration mod."
+            valor={`${i.dolarLinked.durationModificada.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} años`}
+          />
+        )}
         <Fila etiqueta="Precio" valor={precio(i.lastPrice)} />
         <Fila
           etiqueta="Variación"
@@ -398,8 +438,13 @@ function Globo({
         />
       </dl>
 
-      {i.quality.flags.length > 0 && (
+      {(i.quality.flags.length > 0 || aparte) && (
         <ul className={estilos.globoAvisos}>
+          {aparte && (
+            <li data-nivel="warn">
+              Dual TAMAR / dólar: la TIR es la de la pata dólar, un piso. Se dibuja pero no entra a la curva.
+            </li>
+          )}
           {i.quality.flags.map((f) => (
             <li key={f.code} data-nivel={f.level}>
               {f.message}

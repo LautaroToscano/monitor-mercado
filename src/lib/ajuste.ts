@@ -7,7 +7,7 @@
  * evaluar las dos curvas en fechas comunes.
  */
 
-import type { InstrumentRow } from './types';
+import type { InstrumentRow, VistaUniverso } from './types';
 
 
 interface AjusteBase {
@@ -262,11 +262,17 @@ function minimosCuadrados3(
  */
 export const HABILES_MINIMOS_EN_CURVA = 2;
 
-/** Si un instrumento está en la curva cuando nadie decidió nada a mano. */
+/**
+ * Si un instrumento está en la curva cuando nadie decidió nada a mano.
+ *
+ * En dólar linked no hay mínimo de hábiles (`sinMinimoDeHabiles`): el papel
+ * más corto es el que ancla el tramo corto y se decidió que entre siempre.
+ */
 export function entraALaCurvaPorDefecto(
   i: Pick<InstrumentRow, 'businessDaysToMaturity'>,
+  vista?: Pick<VistaUniverso, 'sinMinimoDeHabiles'>,
 ): boolean {
-  return i.businessDaysToMaturity >= HABILES_MINIMOS_EN_CURVA;
+  return vista?.sinMinimoDeHabiles === true || i.businessDaysToMaturity >= HABILES_MINIMOS_EN_CURVA;
 }
 
 /**

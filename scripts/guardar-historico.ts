@@ -18,6 +18,7 @@ import type { UniverseResponse } from '../src/lib/types';
 import { CARPETA_ULTIMO_CIERRE } from '../src/lib/ultimo-cierre';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
+import { dolarLinked } from '../src/lib/universes/dolar-linked';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '../public/historico');
 const INDICE = join(DIR, 'indice.json');
@@ -36,7 +37,7 @@ async function main() {
 
   // Una después de la otra: fuera del panel, los cierres son un pedido por
   // papel y juntas duplicarían los pedidos simultáneos a BYMA.
-  for (const universo of [tasaFija, tasaCer]) {
+  for (const universo of [tasaFija, tasaCer, dolarLinked]) {
     const respuesta = await buildUniverse(universo, new Date(), 'cierre');
     const foto = fotoDesde(respuesta);
     if (foto.instrumentos.length < MINIMO_INSTRUMENTOS) {

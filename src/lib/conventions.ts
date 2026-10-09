@@ -216,6 +216,28 @@ export function restarDiasHabiles(fecha: Date, n: number): Date {
   return cursor;
 }
 
+/** La fecha que está `n` días hábiles después de otra. */
+export function sumarDiasHabiles(fecha: Date, n: number): Date {
+  let cursor = fecha;
+  let restantes = n;
+  while (restantes > 0) {
+    cursor = addDays(cursor, 1);
+    if (isBusinessDay(cursor)) restantes -= 1;
+  }
+  return cursor;
+}
+
+/**
+ * Último día hábil de un mes 'YYYY-MM'. Es el vencimiento de los futuros
+ * mensuales de dólar de A3, que liquidan contra el A3500 de ese día.
+ */
+export function ultimoHabilDelMes(mes: string): Date {
+  const [y, m] = mes.split('-').map(Number);
+  let cursor = new Date(Date.UTC(y, m, 0, 12, 0, 0));
+  while (!isBusinessDay(cursor)) cursor = addDays(cursor, -1);
+  return cursor;
+}
+
 /**
  * Fecha de liquidación T+1: el siguiente día hábil posterior a la rueda.
  * Si la rueda cae en día no hábil, primero se rolea al hábil anterior.
@@ -337,4 +359,25 @@ export const CER_CONVENTIONS_META = {
   teaDefinition: 'TIR real: precio = Σ flujo ajustado / (1 + TEA)^(días/365); en un cero cupón, (capitalAjustado/precio)^(365/días) - 1',
 } as const;
 
-export type ConventionsMeta = typeof CONVENTIONS_META | typeof CER_CONVENTIONS_META;
+/**
+ * Títulos dólar linked: pagan su VN en dólares convertido al A3500 del
+ * tercer hábil previo al pago. Verificado en la norma de emisión de cada uno
+ * (`dolar-linked-condiciones.ts`); no es una regla general y no se asume
+ * para un papel nuevo.
+ */
+export const DL_HABILES_FIJACION_PAGO = 3;
+
+/** Metadata de convenciones de la curva dólar linked. */
+export const DL_CONVENTIONS_META = {
+  dayCountBasis: 'actual/365',
+  settlement: 'T+1 hábil',
+  daysPerMonth: DAYS_PER_MONTH,
+  capitalization: 'pago = VN USD 100 × A3500(tercer hábil previo al pago); hoy se valúa con el cierre mayorista de A3',
+  temDefinition: '(100 × spot A3 / precio)^(30/díasAlVencimiento) - 1',
+  teaDefinition: '(100 × spot A3 / precio)^(365/díasAlVencimiento) - 1, TIR sobre el dólar oficial',
+} as const;
+
+export type ConventionsMeta =
+  | typeof CONVENTIONS_META
+  | typeof CER_CONVENTIONS_META
+  | typeof DL_CONVENTIONS_META;

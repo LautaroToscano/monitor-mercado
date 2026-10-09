@@ -78,6 +78,48 @@ export interface CerReference extends InstrumentReference {
   estructura: Estructura;
 }
 
+/**
+ * Referencia de un título vinculado al dólar. Como en los CER, no lleva
+ * tasa: un cero cupón dólar linked paga su VN en dólares convertido al A3500
+ * de una fecha contractual. Esa convención, la licitación original y la
+ * norma viven en `dolar-linked-condiciones.ts`, verificadas a mano.
+ */
+export interface DolarLinkedReference extends InstrumentReference {
+  estructura: 'cero-cupon' | 'dual';
+}
+
+/** Un tipo de cambio puntual: de qué día es, cuánto vale y de dónde sale. */
+export interface TipoDeCambio {
+  fecha: IsoDate;
+  valor: number;
+  fuente: string;
+}
+
+/** Cómo se llegó a la TIR de un dólar linked, para verificarla a mano. */
+export interface DolarLinkedDetalle {
+  /** Cierre del mayorista de A3 de la misma rueda que el precio. Valúa hoy. */
+  spot: TipoDeCambio;
+  /** Pesos por dólar de VN que implica el precio: precio / 100. */
+  tcImplicito: number;
+  /**
+   * Tipo de cambio con que se suscribió la emisión original (A3500 del
+   * hábil previo a la licitación). En el dual es el "tipo de cambio
+   * inicial" de la pata TAMAR. Null si la condición no está cargada.
+   */
+  tcInicial: TipoDeCambio | null;
+  /**
+   * Día del A3500 que paga al vencimiento ("tipo de cambio aplicable").
+   * Null si la condición no está cargada: no se asume.
+   */
+  fijacionPago: IsoDate | null;
+  /** La regla del tipo de cambio aplicable, como la dice la norma. */
+  reglaPago: string | null;
+  /** Norma de emisión de donde salen las condiciones. */
+  norma: string | null;
+  /** Duration modificada en años: plazo / 365 / (1 + TIR). */
+  durationModificada: number;
+}
+
 /** Un CER puntual: la fecha a la que se tomó y el valor publicado. */
 export interface CerPunto {
   fecha: IsoDate;
@@ -175,6 +217,8 @@ export interface InstrumentRow {
   finalPayment: number | null;
   /** Sólo en los CER: de dónde sale el capital ajustado. */
   cer: CerDetalle | null;
+  /** Sólo en los dólar linked: spot, tipo de cambio inicial y de pago. */
+  dolarLinked?: DolarLinkedDetalle | null;
   bid: number | null;
   ask: number | null;
   volumeAmount: number | null;
@@ -204,7 +248,7 @@ export interface VistaUniverso {
    * usa el plazo al vencimiento. La CER mezcla bonos que pagan cupón, y a
    * esos el plazo que los compara con el resto es la duration.
    */
-  ejeX: 'vencimiento' | 'duration';
+  ejeX: 'vencimiento' | 'duration' | 'duration-modificada';
   /** Si la ventana lleva el panel de inflación breakeven. */
   breakeven: boolean;
   /**
@@ -213,6 +257,18 @@ export interface VistaUniverso {
    * propia, y la curva se mira en TIR.
    */
   curvaEnTem: boolean;
+  /**
+   * Si los papeles a un hábil o menos del vencimiento salen del ajuste por
+   * defecto. En dólar linked no: el más corto es el que ancla la curva y se
+   * decidió dejarlo siempre.
+   */
+  sinMinimoDeHabiles?: boolean;
+  /**
+   * Estructuras que se dibujan pero no entran al ajuste. En dólar linked, el
+   * dual: su TIR es la de la pata dólar, un piso, y el precio lleva además
+   * la opción de cobrar TAMAR.
+   */
+  fueraDelAjuste?: Estructura[];
 }
 
 export interface UniverseResponse {
@@ -239,4 +295,34 @@ export interface UniverseResponse {
   instruments: InstrumentRow[];
   /** Problemas a nivel universo, no a nivel instrumento. */
   warnings: string[];
+  /** Sólo en dólar linked: de qué rueda es cada insumo. */
+  insumos?: InsumosDolarLinked;
+}
+
+/**
+ * Los cuatro insumos de la ventana dólar linked y la rueda de cada uno. Tienen
+ * que ser de la misma: si a la última rueda le falta alguno, se usa la
+ * anterior en la que estén todos, y acá queda dicho cuál.
+ */
+export interface InsumosDolarLinked {
+  /** La rueda común. Todo lo de la respuesta es de este día. */
+  rueda: IsoDate;
+  /** La última rueda terminada según el reloj, la que se intentó primero. */
+  ruedaPedida: IsoDate;
+  bonos: { rueda: IsoDate; fuente: string; cierre: string };
+  lecaps: { rueda: IsoDate | null; fuente: string; cierre: string };
+  spot: (TipoDeCambio & { cierre: string }) | null;
+  futuros: {
+    rueda: IsoDate | null;
+    fuente: string;
+    cierre: string;
+    contratos: {
+      simbolo: string;
+      mes: string;
+      ajuste: number;
+      volumen: number;
+      interesAbierto: number;
+    }[];
+  };
+  a3500: TipoDeCambio | null;
 }

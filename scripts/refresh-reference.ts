@@ -22,8 +22,10 @@ import type { ReglasDeDescubrimiento } from '../src/lib/universes/descubrimiento
 import type { InstrumentReference, ZeroCouponReference } from '../src/lib/types';
 import * as fija from '../src/lib/universes/tasa-fija-spec';
 import * as cer from '../src/lib/universes/tasa-cer-spec';
+import * as dl from '../src/lib/universes/dolar-linked-spec';
 import { reglasTasaFija } from '../src/lib/universes/tasa-fija-clasificador';
 import { reglasTasaCer } from '../src/lib/universes/tasa-cer-clasificador';
+import { reglasDolarLinked } from '../src/lib/universes/dolar-linked-clasificador';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/reference');
 
@@ -53,6 +55,13 @@ const SPECS: Spec<InstrumentReference>[] = [
     candidato: cer.CANDIDATE_SYMBOL,
     reglas: reglasTasaCer,
     describir: (r) => `emisión ${r.issueDate}  vence ${r.maturityDate}`,
+  },
+  {
+    slug: 'dolar-linked',
+    panels: dl.DOLAR_LINKED_PANELS,
+    candidato: dl.CANDIDATE_SYMBOL,
+    reglas: reglasDolarLinked as ReglasDeDescubrimiento<InstrumentReference>,
+    describir: (r) => `${r.estructura}  emisión ${r.issueDate}  vence ${r.maturityDate}`,
   },
 ];
 

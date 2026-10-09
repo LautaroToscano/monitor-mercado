@@ -1,7 +1,13 @@
 import type { ConventionsMeta } from '../conventions';
 import type { BymaPanel } from '../sources/byma';
 import type { QualityThresholds } from '../quality';
-import type { CerDetalle, InstrumentReference, Quote, VistaUniverso } from '../types';
+import type {
+  CerDetalle,
+  DolarLinkedDetalle,
+  InstrumentReference,
+  Quote,
+  VistaUniverso,
+} from '../types';
 
 /**
  * Un universo es un conjunto de instrumentos con un mismo motor de
@@ -21,6 +27,7 @@ export interface UniverseValuation {
   /** Duration de Macaulay en días. Si falta, es el plazo al vencimiento. */
   durationDays?: number;
   cer?: CerDetalle;
+  dolarLinked?: DolarLinkedDetalle;
 }
 
 /**
