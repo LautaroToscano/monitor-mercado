@@ -188,7 +188,18 @@ normal de la página no cambia.
   pisa una foto guardada al cierre, salvo con `--pisar`.
 
 **Hasta dónde se puede ir.** BYMA guarda dos años de cierres y los borra de a
-un día; lo guardado acá queda. Para reconstruir días en los que vivían papeles
+un día; lo guardado acá queda. El 09/10/2026 su ventana arrancaba el
+09/10/2024.
+
+**Resguardo de las series.** `npm run historico:resguardar` baja la serie
+de cierres de todos los papeles de las tres curvas que vivieron en esos dos
+años, vencidos incluidos, y la guarda en `data/series/`, unida con lo que
+ya hubiera. BYMA no lista los papeles vencidos (la serie sigue, la ficha
+no): el listado sale del detalle diario de renta fija de A3, que trae cada
+papel negociado con su descripción, y queda en `data/papeles.json` con la
+primera y última rueda en que se lo vio. Primera corrida, 09/10/2026: 138
+papeles. S13S4 y S30S4 ya no tenían serie (vencieron en septiembre de
+2024). Para reconstruir días en los que vivían papeles
 que ya vencieron hace falta sumar sus condiciones a la referencia, porque
 BYMA borra la ficha técnica de un papel vencido.
 

@@ -70,6 +70,7 @@ frontend cambian.
 | `npm run validate:breakeven` | tabla del breakeven por mes INDEC |
 | `npm run validate:dolar-linked` | curva dólar linked, A3 contra A3500 y devaluación implícita |
 | `npm run validate:modelos` | logaritmo contra Nelson-Siegel sobre la historia guardada |
+| `npm run historico:resguardar` | guarda en `data/series/` la serie de BYMA de todos los papeles de los últimos dos años |
 | `npm run historico:reconstruir -- --desde=AAAA-MM-DD --hasta=AAAA-MM-DD` | rehace fotos de días pasados |
 
 ## Procesos automáticos

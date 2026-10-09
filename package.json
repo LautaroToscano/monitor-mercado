@@ -13,7 +13,8 @@
     "validate:modelos": "tsx scripts/comparar-modelos.ts",
     "validate:dolar-linked": "tsx scripts/validate-dolar-linked.ts",
     "historico:guardar": "tsx scripts/guardar-historico.ts",
-    "historico:reconstruir": "tsx scripts/reconstruir-historico.ts"
+    "historico:reconstruir": "tsx scripts/reconstruir-historico.ts",
+    "historico:resguardar": "tsx scripts/resguardar-series.ts"
   },
   "dependencies": {
     "next": "^16.3.3",
