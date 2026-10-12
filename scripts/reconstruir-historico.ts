@@ -29,7 +29,18 @@ import type { CerReference } from '../src/lib/types';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 
-const UNIVERSOS = [tasaFija, tasaCer, dolarLinked];
+const TODOS = [tasaFija, tasaCer, dolarLinked];
+
+/**
+ * Papeles que no entran a las fotos rehechas, con el motivo.
+ *
+ * S27F6 operó montos chicos todo octubre de 2025 (unos 40 millones de pesos
+ * por día, contra decenas de miles de millones de S31O5) a precios que daban
+ * una TEM cercana a cero, con las LECAP vecinas a 3-5%. La serie de BYMA no
+ * trae la cantidad de operaciones y la regla de poco volumen no la alcanza.
+ * Decisión del usuario (12/10/2026): sacarla de la curva y del ajuste.
+ */
+const FUERA_DE_LA_HISTORIA = new Map([['S27F6', 'precios fuera de mercado con montos mínimos']]);
 const SERIES = join(dirname(fileURLToPath(import.meta.url)), '../data/series');
 /** Lo que dura una reconstrucción larga, con margen. */
 const TTL_SERIE_MS = 12 * 60 * 60_000;
@@ -90,6 +101,10 @@ async function main() {
   const desde = arg('desde');
   const hasta = arg('hasta');
   const pisar = process.argv.includes('--pisar');
+  // --universo=tasa-fija rehace sólo esa curva.
+  const pedido = arg('universo');
+  const UNIVERSOS = pedido ? TODOS.filter((u) => u.slug === pedido) : TODOS;
+  if (UNIVERSOS.length === 0) throw new Error(`Universo desconocido: ${pedido}`);
   if (!desde || !hasta) throw new Error('Faltan --desde=AAAA-MM-DD y --hasta=AAAA-MM-DD');
 
   const indice: IndiceHistorico = existsSync(INDICE) ? JSON.parse(readFileSync(INDICE, 'utf8')) : {};
@@ -123,6 +138,7 @@ async function main() {
         ...armada,
         instruments: armada.instruments.filter(
           (i) =>
+            !FUERA_DE_LA_HISTORIA.has(i.ticker) &&
             (primerCierre.get(i.ticker) ?? '') <= fecha &&
             !ajustadoPorAmortizacion(
               universo.reference.get(i.ticker) as CerReference,
