@@ -24,8 +24,6 @@ import { fotoDesde, type IndiceHistorico } from '../src/lib/historico';
 import { memo } from '../src/lib/cache';
 import { DIAS_SERIE_COMPLETA, precargarSeries, type Cierre } from '../src/lib/sources/byma';
 import { dolarLinked } from '../src/lib/universes/dolar-linked';
-import { cronograma } from '../src/lib/universes/tasa-cer-condiciones';
-import type { CerReference } from '../src/lib/types';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 
@@ -46,8 +44,6 @@ const SERIES = join(dirname(fileURLToPath(import.meta.url)), '../data/series');
 const TTL_SERIE_MS = 12 * 60 * 60_000;
 
 /** Deja la serie guardada en el mismo cache que usan los cierres. */
-/** Último cierre de cada serie guardada: hasta ahí llega el ajuste de BYMA. */
-const ultimoCierre = new Map<string, string>();
 /**
  * Primer cierre de cada serie. Un papel recién emitido puede tardar días en
  * operar (TZXM8, semanas): antes de su primer cierre no tenía precio, y eso
@@ -58,11 +54,10 @@ const primerCierre = new Map<string, string>();
 async function cargarGuardada(symbol: string): Promise<boolean> {
   const archivo = join(SERIES, `${symbol}.json`);
   if (!existsSync(archivo)) return false;
-  const serie = JSON.parse(readFileSync(archivo, 'utf8')) as Cierre[];
+  const serie = sinAjuste(symbol, JSON.parse(readFileSync(archivo, 'utf8')) as Cierre[]);
   if (serie.length) {
     const primero = serie.find((b) => b.close > 0);
     if (primero) primerCierre.set(symbol, primero.date);
-    ultimoCierre.set(symbol, serie[serie.length - 1].date);
   }
   await memo(`historia:${symbol}:${DIAS_SERIE_COMPLETA}`, TTL_SERIE_MS, async () => serie);
   return true;
@@ -79,19 +74,23 @@ const MINIMO_INSTRUMENTOS: Record<string, number> = { 'dolar-linked': 3 };
 const MINIMO_POR_DEFECTO = 5;
 
 /**
- * La serie histórica de BYMA viene ajustada por amortizaciones, como un
- * gráfico ajustado por dividendos: antes de cada cuota de capital, los
- * precios de un bono que amortiza aparecen rebajados. Medido con TX26 el
- * 14/04/2025: BYMA 451, A3 1.922 cada 100 de VN, que es lo que da su
- * capital ajustado. Los cero cupón y los que sólo pagan renta no se tocan.
- *
- * Un bono que amortizó entre el día que se rehace y el último cierre de su
- * serie tiene ese día un precio que no es el que se operó: sale de la foto.
+ * La serie histórica de BYMA viene ajustada como un gráfico de acciones:
+ * antes de cada pago de un bono, sus precios aparecen rebajados. Los
+ * factores para deshacerlo los calcula `ajustes-byma.ts` y se aplican al
+ * cargar la serie: el precio sigue siendo el de BYMA.
  */
-function ajustadoPorAmortizacion(ref: CerReference, fecha: string, ultimoCierre: string): boolean {
-  if (ref.estructura !== 'con-cupon') return false;
-  const plan = cronograma(ref, parseIsoDate(fecha));
-  return (plan?.flujos ?? []).some((f) => f.amortizacion > 0 && f.fecha > fecha && f.fecha <= ultimoCierre);
+const AJUSTES = join(dirname(fileURLToPath(import.meta.url)), '../data/ajustes-byma.json');
+const PAGOS: Record<string, { ex: string; factor: number }[]> = existsSync(AJUSTES)
+  ? JSON.parse(readFileSync(AJUSTES, 'utf8')).ajustes
+  : {};
+
+function sinAjuste(symbol: string, serie: Cierre[]): Cierre[] {
+  const pagos = PAGOS[symbol];
+  if (!pagos?.length) return serie;
+  return serie.map((b) => {
+    const factor = pagos.filter((p) => p.ex > b.date).reduce((f, p) => f * p.factor, 1);
+    return factor === 1 ? b : { ...b, close: b.close * factor };
+  });
 }
 
 const arg = (nombre: string) =>
@@ -139,12 +138,7 @@ async function main() {
         instruments: armada.instruments.filter(
           (i) =>
             !FUERA_DE_LA_HISTORIA.has(i.ticker) &&
-            (primerCierre.get(i.ticker) ?? '') <= fecha &&
-            !ajustadoPorAmortizacion(
-              universo.reference.get(i.ticker) as CerReference,
-              fecha,
-              ultimoCierre.get(i.ticker) ?? hasta,
-            ),
+            (primerCierre.get(i.ticker) ?? '') <= fecha,
         ),
       };
       // Si ese día no hubo rueda, la serie devuelve la anterior: no se guarda

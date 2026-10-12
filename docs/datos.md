@@ -198,10 +198,18 @@ no tienen foto dólar linked.
   norma da emitida el 18/01/2025 y fue el 18/06/2025.
 - *Fuera:* los cuatro CER con cupón que vencieron en 2024-2025 (T2X5,
   T4X4, T4X5, T5X4), sin cronograma cargado.
-- *La serie de BYMA está ajustada por amortizaciones.* Antes de cada
-  cuota de capital, los precios de un bono que amortiza aparecen rebajados
-  (TX26 el 14/04/2025: BYMA 451, A3 1.922 cada 100). En los días rehechos
-  esos bonos salen de la foto hasta su última amortización.
+- *La serie de BYMA está ajustada como un gráfico de acciones.* Cuando un
+  bono paga renta o amortiza, los precios anteriores se multiplican por
+  (P − D) / P (TX26 el 14/04/2025: BYMA 451, A3 1.922 cada 100). Se deshace
+  sin otra fuente: `npm run historico:ajustes` calcula, del pago más
+  reciente al más viejo, el factor (precio con derecho + D) / precio con
+  derecho, con D del cronograma y el CER del pago, y deja
+  `data/ajustes-byma.json`; la reconstrucción multiplica la serie de BYMA
+  por esos factores. Verificado contra el precio sin ajustar de A3: TX26,
+  TX28, DICP y DIP0 entre 0,01% y 0,1%; PARP y CUAP, que en A3 operan poco,
+  hasta 1,8%. Los ocho CER con cupón están en todas las fotos. En algunos
+  días de pago la TIR salta 1 a 1,4 pp (TX26 y TX28, mayo de 2025), más que
+  un día normal: puede ser mercado o un residuo del ajuste.
 - *Barras en cero.* BYMA publica cierre cero los días en que un papel
   existía y no operó. Se toma el último cierre real y el papel queda
   marcado como sin operar; antes de su primer cierre no está en la foto.

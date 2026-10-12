@@ -14,7 +14,8 @@
     "validate:dolar-linked": "tsx scripts/validate-dolar-linked.ts",
     "historico:guardar": "tsx scripts/guardar-historico.ts",
     "historico:reconstruir": "tsx scripts/reconstruir-historico.ts",
-    "historico:resguardar": "tsx scripts/resguardar-series.ts"
+    "historico:resguardar": "tsx scripts/resguardar-series.ts",
+    "historico:ajustes": "tsx scripts/ajustes-byma.ts"
   },
   "dependencies": {
     "next": "^16.3.3",
