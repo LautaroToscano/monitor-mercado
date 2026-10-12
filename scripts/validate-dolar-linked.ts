@@ -7,7 +7,7 @@
  * emisión y la TIR de cada papel, el ajuste con y sin el papel más corto, y
  * el cierre mayorista de A3 contra el A3500 de las últimas veinte ruedas.
  */
-import { regresionLogaritmica, type AjusteLogaritmico } from '../src/lib/ajuste';
+import { regresionCuadratica, type AjusteParabolico } from '../src/lib/ajuste';
 import { addDays, parseIsoDate, toIsoDate } from '../src/lib/conventions';
 import { fetchCierresMayorista } from '../src/lib/sources/a3';
 import { fetchA3500 } from '../src/lib/sources/bcra';
@@ -22,11 +22,12 @@ const num = (v: number | null | undefined, d = 2) =>
   v === null || v === undefined ? '—' : v.toLocaleString('es-AR', { minimumFractionDigits: d, maximumFractionDigits: d });
 
 function entraAlAjuste(i: InstrumentRow): boolean {
-  return i.estructura === 'cero-cupon' && i.quality.level === 'ok' && i.tea !== null && !!i.dolarLinked;
+  // El dual entra (decisión del usuario, 12/10/2026).
+  return i.quality.level === 'ok' && i.tea !== null && !!i.dolarLinked;
 }
 
-function ajustar(instrumentos: InstrumentRow[]): AjusteLogaritmico | null {
-  return regresionLogaritmica(
+function ajustar(instrumentos: InstrumentRow[]): AjusteParabolico | null {
+  return regresionCuadratica(
     instrumentos.map((i) => ({ dias: i.dolarLinked!.durationModificada, valor: i.tea! })),
   );
 }
@@ -72,14 +73,14 @@ async function main() {
   const corto = dentro.reduce((a, b) => (a.daysToMaturity <= b.daysToMaturity ? a : b));
   const con = ajustar(dentro);
   const sin = ajustar(dentro.filter((i) => i !== corto));
-  console.log(`\nAjuste TEA = a + b·ln(duration modificada en años)`);
+  console.log('\nAjuste TIR = a + b·x + c·x², x = duration modificada en años');
   for (const [nombre, f] of [[`con ${corto.ticker}`, con], [`sin ${corto.ticker}`, sin]] as const) {
-    console.log(`  ${nombre.padEnd(10)} ${f ? `a ${pct(f.a, 3)}  b ${pct(f.b, 3)}  R² ${f.r2.toFixed(3)}  n ${f.n}` : 'sin ajuste'}`);
+    console.log(`  ${nombre.padEnd(10)} ${f ? `a ${pct(f.a, 3)}  b ${pct(f.b, 3)}  c ${pct(f.c, 3)}  R² ${f.r2.toFixed(3)}  n ${f.n}` : 'sin ajuste'}`);
   }
   if (con && sin) {
     console.log('\n  duration   con        sin        diferencia');
     const plazos = [
-      ...dentro.map((i) => ({ et: i.ticker, x: i.dolarLinked!.durationModificada })),
+      ...[0.25, 0.5, 1, 1.5, 2].filter((x) => x <= con.hasta).map((x) => ({ et: `${x} años`, x })),
       ...[0.25, 0.5, 1, 1.5, 2].map((x) => ({ et: `${x} años`, x })),
     ];
     for (const { et, x } of plazos) {

@@ -53,11 +53,14 @@ export async function GET(
 
   try {
     // Con el mercado cerrado, el último cierre ya calculado si está guardado.
-    const payload =
-      (await leerGuardado<UniverseResponse>(
-        new URL(request.url).origin,
-        `${CARPETA_ULTIMO_CIERRE}/${slug}.json`,
-      )) ?? (await buildUniverse(universe));
+    // La vista (eje, forma de la curva, qué entra al ajuste) es del universo y
+    // no de la rueda: sale siempre del código, para que un cambio se vea
+    // aunque el archivo guardado sea de antes.
+    const guardado = await leerGuardado<UniverseResponse>(
+      new URL(request.url).origin,
+      `${CARPETA_ULTIMO_CIERRE}/${slug}.json`,
+    );
+    const payload = guardado ? { ...guardado, vista: universe.vista } : await buildUniverse(universe);
     // Una sesión desconocida es un estado degradado: se cachea corto para
     // volver a intentar apenas la fuente se recupere.
     const maxAge = payload.session === 'cierre' ? CACHE_CERRADO : CACHE_EN_RUEDA;

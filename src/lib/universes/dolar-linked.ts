@@ -98,7 +98,9 @@ export const dolarLinked: UniverseDefinition<DolarLinkedReference, ContextoDolar
     breakeven: false,
     curvaEnTem: true,
     sinMinimoDeHabiles: true,
-    fueraDelAjuste: ['dual'],
+    // El dual entra al ajuste (decisión del usuario, 12/10/2026): su TIR es
+    // la de la pata dólar y queda pegada a la curva de los demás.
+    modeloCurva: 'parabolico',
   },
   candidateSymbol: CANDIDATE_SYMBOL,
   thresholds: DEFAULT_THRESHOLDS,

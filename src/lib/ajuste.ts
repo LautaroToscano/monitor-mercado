@@ -40,7 +40,17 @@ export interface AjusteNelsonSiegel extends AjusteBase {
   tau: number;
 }
 
+export interface AjusteParabolico extends AjusteBase {
+  modelo: 'parabolico';
+  /** TIR = a + b · x + c · x² */
+  a: number;
+  b: number;
+  c: number;
+}
+
 export type AjusteCurva = AjusteNelsonSiegel | AjusteLogaritmico;
+/** Lo que dibuja la pantalla: la logarítmica o, en dólar linked, la parábola. */
+export type AjusteDibujado = AjusteLogaritmico | AjusteParabolico;
 export type ModeloCurva = AjusteCurva['modelo'];
 
 export interface PuntoAjuste {
@@ -104,6 +114,62 @@ export function regresionLogaritmica(puntos: PuntoAjuste[]): AjusteLogaritmico |
     hasta: Math.max(...dias),
     evaluar: (d: number) => a + b * Math.log(d),
   };
+}
+
+/**
+ * Con menos puntos que esto no se ajusta la parábola: son tres parámetros, y
+ * con tres puntos pasa exacta por todos.
+ */
+export const MINIMO_PUNTOS_PARABOLA = 4;
+
+/**
+ * Regresión de la forma `valor = a + b · x + c · x²`.
+ *
+ * Es la de dólar linked. La familia no tiene la forma de la logarítmica —que
+ * sube rápido en el corto y se aplana—: rinde poco hasta mediados de 2027 y
+ * mucho más en 2028, después de las elecciones. Probada sobre 344 ruedas
+ * guardadas (10/2024 a 10/2026) queda a la mitad de distancia de los papeles
+ * (mediana 1,13 pp contra 2,12) y salta apenas más de un día al otro (a un
+ * año, 0,50 pp contra 0,38). Ver docs/dolar-linked.md.
+ *
+ * Fuera del rango de los papeles una parábola se dispara: se dibuja sólo
+ * entre el primero y el último (`desde`, `hasta`) y no se extrapola.
+ */
+export function regresionCuadratica(puntos: PuntoAjuste[]): AjusteParabolico | null {
+  const validos = puntos.filter(
+    (p) => p.dias > 0 && Number.isFinite(p.dias) && Number.isFinite(p.valor),
+  );
+  const n = validos.length;
+  if (n < MINIMO_PUNTOS_PARABOLA) return null;
+  const filas = validos.map((p): [number, number, number] => [1, p.dias, p.dias * p.dias]);
+  const ys = validos.map((p) => p.valor);
+  const betas = minimosCuadrados3(filas, ys);
+  if (!betas) return null;
+  const [a, b, c] = betas;
+  const evaluar = (x: number) => a + b * x + c * x * x;
+  const media = ys.reduce((s, v) => s + v, 0) / n;
+  const ssTot = ys.reduce((s, v) => s + (v - media) ** 2, 0);
+  const ssRes = validos.reduce((s, p) => s + (p.valor - evaluar(p.dias)) ** 2, 0);
+  const dias = validos.map((p) => p.dias);
+  return {
+    modelo: 'parabolico',
+    a,
+    b,
+    c,
+    r2: ssTot === 0 ? 1 : 1 - ssRes / ssTot,
+    n,
+    desde: Math.min(...dias),
+    hasta: Math.max(...dias),
+    evaluar,
+  };
+}
+
+/** El ajuste que usa la curva de un universo. */
+export function ajustarCurva(
+  puntos: PuntoAjuste[],
+  modelo: 'logaritmico' | 'parabolico' = 'logaritmico',
+): AjusteDibujado | null {
+  return modelo === 'parabolico' ? regresionCuadratica(puntos) : regresionLogaritmica(puntos);
 }
 
 /**

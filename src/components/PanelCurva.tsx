@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { InstrumentRow, VistaUniverso } from '@/lib/types';
 import { escalaLineal, marcasLimpias } from '@/lib/escala';
-import { HABILES_MINIMOS_EN_CURVA, regresionLogaritmica, type AjusteLogaritmico } from '@/lib/ajuste';
+import { HABILES_MINIMOS_EN_CURVA, ajustarCurva, type AjusteDibujado } from '@/lib/ajuste';
 import type { FotoCurva } from '@/lib/historico';
 import {
   anios,
@@ -176,23 +176,25 @@ export function PanelCurva({
    */
   const ajuste = useMemo(
     () =>
-      regresionLogaritmica(
+      ajustarCurva(
         visibles
           .filter((i) => i.quality.level === 'ok' && !fueraDelAjuste(i.estructura) && i[metrica] !== null)
           .map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
+        vista.modeloCurva,
       ),
-    [visibles, metrica, ejeX, fueraDelAjuste],
+    [visibles, metrica, ejeX, fueraDelAjuste, vista.modeloCurva],
   );
 
   /** La curva vieja se ajusta igual que la de hoy: sin los papeles marcados ese día. */
   const ajustePasado = useMemo(
     () =>
-      regresionLogaritmica(
+      ajustarCurva(
         pasados
           .filter((i) => i.calidad === 'ok' && !fueraDelAjuste(i.estructura))
           .map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
+        vista.modeloCurva,
       ),
-    [pasados, metrica, ejeX, fueraDelAjuste],
+    [pasados, metrica, ejeX, fueraDelAjuste, vista.modeloCurva],
   );
 
   const trazo = useMemo(() => trazar(ajuste, x, y), [ajuste, x, y]);
@@ -479,7 +481,7 @@ function Fila({
 
 /** El trazo SVG de un ajuste, muestreado entre el primer y el último punto. */
 function trazar(
-  ajuste: AjusteLogaritmico | null,
+  ajuste: AjusteDibujado | null,
   x: (v: number) => number,
   y: (v: number) => number,
 ): string | null {

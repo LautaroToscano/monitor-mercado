@@ -269,6 +269,11 @@ export interface VistaUniverso {
    * la opción de cobrar TAMAR.
    */
   fueraDelAjuste?: Estructura[];
+  /**
+   * Forma de la curva ajustada. Logarítmica salvo que el universo diga otra
+   * cosa: dólar linked usa una parábola (ver `regresionCuadratica`).
+   */
+  modeloCurva?: 'logaritmico' | 'parabolico';
 }
 
 export interface UniverseResponse {

@@ -58,20 +58,37 @@ Curva y tabla de precios, nada más (la devaluación implícita no va acá).
 En la cabecera, el mayorista de A3 con que se calcula la TIR. La tabla
 lleva precio, variación, TEM, TIR, TC implícito (precio / 100) y TC
 inicial; la duration modificada es el eje de la curva y no va en la
-tabla. El dual se dibuja hueco y fuera del ajuste
-(`vista.fueraDelAjuste`). La foto diaria guarda la duration modificada
+tabla. La foto diaria guarda la duration modificada
 para que la comparación con otra rueda use el mismo eje.
 
 ## La curva
 
-Mismo ajuste que tasa fija, `TIR = a + b · ln(duration)`. Entran los cero
-cupón sin marca de calidad; el dual se dibuja pero no entra. **No hay mínimo
-de días**: el papel más corto entra siempre (`sinMinimoDeHabiles`).
+**Parábola**, `TIR = a + b · x + c · x²` con x la duration modificada, no
+la logarítmica de tasa fija y CER. La familia no tiene esa forma: rinde
+poco hasta mediados de 2027 y mucho más en 2028, después de las
+elecciones, y la logarítmica —que sube rápido en el corto y se aplana—
+pasaba por el medio (R² 0,23 el 09/10/2026, contra 0,76 la parábola).
 
-Medido el 07/10/2026, sacar D30O6 del ajuste mueve la curva 4,1 pp en su
-propio plazo, 0,8 pp a seis meses y −1,3 pp a dos años (R² 0,40 con, 0,67
-sin). La forma logarítmica describe mal esta curva: el tramo corto viene de
-4,9% a 1,5% y los dos papeles de 2028 saltan a 10,6–11,5%.
+Probada sobre las 344 ruedas guardadas con cuatro papeles o más (10/2024
+a 10/2026), con medianas para que no manden los días extremos:
+
+| | logarítmica | parábola |
+|---|---|---|
+| distancia a los papeles | 2,12 pp | 1,13 pp |
+| distancia a los papeles, sólo 2026 | 2,81 pp | 1,49 pp |
+| salto diario a 1 año | 0,38 pp | 0,50 pp |
+| salto diario a 1,5 años | 0,32 pp | 0,40 pp |
+
+Queda a la mitad de distancia de los papeles y salta apenas más de un día
+al otro. Fuera del rango de los papeles una parábola se dispara (a tres
+años daba 33%): se dibuja sólo entre el primero y el último y no se
+extrapola. Con menos de cuatro papeles no se dibuja.
+
+Entran todos los papeles sin marca de calidad, **el dual incluido**
+(decisión del 12/10/2026: su TIR, la de la pata dólar, queda pegada a la
+curva de los demás). **No hay mínimo de días**: el papel más corto entra
+siempre (`sinMinimoDeHabiles`). La forma es una propiedad del universo
+(`vista.modeloCurva`); tasa fija y CER siguen con la logarítmica.
 
 ## En vivo, con el mayorista de la misma rueda
 
