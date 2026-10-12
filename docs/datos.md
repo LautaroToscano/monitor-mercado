@@ -177,6 +177,36 @@ rendimientos ya calculados: la foto de un día es lo que la pantalla mostró ese
 día. Son archivos estáticos que se piden sólo al elegir una fecha; la carga
 normal de la página no cambia.
 
+**Historia rehecha hasta octubre de 2024.** El 12/10/2026 se rehicieron
+las tres curvas desde el 09/10/2024, el primer día que guardaba BYMA: 486
+ruedas de tasa fija y CER y 463 de dólar linked. El mercado de cambios no
+opera los feriados de Estados Unidos, y sin mayorista del día no hay TIR
+dólar linked.
+
+- *Papeles vencidos.* BYMA borra la ficha al vencer, así que sus
+  condiciones viven en `src/lib/reference/vencidos.json` con su fuente:
+  fecha de emisión de la norma del Boletín Oficial, TEM de la ficha de
+  emisión de A3. La fecha de alta de A3 no sirve como emisión (TZX28 se
+  emitió el 01/02/2024 y A3 lo da de alta el 15/03), y la descripción del
+  detalle diario de A3 trae a veces otra TEM (S17L6: 2,60% contra 2,16%).
+  Todo se controló con los precios del papel: al acercarse el vencimiento
+  convergen al pago final, y la combinación correcta da una tasa corta
+  igual a la de las LECAP vecinas (0,01 a 0,07 pp de diferencia; la otra,
+  0,07 a 0,35 pp). Una errata del Boletín corregida así: S10L5, que la
+  norma da emitida el 18/01/2025 y fue el 18/06/2025.
+- *Fuera:* los cuatro CER con cupón que vencieron en 2024-2025 (T2X5,
+  T4X4, T4X5, T5X4), sin cronograma cargado.
+- *La serie de BYMA está ajustada por amortizaciones.* Antes de cada
+  cuota de capital, los precios de un bono que amortiza aparecen rebajados
+  (TX26 el 14/04/2025: BYMA 451, A3 1.922 cada 100). En los días rehechos
+  esos bonos salen de la foto hasta su última amortización.
+- *Barras en cero.* BYMA publica cierre cero los días en que un papel
+  existía y no operó. Se toma el último cierre real y el papel queda
+  marcado como sin operar; antes de su primer cierre no está en la foto.
+- *Lo que se ve raro y es mercado:* D31O5 cotizó entre 3% y 5% debajo del
+  mayorista antes de las elecciones del 26/10/2025, y su TIR a pocos días
+  da cientos por ciento anual.
+
 **Cómo se llena.**
 
 - `npm run historico:guardar` guarda la foto del último cierre. Lo corre

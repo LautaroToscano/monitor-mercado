@@ -1,4 +1,5 @@
 import type { IsoDate } from '../conventions';
+import { ORIGEN_DOLAR_LINKED } from './vencidos';
 
 /**
  * Condiciones de emisión de los títulos dólar linked, verificadas en el
@@ -24,8 +25,8 @@ export interface CondicionesDolarLinked {
   norma: string;
   /** URL del texto de la norma. */
   fuente: string;
-  /** Licitación de la emisión original. */
-  licitacion: IsoDate;
+  /** Licitación de la emisión original. Null si la norma no la dice (vencidos). */
+  licitacion: IsoDate | null;
   /** Fecha de emisión según la norma. */
   emision: IsoDate;
   /** Hábiles antes del pago que fija el A3500 que se cobra. */
@@ -39,7 +40,7 @@ export interface CondicionesDolarLinked {
 const PAGO = 'A3500 del tercer día hábil previo a la fecha de pago';
 const BO = 'https://www.boletinoficial.gob.ar/pdf/aviso/primera';
 
-export const CONDICIONES_DOLAR_LINKED: Readonly<Record<string, CondicionesDolarLinked>> = {
+const VIGENTES: Readonly<Record<string, CondicionesDolarLinked>> = {
   D30O6: {
     norma: 'Resolución Conjunta 48/2026, art. 1',
     fuente: 'https://www.argentina.gob.ar/normativa/nacional/norma-428864/texto',
@@ -132,4 +133,30 @@ export const CONDICIONES_DOLAR_LINKED: Readonly<Record<string, CondicionesDolarL
     habilesTcInicial: 1,
     reglaPago: 'máximo entre VN × A3500 del tercer día hábil previo al pago y VN × tipo de cambio inicial capitalizado a TAMAR TEM',
   },
+};
+
+/**
+ * Los vencidos con la regla de pago leída en su norma (ver `vencidos.ts`).
+ * Los que no tienen la norma encontrada no entran: su regla no se asume.
+ */
+const VENCIDOS = Object.fromEntries(
+  [...ORIGEN_DOLAR_LINKED]
+    .filter(([, o]) => o.reglaPago && o.norma && o.fuente)
+    .map(([symbol, o]): [string, CondicionesDolarLinked] => [
+      symbol,
+      {
+        norma: o.norma!,
+        fuente: o.fuente!,
+        licitacion: o.licitacion ?? null,
+        emision: o.emision,
+        habilesFijacionPago: 3,
+        habilesTcInicial: 1,
+        reglaPago: o.reglaPago!,
+      },
+    ]),
+);
+
+export const CONDICIONES_DOLAR_LINKED: Readonly<Record<string, CondicionesDolarLinked>> = {
+  ...VENCIDOS,
+  ...VIGENTES,
 };

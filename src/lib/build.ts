@@ -188,8 +188,11 @@ async function fetchQuotes(
   // Se piden sólo las especies vivas. La referencia acumula las que ya
   // vencieron, y pedir la serie histórica de un papel muerto es un pedido de
   // más a una fuente que castiga el exceso, para un dato que se descarta.
+  // Para un día pasado, además, sólo las ya emitidas: un papel licitado
+  // después no tiene cierre ese día, y buscarlo eran reintentos contra BYMA
+  // por cada día que se rehacía.
   const vivas = [...universe.reference.values()]
-    .filter((ref) => ref.maturityDate > hoyIso)
+    .filter((ref) => ref.maturityDate > hoyIso && (!pasado || ref.issueDate <= pasado))
     .map((ref) => ref.symbol);
 
   let cierres = new Map<string, Quote>();
@@ -245,9 +248,12 @@ export async function buildUniverse(
    * La referencia versionada queda como base y como lugar de los overrides
    * manuales, no como lista cerrada.
    */
+  // Vigente es emitido y sin vencer. Lo segundo es lo que importa en vivo;
+  // lo primero, al rehacer días pasados: un papel licitado después no tenía
+  // precio ese día, y contarlo dejaba la foto entera sin guardar.
   const vigentes = new Map<string, InstrumentReference>();
   for (const [symbol, ref] of universe.reference) {
-    if (ref.maturityDate > tradeDateIso) vigentes.set(symbol, ref);
+    if (ref.maturityDate > tradeDateIso && ref.issueDate <= tradeDateIso) vigentes.set(symbol, ref);
   }
 
   const desconocidos = [...quotes.entries()]

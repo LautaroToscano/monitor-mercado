@@ -56,7 +56,7 @@ export function valuateDolarLinked(
   const tem = effectiveMonthlyRate(price, pagoHoy, dias);
 
   let tcInicial: TipoDeCambio | null = null;
-  if (condiciones && a3500) {
+  if (condiciones?.licitacion && a3500) {
     const fecha = toIsoDate(
       restarDiasHabiles(parseIsoDate(condiciones.licitacion), condiciones.habilesTcInicial),
     );

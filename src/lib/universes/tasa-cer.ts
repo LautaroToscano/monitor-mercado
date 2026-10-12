@@ -10,13 +10,17 @@ import { fetchCer, type SerieDiaria } from '../sources/bcra';
 import { valuateCer } from '../pricing/cer';
 import type { CerReference } from '../types';
 import type { UniverseDefinition } from './types';
+import { vencidosDe } from './vencidos';
 import { descubrirPorFicha } from './descubrimiento';
 import { reglasTasaCer } from './tasa-cer-clasificador';
 import { CANDIDATE_SYMBOL, TASA_CER_PANELS } from './tasa-cer-spec';
 import referenceData from '../reference/tasa-cer.json' with { type: 'json' };
 
 const reference = new Map<string, CerReference>(
-  (referenceData.instruments as CerReference[]).map((r) => [r.symbol, r]),
+  [...vencidosDe<CerReference>('tasa-cer'), ...(referenceData.instruments as CerReference[])].map((r) => [
+    r.symbol,
+    r,
+  ]),
 );
 
 const knownNonMembers = new Map<string, string>(

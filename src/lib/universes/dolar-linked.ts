@@ -21,6 +21,7 @@ import { fetchA3500, type SerieDiaria } from '../sources/bcra';
 import { valuateDolarLinked } from '../pricing/dolar-linked';
 import type { DolarLinkedReference, TipoDeCambio, UniverseResponse } from '../types';
 import type { UniverseDefinition } from './types';
+import { vencidosDe } from './vencidos';
 import { descubrirPorFicha } from './descubrimiento';
 import { reglasDolarLinked } from './dolar-linked-clasificador';
 import { CONDICIONES_DOLAR_LINKED } from './dolar-linked-condiciones';
@@ -29,7 +30,10 @@ import { tasaFija } from './tasa-fija';
 import referenceData from '../reference/dolar-linked.json' with { type: 'json' };
 
 const reference = new Map<string, DolarLinkedReference>(
-  (referenceData.instruments as DolarLinkedReference[]).map((r) => [r.symbol, r]),
+  [...vencidosDe<DolarLinkedReference>('dolar-linked'), ...(referenceData.instruments as DolarLinkedReference[])].map((r) => [
+    r.symbol,
+    r,
+  ]),
 );
 
 const knownNonMembers = new Map<string, string>(
@@ -73,6 +77,7 @@ function ventana(rueda: IsoDate): { desde: IsoDate; hasta: IsoDate } {
 function inicioA3500(vigentes: readonly DolarLinkedReference[]): IsoDate {
   const fechas = vigentes
     .map((r) => CONDICIONES_DOLAR_LINKED[r.symbol]?.licitacion ?? r.issueDate)
+    .filter((f): f is IsoDate => Boolean(f))
     .sort();
   return toIsoDate(addDays(parseIsoDate(fechas[0] ?? toIsoDate(new Date())), -10));
 }

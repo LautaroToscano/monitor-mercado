@@ -426,10 +426,16 @@ function cotizacionDeCierre(
   serie: Cierre[],
   antesDe?: string,
 ): Quote | null {
-  const barras = antesDe ? serie.filter((b) => b.date < antesDe) : serie;
+  const todas = antesDe ? serie.filter((b) => b.date < antesDe) : serie;
+  // BYMA publica barras con cierre cero los días en que el papel existía y
+  // no operó (TZXM8 pasó así sus primeras cinco semanas). Un cero no es un
+  // precio: se toma el último cierre real, y si no es de la última barra el
+  // papel no operó ese día y sale con volumen cero, que lo marca.
+  const barras = todas.filter((b) => b.close > 0);
   if (!barras.length) return null;
   const ultima = barras[barras.length - 1];
   const previa = barras[barras.length - 2];
+  const operoEseDia = ultima === todas[todas.length - 1];
   return {
     symbol,
     last: ultima.close || null,
@@ -442,7 +448,7 @@ function cotizacionDeCierre(
     ask: null,
     bidSize: null,
     askSize: null,
-    volumeNominal: ultima.volume,
+    volumeNominal: operoEseDia ? ultima.volume : 0,
     /*
      * La serie histórica sólo trae volumen nominal: no publica ni el monto
      * efectivo ni el VWAP. Se reconstruye con el precio de cierre.
@@ -459,7 +465,7 @@ function cotizacionDeCierre(
      * exacto del panel.
      */
     volumeAmount:
-      ultima.volume !== null ? (ultima.volume * ultima.close) / 100 : null,
+      !operoEseDia ? 0 : ultima.volume !== null ? (ultima.volume * ultima.close) / 100 : null,
     orderCount: null,
     lastTradeTime: null,
     currency: 'ARS',

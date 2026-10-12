@@ -1,0 +1,1042 @@
+{
+ "tasa-fija": [
+  {
+   "symbol": "S10L5",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 10-07-2025 (S10L5))",
+   "isin": null,
+   "issueDate": "2025-06-18",
+   "maturityDate": "2025-07-10",
+   "issueTem": 0.0258,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 26/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/327036/20250617",
+    "fechaEmision": "corregida: la norma dice 18/01/2025; la licitación fue el 13/06/2025 y con esa fecha el precio no converge al pago (37,5% mensual implícito, contra 2,53% con el 18/06)",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S10N5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 10-11-2025",
+   "isin": null,
+   "issueDate": "2025-02-03",
+   "maturityDate": "2025-11-10",
+   "issueTem": 0.022,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 6/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/320419/20250131",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S11N4",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 11/112024",
+   "isin": null,
+   "issueDate": "2024-08-30",
+   "maturityDate": "2024-11-11",
+   "issueTem": 0.0375,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 50/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/313047/20240829",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S12J6",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO EL 12/06/2026",
+   "isin": null,
+   "issueDate": "2026-04-30",
+   "maturityDate": "2026-06-12",
+   "issueTem": 0.021,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 23/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/341303/20260429",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S12S5",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 12-09-2025",
+   "isin": null,
+   "issueDate": "2024-09-13",
+   "maturityDate": "2025-09-12",
+   "issueTem": 0.0395,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 52/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/313790/20240912",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S13D4",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 13/12/2024",
+   "isin": null,
+   "issueDate": "2024-07-01",
+   "maturityDate": "2024-12-13",
+   "issueTem": 0.045,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S13S4",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 13-09-2024",
+   "isin": null,
+   "issueDate": "2024-06-14",
+   "maturityDate": "2024-09-13",
+   "issueTem": 0.0425,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 33/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/309252/20240613",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S14F5",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 14-02-2025",
+   "isin": null,
+   "issueDate": "2024-09-13",
+   "maturityDate": "2025-02-14",
+   "issueTem": 0.039,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 52/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/313790/20240912",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S14G6",
+   "name": "LETRAS DEL TESOSO NACIONAL CAPITALIZABLES EN PESOS CON VTO 14-08-2026",
+   "isin": null,
+   "issueDate": "2026-04-17",
+   "maturityDate": "2026-08-14",
+   "issueTem": 0.02,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 21/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/340830/20260416",
+    "fechaEmision": "norma",
+    "tem": "A3 descripción del detalle diario"
+   }
+  },
+  {
+   "symbol": "S14M5",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 14-03-2025",
+   "isin": null,
+   "issueDate": "2024-09-13",
+   "maturityDate": "2025-03-14",
+   "issueTem": 0.039,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S14O4",
+   "name": "TP -LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 14-10-2024 (S14O4)",
+   "isin": null,
+   "issueDate": "2024-04-15",
+   "maturityDate": "2024-10-14",
+   "issueTem": 0.0475,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 21/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/305881/20240416",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S15G5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 15-08-2025",
+   "isin": null,
+   "issueDate": "2024-10-14",
+   "maturityDate": "2025-08-15",
+   "issueTem": 0.039,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 56/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/315426/20241010",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S15S6",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 15/09/2026",
+   "isin": null,
+   "issueDate": "2026-05-29",
+   "maturityDate": "2026-09-15",
+   "issueTem": 0.0199,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 28/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/342495/20260528",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S15Y6",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 15/05/2026 (S15Y6)",
+   "isin": null,
+   "issueDate": "2026-03-16",
+   "maturityDate": "2026-05-15",
+   "issueTem": 0.026,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 13/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/339439/20260313",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S16A5",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO EL 16-04-2025",
+   "isin": null,
+   "issueDate": "2024-09-13",
+   "maturityDate": "2025-04-16",
+   "issueTem": 0.039,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 52/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/313790/20240912",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S16E6",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 16-01-2026",
+   "isin": null,
+   "issueDate": "2025-08-18",
+   "maturityDate": "2026-01-16",
+   "issueTem": 0.036,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 38/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/329859/20250814",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S16M6",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VENCIMIENTO EL 16/03/2026",
+   "isin": null,
+   "issueDate": "2026-01-30",
+   "maturityDate": "2026-03-16",
+   "issueTem": 0.0299,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 6/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/338018/20260130",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S16Y5",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 16-05-2025",
+   "isin": null,
+   "issueDate": "2024-09-13",
+   "maturityDate": "2025-05-16",
+   "issueTem": 0.0395,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 52/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/313790/20240912",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S17A6",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VTO 17-04-2026",
+   "isin": null,
+   "issueDate": "2025-12-15",
+   "maturityDate": "2026-04-17",
+   "issueTem": 0.024,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S17E5",
+   "name": "LECAP S17E5",
+   "isin": null,
+   "issueDate": "2024-07-12",
+   "maturityDate": "2025-01-17",
+   "issueTem": 0.045,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 38/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/310336/20240711",
+    "fechaEmision": "norma",
+    "tem": "A3 descripción del detalle diario"
+   }
+  },
+  {
+   "symbol": "S17L6",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VTO 17/07/2026 (S17L6)",
+   "isin": null,
+   "issueDate": "2026-03-31",
+   "maturityDate": "2026-07-17",
+   "issueTem": 0.0216,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 16/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/340193/20260331",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S18J5",
+   "name": "TP LETRA TESORO NACIONAL CAPITALIZABLE EN PESOS CON VTO. 18-06-25",
+   "isin": null,
+   "issueDate": "2024-08-16",
+   "maturityDate": "2025-06-18",
+   "issueTem": 0.0395,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 46/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/312296/20240815",
+    "fechaEmision": "norma",
+    "tem": "A3 descripción del detalle diario"
+   }
+  },
+  {
+   "symbol": "S27F6",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VTO  27-02-2026",
+   "isin": null,
+   "issueDate": "2025-08-29",
+   "maturityDate": "2026-02-27",
+   "issueTem": 0.0395,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 41/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/330476/20250828",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S28A5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 28-04-2025",
+   "isin": null,
+   "issueDate": "2024-09-30",
+   "maturityDate": "2025-04-28",
+   "issueTem": 0.0395,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 55/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/314746/20240927",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S28F5",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 28-02-2025",
+   "isin": null,
+   "issueDate": "2024-04-15",
+   "maturityDate": "2025-02-28",
+   "issueTem": 0.045,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 21/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/305881/20240416",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S28N5",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 28-11-2025",
+   "isin": null,
+   "issueDate": "2025-02-14",
+   "maturityDate": "2025-11-28",
+   "issueTem": 0.0226,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 8/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/321085/20250213",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S29G5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS VTO 29/08/2025",
+   "isin": null,
+   "issueDate": "2024-08-30",
+   "maturityDate": "2025-08-29",
+   "issueTem": 0.0388,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 50/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/313047/20240829",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S29N4",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VTO 29-11-2024",
+   "isin": null,
+   "issueDate": "2024-04-30",
+   "maturityDate": "2024-11-29",
+   "issueTem": 0.044,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 25/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/306500/20240426",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S29Y6",
+   "name": "TP LETRA DEL TESORO NACIONAL CAPITALIZABLE EN PESOS VTO. 29-05-26",
+   "isin": null,
+   "issueDate": "2025-05-30",
+   "maturityDate": "2026-05-29",
+   "issueTem": 0.0235,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 descripción del detalle diario"
+   }
+  },
+  {
+   "symbol": "S30A6",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 30-04-2026",
+   "isin": null,
+   "issueDate": "2025-09-30",
+   "maturityDate": "2026-04-30",
+   "issueTem": 0.0353,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S30J5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS VTO 30/06/2025",
+   "isin": null,
+   "issueDate": "2024-08-30",
+   "maturityDate": "2025-06-30",
+   "issueTem": 0.039,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 50/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/313047/20240829",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S30S4",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 30/09/2024",
+   "isin": null,
+   "issueDate": "2024-07-01",
+   "maturityDate": "2024-09-30",
+   "issueTem": 0.0425,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 35/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/309712/20240627",
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S30S5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 30-09-2025",
+   "isin": null,
+   "issueDate": "2024-09-30",
+   "maturityDate": "2025-09-30",
+   "issueTem": 0.0398,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 55/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/314746/20240927",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S30S6",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 30/09/2026 (S30S6)",
+   "isin": null,
+   "issueDate": "2026-03-16",
+   "maturityDate": "2026-09-30",
+   "issueTem": 0.0253,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 13/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/339439/20260313",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S30Y5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 30-05-2025",
+   "isin": null,
+   "issueDate": "2024-09-30",
+   "maturityDate": "2025-05-30",
+   "issueTem": 0.0395,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 55/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/314746/20240927",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S31E5",
+   "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 31-01-2025",
+   "isin": null,
+   "issueDate": "2024-03-25",
+   "maturityDate": "2025-01-31",
+   "issueTem": 0.055,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 descripción del detalle diario"
+   }
+  },
+  {
+   "symbol": "S31G6",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 31/08/2026",
+   "isin": null,
+   "issueDate": "2025-11-10",
+   "maturityDate": "2026-08-31",
+   "issueTem": 0.025,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S31L5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VTO 31-07-2025",
+   "isin": null,
+   "issueDate": "2024-09-30",
+   "maturityDate": "2025-07-31",
+   "issueTem": 0.0398,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 55/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/314746/20240927",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S31L6",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 31-07-2026",
+   "isin": null,
+   "issueDate": "2026-01-30",
+   "maturityDate": "2026-07-31",
+   "issueTem": 0.0275,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 6/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/338018/20260130",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S31M5",
+   "name": "LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 31-03-2025",
+   "isin": null,
+   "issueDate": "2024-04-30",
+   "maturityDate": "2025-03-31",
+   "issueTem": 0.041,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 25/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/306500/20240426",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S31O4",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 31-10-2024",
+   "isin": null,
+   "issueDate": "2024-09-30",
+   "maturityDate": "2024-10-31",
+   "issueTem": 0.0375,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 55/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/314746/20240927",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S31O5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 31-10-2025",
+   "isin": null,
+   "issueDate": "2024-12-16",
+   "maturityDate": "2025-10-31",
+   "issueTem": 0.0274,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 65/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/318076/20241212",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "T13F6",
+   "name": "TP BONOS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 13/02/2026",
+   "isin": null,
+   "issueDate": "2024-11-29",
+   "maturityDate": "2026-02-13",
+   "issueTem": 0.026,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 64/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/317472/20241128",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "T15D5",
+   "name": "TP-BONOS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 15-12-2025",
+   "isin": null,
+   "issueDate": "2024-10-14",
+   "maturityDate": "2025-12-15",
+   "issueTem": 0.0389,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 56/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/315426/20241010",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "T17O5",
+   "name": "TP-BONOS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 17-10-2025",
+   "isin": null,
+   "issueDate": "2024-10-14",
+   "maturityDate": "2025-10-17",
+   "issueTem": 0.039,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 56/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/315426/20241010",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "T30E6",
+   "name": "TP-BONO DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 30-01-2026",
+   "isin": null,
+   "issueDate": "2024-12-16",
+   "maturityDate": "2026-01-30",
+   "issueTem": 0.0265,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": "Resolución Conjunta 65/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/318076/20241212",
+    "fechaEmision": "norma",
+    "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "T30J6",
+   "name": "BONOS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 30-06-2026",
+   "isin": null,
+   "issueDate": "2025-01-17",
+   "maturityDate": "2026-06-30",
+   "issueTem": 0.0215,
+   "temSource": "licitacion",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "tem": "A3 descripción del detalle diario"
+   }
+  }
+ ],
+ "tasa-cer": [
+  {
+   "symbol": "TZX25",
+   "name": "BONOS DEL TESORO NACIONAL EN PESOS, CERO CUPON CON AJUSTE POR CER VTO 30/06/2025",
+   "isin": null,
+   "issueDate": "2024-02-28",
+   "maturityDate": "2025-06-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 15/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/304056/20240227",
+    "fechaEmision": "norma"
+   }
+  },
+  {
+   "symbol": "TZX26",
+   "name": "BONOS DEL TESORO NACIONAL, EN PESOS, CERO CUPON, CON AJUSTE POR CER CON VTO 30-06-2026",
+   "isin": null,
+   "issueDate": "2024-02-01",
+   "maturityDate": "2026-06-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 8/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/302229/20240131",
+    "fechaEmision": "alta en A3 (norma no encontrada)"
+   }
+  },
+  {
+   "symbol": "TZXD5",
+   "name": "TP BONO DEL TESORO NACIONAL EN PESOS CERO CUPÓN CON AJUSTE POR CER VTO 15/12/2025 (TZXD5)",
+   "isin": null,
+   "issueDate": "2024-03-15",
+   "maturityDate": "2025-12-15",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)"
+   }
+  },
+  {
+   "symbol": "TZXM5",
+   "name": "BONO DEL TESORO NACIONAL EN PESOS CERO CUPON CON AJUSTE POR CER CON VTO 31/03/2025",
+   "isin": null,
+   "issueDate": "2024-05-20",
+   "maturityDate": "2025-03-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 27/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/307639/20240517",
+    "fechaEmision": "norma"
+   }
+  },
+  {
+   "symbol": "TZXM6",
+   "name": "BONOS DEL TESORO NACIONAL EN PESOS AJUSTADO POR CER CON VTO 31-03-2025",
+   "isin": null,
+   "issueDate": "2024-04-30",
+   "maturityDate": "2026-03-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 25/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/306500/20240426",
+    "fechaEmision": "norma"
+   }
+  },
+  {
+   "symbol": "TZXO5",
+   "name": "TP-BONO DEL TESORO NACIONAL EN PESOS CERO CUPON CON AJUSTE CER VTO 31-10-2025",
+   "isin": null,
+   "issueDate": "2024-10-31",
+   "maturityDate": "2025-10-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 59/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/316231/20241030",
+    "fechaEmision": "norma"
+   }
+  },
+  {
+   "symbol": "TZXY5",
+   "name": "TP-BONO DEL TESORO NACIONAL EN PESOS CERO CUPON CON AJUSTE POR CER VTO 30-05-2025",
+   "isin": null,
+   "issueDate": "2024-10-31",
+   "maturityDate": "2025-05-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 59/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/316231/20241030",
+    "fechaEmision": "norma"
+   }
+  },
+  {
+   "symbol": "X15Y6",
+   "name": "TP LETRA DEL TESORO NACIONAL EN PESOS AJUSTADA POR CER A DESCUENTO VTO 15-05-26",
+   "isin": null,
+   "issueDate": "2026-02-27",
+   "maturityDate": "2026-05-15",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 11/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/338764/20260226",
+    "fechaEmision": "norma"
+   }
+  },
+  {
+   "symbol": "X29Y6",
+   "name": "TP-LETRAS DEL TESORO NACIONAL EN PESOS AJUSTADA POR CER CON VTO  29-05-2026",
+   "isin": null,
+   "issueDate": "2025-11-28",
+   "maturityDate": "2026-05-29",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 60/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/335067/20251127",
+    "fechaEmision": "norma"
+   }
+  },
+  {
+   "symbol": "X30S6",
+   "name": "LETRAS DEL TESORO NACIONAL EN PESOS AJUSTADAS POR CER A DESCUENTO CON VENCIMIENTO 30/09/2026 (X30S6)",
+   "isin": null,
+   "issueDate": "2026-03-16",
+   "maturityDate": "2026-09-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 13/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/339439/20260313",
+    "fechaEmision": "norma"
+   }
+  },
+  {
+   "symbol": "X31L6",
+   "name": "LETRAS DEL TESORO NACIONAL EN PESOS AJUSTADA POR CER A DESCUENTO CON VTO 31-07-2026",
+   "isin": null,
+   "issueDate": "2026-01-30",
+   "maturityDate": "2026-07-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)"
+   }
+  }
+ ],
+ "dolar-linked": [
+  {
+   "symbol": "D16E6",
+   "name": "TP-LETRAS DEL TESORO NACIONAL VINCULADAS AL DOLAR CERO CUPON VTO  16-01-2026",
+   "isin": null,
+   "issueDate": "2025-02-14",
+   "maturityDate": "2026-01-16",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 8/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/321085/20250213",
+    "fechaEmision": "norma",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": null
+   }
+  },
+  {
+   "symbol": "D27F6",
+   "name": "TP-LETRAS DEL TESORO NACIONAL VINCULADO AL DOLAR ESTADOUNIDENSE, CERO CUPON CON VTO 27-02-2026",
+   "isin": null,
+   "issueDate": "2026-01-16",
+   "maturityDate": "2026-02-27",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 3/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/337474/20260115",
+    "fechaEmision": "norma",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": "2026-01-14"
+   }
+  },
+  {
+   "symbol": "D28N5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL VINCULADO AL DOLAR CERO CUPON CON VTO 28-11-2025",
+   "isin": null,
+   "issueDate": "2025-09-30",
+   "maturityDate": "2025-11-28",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 47/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/332052/20250929",
+    "fechaEmision": "norma",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": "2025-09-26"
+   }
+  },
+  {
+   "symbol": "D30A6",
+   "name": "TP-LETRAS DEL TESOSO NACIONAL VINCULADA AL DOLAR CUPON CERO CON VTO 30-04-2026",
+   "isin": null,
+   "issueDate": "2025-09-30",
+   "maturityDate": "2026-04-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "reglaPago": null,
+    "licitacion": null
+   }
+  },
+  {
+   "symbol": "D30E6",
+   "name": "LETRAS DEL TESORO NACIONAL  VINCULADA AL DÓLAR ESTADOUNIDENSE, CERO CUPON , CON VTO  30-01-2026",
+   "isin": null,
+   "issueDate": "2025-10-17",
+   "maturityDate": "2026-01-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 51/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/332934/20251016",
+    "fechaEmision": "norma",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": "2025-10-15"
+   }
+  },
+  {
+   "symbol": "D30S6",
+   "name": "LETRAS DEL TESORO NACIONAL VINCULADA AL DÓLAR CERO CUPON CON VENCIMIENTO 30/09/2026 (D30S6)",
+   "isin": null,
+   "issueDate": "2026-03-16",
+   "maturityDate": "2026-09-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 13/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/339439/20260313",
+    "fechaEmision": "norma",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": "2026-03-12"
+   }
+  },
+  {
+   "symbol": "D31G6",
+   "name": "LETRAS DEL TESORO NACIONAL  VINCULADA AL DOLAR ESTADOUNIDENSE CERO CUPÓN CON VTO 31/08/2026 (D31G6)",
+   "isin": null,
+   "issueDate": "2026-06-12",
+   "maturityDate": "2026-08-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 32/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/343013/20260611",
+    "fechaEmision": "norma",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": "2026-06-10"
+   }
+  },
+  {
+   "symbol": "D31L6",
+   "name": "TP LETRAS DEL TESORO NACIONAL VINCULADA AL DÓLAR , CERO CUPON, CON VTO 31/07/2026 (D31L6)",
+   "isin": null,
+   "issueDate": "2026-05-29",
+   "maturityDate": "2026-07-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 28/2026",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/342495/20260528",
+    "fechaEmision": "norma",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": "2026-05-27"
+   }
+  },
+  {
+   "symbol": "D31O5",
+   "name": "TP-LETRAS DEL TESORO NACIONAL VINCULADO AL DOLAR CERO CUPON CON VTO 31-10-2025",
+   "isin": null,
+   "issueDate": "2025-07-10",
+   "maturityDate": "2025-10-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 31/2025",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/328059/20250708",
+    "fechaEmision": "norma",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": "2025-07-07"
+   }
+  },
+  {
+   "symbol": "TZV25",
+   "name": "BONOS DEL TESORO NACIONAL VINCULADO AL DÓLAR ESTADOUNIDENSE, CERO CUPÓN, CON VTO 30/06/2025",
+   "isin": null,
+   "issueDate": "2024-02-28",
+   "maturityDate": "2025-06-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "reglaPago": null,
+    "licitacion": null
+   }
+  },
+  {
+   "symbol": "TZV26",
+   "name": "TP BONO DEL TESORO NACIONAL  VNCULADO AL DOLAR CERO CUPON CON VTO 30-06-2026",
+   "isin": null,
+   "issueDate": "2024-07-12",
+   "maturityDate": "2026-06-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "reglaPago": null,
+    "licitacion": null
+   }
+  },
+  {
+   "symbol": "TZVD5",
+   "name": "BONOS DEL TESORO NACIONAL VINCULADOS AL DÓLAR CERO CUPON CON VTO 15/12/2025",
+   "isin": null,
+   "issueDate": "2024-07-01",
+   "maturityDate": "2025-12-15",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 35/2024",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/309712/20240627",
+    "fechaEmision": "alta en A3 (norma no encontrada)",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": null
+   }
+  }
+ ],
+ "excluidos": {
+  "T2X5": "CER con cupón: falta su cronograma",
+  "T4X4": "CER con cupón: falta su cronograma",
+  "T4X5": "CER con cupón: falta su cronograma",
+  "T5X4": "CER con cupón: falta su cronograma"
+ }
+}

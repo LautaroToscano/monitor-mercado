@@ -5,11 +5,15 @@ import { descubrirPorFicha } from './descubrimiento';
 import { valuate } from '../pricing/zero-coupon';
 import type { ZeroCouponReference } from '../types';
 import type { UniverseDefinition } from './types';
+import { vencidosDe } from './vencidos';
 import { CANDIDATE_SYMBOL, TASA_FIJA_PANELS } from './tasa-fija-spec';
 import referenceData from '../reference/tasa-fija.json' with { type: 'json' };
 
 const reference = new Map<string, ZeroCouponReference>(
-  (referenceData.instruments as ZeroCouponReference[]).map((r) => [r.symbol, r]),
+  [...vencidosDe<ZeroCouponReference>('tasa-fija'), ...(referenceData.instruments as ZeroCouponReference[])].map((r) => [
+    r.symbol,
+    r,
+  ]),
 );
 
 const knownNonMembers = new Map<string, string>(
