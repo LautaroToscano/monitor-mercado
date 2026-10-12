@@ -179,9 +179,11 @@ normal de la página no cambia.
 
 **Historia rehecha hasta octubre de 2024.** El 12/10/2026 se rehicieron
 las tres curvas desde el 09/10/2024, el primer día que guardaba BYMA: 486
-ruedas de tasa fija y CER y 463 de dólar linked. El mercado de cambios no
-opera los feriados de Estados Unidos, y sin mayorista del día no hay TIR
-dólar linked.
+ruedas de tasa fija y CER y 478 de dólar linked. Los feriados de Estados
+Unidos la TIR dólar linked se calcula con el dólar local de A3 (no hay
+transferencia de contado); los pocos días sin ningún registro de cambios
+en A3 (bancos cerrados con BYMA abierto, como el 24/12 o el 23/03/2026)
+no tienen foto dólar linked.
 
 - *Papeles vencidos.* BYMA borra la ficha al vencer, así que sus
   condiciones viven en `src/lib/reference/vencidos.json` con su fuente:

@@ -19,6 +19,9 @@ const USER_AGENT = 'monitor-mercado/1.0 (+https://github.com/LautaroToscano/moni
 const REQUEST_TIMEOUT_MS = 8_000;
 
 const BASE_MAE = 'https://api.marketdata.mae.com.ar/api';
+
+/** En orden de preferencia: el local sólo si no hay transferencia. */
+const DOLARES: readonly DolarMayorista[] = ['UST$T', 'USMEP'];
 const BASE_ROFEX = 'https://apicem.matbarofex.com.ar/api/v2';
 
 /** Un cierre ya no cambia; lo de hoy puede aparecer más tarde, así que no se retiene mucho. */
@@ -38,8 +41,19 @@ async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
 
 // ─── Mayorista de cierre ─────────────────────────────────────────────────
 
+/**
+ * Qué dólar se tomó. El de referencia es el transferencia (UST$T). Los
+ * feriados de Estados Unidos no hay transferencia de contado —no hay
+ * liquidación en dólares allá— pero el mercado de cambios opera el dólar
+ * local (USMEP, dólares en cuentas del país). Medido en 474 ruedas con los
+ * dos, del 09/10/2024 al 09/10/2026: mediana de la diferencia 0,000%,
+ * promedio absoluto 0,05%, máximo 0,63%. Se usa sólo cuando falta el otro.
+ */
+export type DolarMayorista = 'UST$T' | 'USMEP';
+
 export interface CierreMayorista {
   fecha: IsoDate;
+  ticker: DolarMayorista;
   /** Último precio de la rueda, pesos por dólar. */
   cierre: number;
   /** Dólares negociados en el segmento mayorista contado. */
@@ -78,13 +92,16 @@ export function fetchCierresMayorista(
     );
     const out = new Map<IsoDate, CierreMayorista>();
     for (const dia of dias) {
-      const linea = dia.details?.find(
-        (d) => d.ticker === 'UST$T' && d.plazo === '000' && d.codigoSegmento === 'M',
-      );
-      const cierre = linea?.precioCierre || linea?.ultimo;
-      if (!linea || !cierre) continue;
       const fecha = dia.fecha.slice(0, 10);
-      out.set(fecha, { fecha, cierre, volumen: linea.volumen ?? 0 });
+      for (const ticker of DOLARES) {
+        const linea = dia.details?.find(
+          (d) => d.ticker === ticker && d.plazo === '000' && d.codigoSegmento === 'M',
+        );
+        const cierre = linea?.precioCierre || linea?.ultimo;
+        if (!linea || !cierre) continue;
+        out.set(fecha, { fecha, ticker, cierre, volumen: linea.volumen ?? 0 });
+        break;
+      }
     }
     return out;
   });
@@ -115,9 +132,13 @@ interface LineaResumen {
 export function fetchMayoristaEnVivo(signal?: AbortSignal): Promise<CierreMayorista | null> {
   return memo('a3:mayorista:vivo', TTL_VIVO_MS, async () => {
     const lineas = await getJson<LineaResumen[]>(`${BASE_MAE}/mercado/resumen/FOR`, signal);
-    const linea = lineas.find((l) => l.ticker === 'UST$T' && l.plazo === '000' && l.segmento === 'M');
-    if (!linea?.ultimo || !linea.fechaLiquidacion) return null;
-    return { fecha: linea.fechaLiquidacion.slice(0, 10), cierre: linea.ultimo, volumen: 0 };
+    for (const ticker of DOLARES) {
+      const linea = lineas.find((l) => l.ticker === ticker && l.plazo === '000' && l.segmento === 'M');
+      if (linea?.ultimo && linea.fechaLiquidacion) {
+        return { fecha: linea.fechaLiquidacion.slice(0, 10), ticker, cierre: linea.ultimo, volumen: 0 };
+      }
+    }
+    return null;
   });
 }
 

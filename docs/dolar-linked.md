@@ -13,7 +13,11 @@ dos paneles de BYMA que tasa fija y CER.
 ## Dos tipos de cambio distintos
 
 - **Spot, para valuar hoy:** el cierre mayorista de A3 (UST$T, contado,
-  segmento mayorista, último precio de la rueda).
+  segmento mayorista, último precio de la rueda). Los feriados de Estados
+  Unidos no hay transferencia de contado, pero el mercado de cambios opera
+  el dólar local (USMEP, contado, mayorista), y ese día se usa ése: en 474
+  ruedas con los dos la diferencia tuvo mediana 0,000%, promedio absoluto
+  0,05% y máximo 0,63%. La `fuente` del spot dice cuál se tomó.
 - **A3500, contractual:** el que fija con cuántos pesos se suscribió y
   cuánto paga cada título. No valúa nada hoy.
 

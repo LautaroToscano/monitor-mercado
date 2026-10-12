@@ -48,6 +48,8 @@ interface ContextoDolarLinked {
 }
 
 const FUENTE_SPOT = 'A3, mercado de cambios: UST$T mayorista contado, último precio';
+const FUENTE_SPOT_LOCAL =
+  'A3, mercado de cambios: USMEP (dólar local) mayorista contado, último precio; ese día no hubo transferencia de contado';
 const FUENTE_FUTUROS = 'A3 (ex Matba Rofex), futuros DLR mensuales: precio de ajuste';
 const FUENTE_BYMA = 'BYMA, paneles lebacs y public-bonds, 24hs';
 const FUENTE_A3500 = 'BCRA, Com. A 3500';
@@ -120,9 +122,10 @@ export const dolarLinked: UniverseDefinition<DolarLinkedReference, ContextoDolar
       fetchCierresMayorista(desde, hasta, signal).catch(() => new Map<IsoDate, never>()),
       fetchA3500(inicioA3500(vigentes), signal).catch(() => null),
     ]);
-    const valor = vivo?.fecha === rueda ? vivo.cierre : cierres.get(rueda)?.cierre;
-    if (!valor) throw new Error(`A3 no tiene el mayorista del ${rueda}`);
-    return { spot: { fecha: rueda, valor, fuente: FUENTE_SPOT }, a3500 };
+    const dato = vivo?.fecha === rueda ? vivo : cierres.get(rueda);
+    if (!dato) throw new Error(`A3 no tiene el mayorista del ${rueda}`);
+    const fuente = dato.ticker === 'UST$T' ? FUENTE_SPOT : FUENTE_SPOT_LOCAL;
+    return { spot: { fecha: rueda, valor: dato.cierre, fuente }, a3500 };
   },
 
   valuate(ref, _quote, price, settlement, contexto) {
@@ -236,7 +239,12 @@ export async function armarRueda(ahora: Date): Promise<RuedaDolarLinked> {
       bonos: { rueda: bonosRueda.tradeDate, fuente: FUENTE_BYMA, cierre: CIERRE_BYMA },
       lecaps: { rueda: lecapsRueda?.tradeDate ?? null, fuente: FUENTE_BYMA, cierre: CIERRE_BYMA },
       spot: spot
-        ? { fecha: rueda, valor: spot.cierre, fuente: FUENTE_SPOT, cierre: CIERRE_A3_CAMBIOS }
+        ? {
+            fecha: rueda,
+            valor: spot.cierre,
+            fuente: spot.ticker === 'UST$T' ? FUENTE_SPOT : FUENTE_SPOT_LOCAL,
+            cierre: CIERRE_A3_CAMBIOS,
+          }
         : null,
       futuros: {
         rueda: futuros.length ? rueda : null,
