@@ -56,11 +56,28 @@ export const MARKET_HOLIDAYS: readonly string[] = [
   '2026-01-01', '2026-02-16', '2026-02-17', '2026-03-24', '2026-04-02',
   '2026-04-03', '2026-05-01', '2026-05-25', '2026-06-15', '2026-06-20',
   '2026-07-09', '2026-08-17', '2026-10-12', '2026-11-23', '2026-12-08',
-  '2026-12-25',
+  '2026-12-25', '2026-12-31',
+  // Del año en curso en adelante, con la Ley 27.399: los inamovibles en su
+  // fecha y los trasladables que caen de martes a viernes al lunes que
+  // corresponde (art. 6). Además, como en los años cerrados, sin mercado el
+  // Jueves Santo y el 31/12 (BYMA no operó ninguno de los dos en 2024 ni en
+  // 2025). Los días no laborables con fines turísticos no van: BYMA opera
+  // (23/03 y 10/07/2026).
+  //
+  // A DEFINIR: un trasladable que cae sábado o domingo puede pasar al
+  // viernes anterior o al lunes siguiente, a criterio de Jefatura de
+  // Gabinete (Decreto 614/2025; el 12/10/2025, domingo, se pasó al viernes
+  // 10). No se adivina: se carga cuando salga la resolución. Pendientes: el
+  // 20/11/2027 (sábado) y el 17/06/2028 (sábado).
+  //
   // 2027
-  '2027-01-01', '2027-02-08', '2027-02-09', '2027-03-24', '2027-03-26',
-  '2027-04-02', '2027-05-01', '2027-05-25', '2027-06-21', '2027-07-09',
-  '2027-08-16', '2027-10-11', '2027-11-22', '2027-12-08', '2027-12-25',
+  '2027-01-01', '2027-02-08', '2027-02-09', '2027-03-24', '2027-03-25',
+  '2027-03-26', '2027-04-02', '2027-05-25', '2027-06-21', '2027-07-09',
+  '2027-08-16', '2027-10-11', '2027-12-08', '2027-12-31',
+  // 2028
+  '2028-02-28', '2028-02-29', '2028-03-24', '2028-04-13', '2028-04-14',
+  '2028-05-01', '2028-05-25', '2028-06-20', '2028-08-21', '2028-10-16',
+  '2028-11-20', '2028-12-08', '2028-12-25',
 ];
 
 const HOLIDAY_SET = new Set(MARKET_HOLIDAYS);

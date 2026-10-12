@@ -256,3 +256,11 @@ sus condiciones en `CONDICIONES_CER`.
 El calendario de feriados bursátiles de `conventions.ts` hay que mantenerlo al
 día: un feriado faltante corre la fecha de liquidación un día y mueve
 visiblemente la tasa de los papeles cortos.
+
+Está cargado hasta 2028 con la Ley 27.399, más el Jueves Santo y el 31/12,
+que BYMA no operó ningún año. Los días no laborables turísticos no van:
+BYMA opera. Lo que no se puede cargar por adelantado son los trasladables
+que caen sábado o domingo: desde el Decreto 614/2025 pueden pasar al
+viernes anterior o al lunes siguiente a criterio de Jefatura de Gabinete.
+Faltan el 20/11/2027 y el 17/06/2028; se cargan cuando salga la
+resolución.
