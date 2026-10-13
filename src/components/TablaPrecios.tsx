@@ -168,7 +168,7 @@ function columnas(ejeX: VistaUniverso['ejeX']): Columna[] {
     return [
       TICKER, VENCE, DIAS, PRECIO, VARIACION, VARIACION_PCT,
       tem('Rendimiento sobre el dólar oficial, efectivo mensual'),
-      tir('Rendimiento sobre el dólar oficial, efectivo anual, actual/365: (100 × mayorista A3 / precio)^(365/días) − 1. En el dual, el de la pata dólar.'),
+      tir('Rendimiento sobre el dólar oficial, efectivo anual, actual/365: (100 × dólar mayorista / precio)^(365/días) − 1. En el dual, el de la pata dólar.'),
       TC_IMPLICITO, TC_INICIAL, VOLUMEN,
     ];
   }

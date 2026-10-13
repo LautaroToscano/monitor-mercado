@@ -220,7 +220,7 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
               </div>
               <Dato etiqueta="Hora" valor={hora} mono />
               {mayorista && (
-                <Dato etiqueta="Mayorista A3" valor={precio(mayorista.valor)} mono />
+                <Dato etiqueta="Dólar mayorista" valor={precio(mayorista.valor)} mono />
               )}
               <Dato etiqueta="Fuente" valor={mayorista ? 'BYMA · A3' : datos.source.toUpperCase()} />
             </>
