@@ -18,7 +18,7 @@ export async function generateMetadata({
 }) {
   const { universe } = await params;
   const def = getUniverse(universe);
-  return { title: def ? `${def.label} · Monitor` : 'Monitor' };
+  return { title: def ? `${def.label} · Monitor Mercado` : 'Monitor Mercado' };
 }
 
 export default async function PaginaUniverso({

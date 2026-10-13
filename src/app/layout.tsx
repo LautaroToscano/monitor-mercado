@@ -20,7 +20,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Monitor · Renta fija en pesos',
+  title: 'Monitor Mercado · Renta fija en pesos',
   description:
     'Curvas de tasa fija y CER, precios, variación diaria e inflación breakeven de la renta fija en pesos del Tesoro argentino.',
 };

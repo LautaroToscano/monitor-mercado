@@ -191,7 +191,9 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
     <main className={estilos.pagina}>
       <header className={estilos.cabecera}>
         <div className={estilos.marca}>
-          <span className={estilos.marcaTitulo}>Monitor</span>
+          <span className={estilos.marcaTitulo}>
+            Monitor <span>Mercado</span>
+          </span>
           <nav className={estilos.universos} aria-label="Universos">
             {universos.map((u) => (
               <Link
