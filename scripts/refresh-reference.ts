@@ -15,6 +15,7 @@
  * caliente (`ReglasDeDescubrimiento`): una sola fuente de verdad por universo.
  */
 import { writeFileSync } from 'node:fs';
+import { isBusinessDay, marketToday } from '../src/lib/conventions';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { fetchFicha, fetchQuotes, type BymaFicha, type BymaPanel } from '../src/lib/sources/byma';
@@ -99,6 +100,13 @@ async function refrescar(spec: Spec<InstrumentReference>) {
   const quotes = await fetchQuotes(spec.panels);
   const candidatos = [...quotes.keys()].filter((s) => spec.candidato.test(s)).sort();
   console.log(`\n[${spec.slug}] ${candidatos.length} candidatos en ${spec.panels.join(', ')}`);
+  // Un panel sin candidatos no es que el universo se vació: BYMA no tiene
+  // rueda (un feriado) o no contestó bien. Se conserva la referencia que
+  // había; escribirla vacía sólo hacía fallar el control posterior.
+  if (candidatos.length === 0) {
+    console.log('  panel vacío: se conserva la referencia anterior');
+    return;
+  }
 
   const members: InstrumentReference[] = [];
   const nonMembers: { symbol: string; name: string; reason: string }[] = [];
@@ -139,6 +147,11 @@ async function refrescar(spec: Spec<InstrumentReference>) {
 }
 
 async function main() {
+  // Sin rueda, BYMA devuelve los paneles vacíos: no hay nada que refrescar.
+  if (!isBusinessDay(marketToday())) {
+    console.log('Hoy no hay rueda: no se refresca la referencia.');
+    return;
+  }
   const pedido = process.argv.find((a) => a.startsWith('--universe='))?.split('=')[1];
   const specs = pedido ? SPECS.filter((s) => s.slug === pedido) : SPECS;
   if (specs.length === 0) throw new Error(`Universo desconocido: ${pedido}`);
