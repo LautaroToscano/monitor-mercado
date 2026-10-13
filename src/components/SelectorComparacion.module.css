@@ -21,7 +21,12 @@
   color: var(--tinta);
   font-family: var(--fuente-mono);
   font-size: 11.5px;
-  color-scheme: inherit;
+  /*
+   * Sin color-scheme propio: lo hereda de la página, que lo cambia con el
+   * tema, y así el ícono y el calendario del navegador salen oscuros en el
+   * modo oscuro. Un "inherit" explícito no sirve: el compilador de CSS de
+   * producción lo reescribe como "normal" y corta la herencia.
+   */
 }
 
 .campo:hover {
