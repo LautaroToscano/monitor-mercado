@@ -3,6 +3,7 @@ import { buildUniverse } from '@/lib/build';
 import { getUniverse, listUniverses } from '@/lib/universes';
 import type { UniverseResponse } from '@/lib/types';
 import { CARPETA_ULTIMO_CIERRE, leerGuardado } from '@/lib/ultimo-cierre';
+import { elegirRespuesta } from '@/lib/respaldo';
 
 /**
  * Proxy server-side hacia la fuente de mercado.
@@ -51,28 +52,44 @@ export async function GET(
     );
   }
 
+  const origen = new URL(request.url).origin;
+  const ruta = `${CARPETA_ULTIMO_CIERRE}/${slug}.json`;
+  let actual: UniverseResponse | null = null;
+  let motivo: string | undefined;
   try {
     // Con el mercado cerrado, el último cierre ya calculado si está guardado.
-    // La vista (eje, forma de la curva, qué entra al ajuste) es del universo y
-    // no de la rueda: sale siempre del código, para que un cambio se vea
-    // aunque el archivo guardado sea de antes.
-    const guardado = await leerGuardado<UniverseResponse>(
-      new URL(request.url).origin,
-      `${CARPETA_ULTIMO_CIERRE}/${slug}.json`,
-    );
-    const payload = guardado ? { ...guardado, vista: universe.vista } : await buildUniverse(universe);
-    // Una sesión desconocida es un estado degradado: se cachea corto para
-    // volver a intentar apenas la fuente se recupere.
-    const maxAge = payload.session === 'cierre' ? CACHE_CERRADO : CACHE_EN_RUEDA;
-    return NextResponse.json(payload, {
-      headers: {
-        'Cache-Control': `public, s-maxage=${maxAge}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`,
-      },
-    });
+    const guardado = await leerGuardado<UniverseResponse>(origen, ruta);
+    actual = guardado ?? (await buildUniverse(universe));
   } catch (err) {
+    motivo = (err as Error).message;
+  }
+
+  // Si vino incompleta o no vino, la última completa (ver `respaldo.ts`). El
+  // archivo guardado se lee sólo en ese caso: no suma espera a una normal.
+  const necesitaRespaldo = !actual || actual.instruments.some((i) => i.tea === null);
+  const guardada = necesitaRespaldo
+    ? await leerGuardado<UniverseResponse>(origen, ruta, { cualquierFecha: true })
+    : null;
+  const eleccion = elegirRespuesta(slug, actual, guardada, motivo);
+
+  if (!eleccion) {
     return NextResponse.json(
-      { error: 'No se pudo construir el universo', detail: (err as Error).message },
+      { error: 'No se pudo construir el universo', detail: motivo },
       { status: 502 },
     );
   }
+
+  // La vista (eje, forma de la curva, qué entra al ajuste) es del universo y
+  // no de la rueda: sale siempre del código, para que un cambio se vea
+  // aunque la respuesta servida sea de antes.
+  const payload = { ...eleccion.respuesta, vista: universe.vista };
+  // Una respuesta degradada no se deja en el CDN: se vuelve a calcular
+  // apenas alguien entra, para que la fuente recuperada se vea enseguida.
+  const cacheControl = eleccion.degradada
+    ? `public, s-maxage=${CACHE_DEGRADADA}`
+    : `public, s-maxage=${payload.session === 'cierre' ? CACHE_CERRADO : CACHE_EN_RUEDA}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`;
+  return NextResponse.json(payload, { headers: { 'Cache-Control': cacheControl } });
 }
+
+/** Lo que se retiene una respuesta degradada o de respaldo. */
+const CACHE_DEGRADADA = 15;

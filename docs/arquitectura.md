@@ -69,16 +69,46 @@ frontend cambian.
 | `npm run validate -- --universe=tasa-cer` | la curva CER, con el detalle del ajuste por CER |
 | `npm run validate:breakeven` | tabla del breakeven por mes INDEC |
 | `npm run validate:dolar-linked` | curva dólar linked, A3 contra A3500 y devaluación implícita |
+| `npm run vigilar` | revisa producción (o `-- --base=URL`) y falla si algo no está bien |
 | `npm run validate:tamar` | curva TAMAR: condiciones de cada papel, TAMAR proyectada, valor técnico y ajuste |
 | `npm run validate:modelos` | logaritmo contra Nelson-Siegel sobre la historia guardada |
 | `npm run historico:ajustes` | factores para deshacer el ajuste por pagos de la serie de BYMA |
 | `npm run historico:resguardar` | guarda en `data/series/` la serie de BYMA de todos los papeles de los últimos dos años |
 | `npm run historico:reconstruir -- --desde=AAAA-MM-DD --hasta=AAAA-MM-DD` | rehace fotos de días pasados |
 
+## Que no se rompa
+
+Las fuentes fallan de maneras que ningún control previo anticipa (el
+14/10/2026 BYMA devolvió el panel a medias mientras rotaba de sesión y la
+curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
+
+1. **Nunca se sirve una curva rota** (`src/lib/respaldo.ts`). Si a la
+   respuesta recién calculada le falta el rendimiento de una parte de la
+   curva (dos papeles o el 20%, lo que sea más) que la última respuesta
+   completa sí tenía, se sirve esa última completa —la de la memoria de la
+   instancia o el último cierre guardado, de hasta una semana—, con su
+   propia rueda y su hora, y el motivo va a `warnings` ("Respuesta de
+   respaldo: ..."). Si el cálculo falla entero, lo mismo en vez de un 502.
+   Un papel suelto sin dato sale marcado como siempre: congelar la curva
+   por él sería peor. Lo mismo para el breakeven, con el último guardado.
+   Una respuesta degradada se retiene 15 segundos en el CDN, no diez
+   minutos.
+2. **Un vigilante cada media hora** (`npm run vigilar`, `vigilar.yml`).
+   Revisa producción como un visitante: cada curva completa, con TIR
+   posibles y de la rueda que corresponde (en rueda la de hoy; cerrada, a
+   lo sumo un hábil de atraso), las páginas, el breakeven y que la foto
+   diaria esté (desde el mediodía del día siguiente). Cada control se
+   reintenta una vez. Una respuesta de respaldo se informa sin fallar.
+3. **El aviso llega solo.** Ante una falla el vigilante abre un issue con
+   la etiqueta `caida` que menciona al dueño (eso manda el mail), comenta
+   sólo si cambia lo que falla y lo cierra cuando todo se normaliza.
+
 ## Procesos automáticos
 
-GitHub Actions corre dos tareas y sube el resultado si cambió algo:
+GitHub Actions corre tres tareas; las dos primeras suben el resultado si cambió algo:
 
-- **Guardar cierre**, de lunes a viernes a las 18:00: la foto de cada curva,
-  la respuesta completa del último cierre y el breakeven de esa rueda.
+- **Guardar cierre**, de lunes a viernes a las 18:00 y otra vez a las 07:00
+  del día siguiente: la foto de cada curva, la respuesta completa del último
+  cierre y el breakeven de esa rueda.
 - **Refrescar referencia**, lunes y jueves: las especies vigentes según BYMA.
+- **Vigilar producción**, cada media hora: ver "Que no se rompa".

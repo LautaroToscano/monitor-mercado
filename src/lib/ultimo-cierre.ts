@@ -23,9 +23,18 @@ const TIMEOUT_MS = 3_000;
 export async function leerGuardado<T extends { tradeDate: string }>(
   origen: string,
   ruta: string,
-  { tambienEnRueda = false, ahora = new Date() }: { tambienEnRueda?: boolean; ahora?: Date } = {},
+  {
+    tambienEnRueda = false,
+    cualquierFecha = false,
+    ahora = new Date(),
+  }: {
+    tambienEnRueda?: boolean;
+    /** Para el respaldo: el último guardado, sea de la rueda que sea. */
+    cualquierFecha?: boolean;
+    ahora?: Date;
+  } = {},
 ): Promise<T | null> {
-  if (!tambienEnRueda && isWithinTradingHours(momentoVisible(ahora))) return null;
+  if (!tambienEnRueda && !cualquierFecha && isWithinTradingHours(momentoVisible(ahora))) return null;
   const fecha = ultimaRuedaTerminada(ahora);
   try {
     const res = await fetch(`${origen}${RUTA_HISTORICO}/${ruta}`, {
@@ -34,7 +43,7 @@ export async function leerGuardado<T extends { tradeDate: string }>(
     });
     if (!res.ok) return null;
     const payload = (await res.json()) as T;
-    return payload.tradeDate === fecha ? payload : null;
+    return cualquierFecha || payload.tradeDate === fecha ? payload : null;
   } catch {
     return null;
   }

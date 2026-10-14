@@ -1,0 +1,81 @@
+# Vigila el sitio publicado cada media hora (scripts/vigilar.ts): que cada
+# curva responda completa y al día, que carguen las páginas, el breakeven y
+# la foto diaria.
+#
+# El aviso es un issue, no un job fallado: un job fallado manda un mail por
+# corrida, cada media hora mientras dure el problema. El issue se abre con la
+# primera falla y menciona al dueño (eso manda el mail), suma un comentario
+# sólo si cambia lo que falla, y se cierra solo cuando todo vuelve a estar
+# bien. Si el vigilante mismo no puede correr, el job sí falla y GitHub
+# avisa por la vía de siempre.
+name: Vigilar producción
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Dirección a vigilar (vacío = producción). Sirve para probar el aviso.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: vigilar
+  cancel-in-progress: false
+
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Revisar el sitio
+        id: revisar
+        env:
+          BASE: ${{ inputs.base }}
+        run: |
+          if npm run -s vigilar -- ${BASE:+--base=$BASE} > informe.md 2>&1; then
+            echo "falla=" >> "$GITHUB_OUTPUT"
+          else
+            echo "falla=1" >> "$GITHUB_OUTPUT"
+          fi
+          cat informe.md
+
+      - name: Avisar o cerrar el aviso
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FALLA: ${{ steps.revisar.outputs.falla }}
+          CORRIDA: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create caida --color B60205 --description 'El vigilante encontró un problema en producción' --force > /dev/null
+          abierto=$(gh issue list --label caida --state open --json number -q '.[0].number')
+          fallas=$(grep '^- ✗' informe.md || true)
+
+          if [ -n "$FALLA" ]; then
+            cuerpo=$(printf '@LautaroToscano el vigilante encontró problemas en producción.\n\n%s\n\nCorrida: %s\n\nSe cierra solo cuando todo vuelve a estar bien.' "$(cat informe.md)" "$CORRIDA")
+            if [ -z "$abierto" ]; then
+              gh issue create --title 'Producción con problemas' --label caida --body "$cuerpo"
+            else
+              previas=$(gh issue view "$abierto" --json body,comments -q '([.body] + [.comments[].body]) | last' | grep '^- ✗' || true)
+              if [ "$fallas" != "$previas" ]; then
+                gh issue comment "$abierto" --body "$(printf 'Cambió lo que falla:\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
+              fi
+            fi
+          elif [ -n "$abierto" ]; then
+            gh issue comment "$abierto" --body "$(printf 'Se normalizó.\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
+            gh issue close "$abierto"
+          fi

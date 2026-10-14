@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { AVISO_SIN_CIERRE, buildBreakeven, type BreakevenResponse } from '@/lib/breakeven';
 import { ultimaRuedaTerminada } from '@/lib/conventions';
 import { leerGuardado } from '@/lib/ultimo-cierre';
+import { AVISO_RESPALDO } from '@/lib/respaldo';
 
 /**
  * Inflación breakeven, calculada entera en el backend: arma las dos curvas
@@ -47,21 +48,52 @@ const guardado = (origen: string) =>
     tambienEnRueda: true,
   });
 
+/**
+ * El último breakeven guardado, de la rueda que sea: el respaldo para cuando
+ * el cálculo falla o sale incompleto. Como en las curvas, nunca se muestra
+ * uno roto si hay uno completo de días antes (ver `src/lib/respaldo.ts`).
+ */
+async function ultimoGuardado(origen: string): Promise<BreakevenResponse | null> {
+  const indice = await leerGuardado<{ tradeDate: string; breakeven?: string[] }>(origen, 'indice.json', {
+    cualquierFecha: true,
+  });
+  const fecha = indice?.breakeven?.at(-1);
+  return fecha
+    ? leerGuardado<BreakevenResponse>(origen, `breakeven/${fecha}.json`, { cualquierFecha: true })
+    : null;
+}
+
 export async function GET(request: Request) {
+  const origen = new URL(request.url).origin;
+  let payload: BreakevenResponse | null = null;
+  let motivo: string | null = null;
   try {
-    const payload = (await guardado(new URL(request.url).origin)) ?? (await buildBreakeven());
-    const incompleto = payload.warnings.some((w) => w.startsWith(AVISO_SIN_CIERRE));
-    return NextResponse.json(payload, {
-      headers: {
-        'Cache-Control': incompleto
-          ? `public, s-maxage=${CACHE_INCOMPLETO_S}`
-          : `public, s-maxage=${CACHE_S}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`,
-      },
-    });
+    payload = (await guardado(origen)) ?? (await buildBreakeven());
   } catch (err) {
-    return NextResponse.json(
-      { error: 'No se pudo calcular el breakeven', detail: (err as Error).message },
-      { status: 502 },
-    );
+    motivo = (err as Error).message;
   }
+  const incompleto = payload?.warnings.some((w) => w.startsWith(AVISO_SIN_CIERRE)) ?? true;
+
+  if (incompleto) {
+    const respaldo = await ultimoGuardado(origen);
+    if (respaldo) {
+      payload = {
+        ...respaldo,
+        warnings: [
+          ...respaldo.warnings,
+          `${AVISO_RESPALDO} ${motivo ? `no se pudo calcular (${motivo})` : 'el cálculo salió sin el cierre de algún papel'}; se sirve el último completo, de la rueda del ${respaldo.tradeDate}.`,
+        ],
+      };
+    }
+  }
+  if (!payload) {
+    return NextResponse.json({ error: 'No se pudo calcular el breakeven', detail: motivo }, { status: 502 });
+  }
+  return NextResponse.json(payload, {
+    headers: {
+      'Cache-Control': incompleto
+        ? `public, s-maxage=${CACHE_INCOMPLETO_S}`
+        : `public, s-maxage=${CACHE_S}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`,
+    },
+  });
 }
