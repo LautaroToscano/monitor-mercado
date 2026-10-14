@@ -1,0 +1,104 @@
+{
+  "generatedAt": "2026-10-14T02:46:40.694Z",
+  "source": "BYMA ficha técnica (bnown/fichatecnica/especies/general)",
+  "instruments": [
+    {
+      "symbol": "TMF27",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS A TASA TAMAR CON VENCIMIENTO 26 DE FEBRERO DE 2027",
+      "isin": "AR0466764872",
+      "issueDate": "2026-02-13",
+      "maturityDate": "2027-02-26",
+      "estructura": "cero-cupon"
+    },
+    {
+      "symbol": "TMF28",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS A TASA TAMAR CON VENCIMIENTO 25 DE FEBRERO DE 2028",
+      "isin": "AR0895380514",
+      "issueDate": "2026-04-20",
+      "maturityDate": "2028-02-25",
+      "estructura": "cero-cupon"
+    },
+    {
+      "symbol": "TMG27",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS A TASA TAMAR CON VENCIMIENTO 31 DE AGOSTO DE 2027",
+      "isin": "AR0845182473",
+      "issueDate": "2026-04-01",
+      "maturityDate": "2027-08-31",
+      "estructura": "cero-cupon"
+    },
+    {
+      "symbol": "TMG28",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS A TASA TAMAR CON VENCIMIENTO 31 DE AGOSTO DE 2028",
+      "isin": "AR0175438917",
+      "issueDate": "2026-04-30",
+      "maturityDate": "2028-08-31",
+      "estructura": "cero-cupon"
+    },
+    {
+      "symbol": "TML27",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS A TASA TAMAR CON VENCIMIENTO 30 DE JULIO DE 2027",
+      "isin": "AR0033716868",
+      "issueDate": "2026-06-30",
+      "maturityDate": "2027-07-30",
+      "estructura": "cero-cupon"
+    },
+    {
+      "symbol": "TMVE8",
+      "name": "BONO DEL TESORO NACIONAL EN MONEDA DUAL TAMAR /DÓLAR LINKED CON VENCIMIENTO 31 DE ENERO DE 2028",
+      "isin": "AR0821229090",
+      "issueDate": "2026-07-31",
+      "maturityDate": "2028-01-31",
+      "estructura": "dual"
+    },
+    {
+      "symbol": "TTD26",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS A TASA DUAL CON VENCIMIENTO 15 DE DICIEMBRE DE 2026",
+      "isin": "AR0021930364",
+      "issueDate": "2025-01-29",
+      "maturityDate": "2026-12-15",
+      "estructura": "dual"
+    },
+    {
+      "symbol": "TXMD8",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS DUAL CER / TAMAR CON VENCIMIENTO 15 DE DICIEMBRE DE 2028",
+      "isin": "AR0926114783",
+      "issueDate": "2026-06-12",
+      "maturityDate": "2028-12-15",
+      "estructura": "dual"
+    },
+    {
+      "symbol": "TXMD9",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS DUAL CER / TAMAR CON VENCIMIENTO 14 DE DICIEMBRE DE 2029",
+      "isin": "AR0917535343",
+      "issueDate": "2026-06-12",
+      "maturityDate": "2029-12-14",
+      "estructura": "dual"
+    },
+    {
+      "symbol": "TXMJ0",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS DUAL CER / TAMAR CON VENCIMIENTO 28 DE JUNIO DE 2030",
+      "isin": "AR0268283071",
+      "issueDate": "2026-06-12",
+      "maturityDate": "2030-06-28",
+      "estructura": "dual"
+    },
+    {
+      "symbol": "TXMJ8",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS DUAL CER / TAMAR CON VENCIMIENTO 30 DE JUNIO DE 2028",
+      "isin": "AR0603123321",
+      "issueDate": "2026-05-15",
+      "maturityDate": "2028-06-30",
+      "estructura": "dual"
+    },
+    {
+      "symbol": "TXMJ9",
+      "name": "BONO DEL TESORO NACIONAL EN PESOS DUAL CER / TAMAR CON VENCIMIENTO 29 DE JUNIO DE 2029",
+      "isin": "AR0585812156",
+      "issueDate": "2026-04-30",
+      "maturityDate": "2029-06-29",
+      "estructura": "dual"
+    }
+  ],
+  "nonMembers": [],
+  "unresolved": []
+}

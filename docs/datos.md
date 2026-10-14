@@ -183,7 +183,9 @@ ruedas de tasa fija y CER y 478 de dólar linked. Los feriados de Estados
 Unidos la TIR dólar linked se calcula con el dólar local de A3 (no hay
 transferencia de contado); los pocos días sin ningún registro de cambios
 en A3 (bancos cerrados con BYMA abierto, como el 24/12 o el 23/03/2026)
-no tienen foto dólar linked.
+no tienen foto dólar linked. La curva TAMAR se rehizo el 14/10/2026 desde
+el 16/04/2025, la emisión de la primera letra TAMAR con serie en BYMA: 351
+ruedas (ver [TAMAR](tamar.md)).
 
 - *Papeles vencidos.* BYMA borra la ficha al vencer, así que sus
   condiciones viven en `src/lib/reference/vencidos.json` con su fuente:

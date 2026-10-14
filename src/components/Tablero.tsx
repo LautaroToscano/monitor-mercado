@@ -11,7 +11,7 @@ import type { FotoCurva } from '@/lib/historico';
 import { SelectorInstrumentos } from './SelectorInstrumentos';
 import { TablaPrecios } from './TablaPrecios';
 import { SelectorTema } from './SelectorTema';
-import { fechaCorta, precio } from '@/lib/format';
+import { fechaCorta, pct, precio } from '@/lib/format';
 import { momentoVisible } from '@/lib/conventions';
 import estilos from './Tablero.module.css';
 import { entraALaCurvaPorDefecto } from '@/lib/ajuste';
@@ -172,6 +172,8 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
   // En dólar linked la TIR sale del mayorista de A3 de la misma rueda: es
   // uno solo para todos los papeles y va en la cabecera, no en la tabla.
   const mayorista = datos?.instruments.find((i) => i.dolarLinked)?.dolarLinked?.spot ?? null;
+  // En TAMAR, la última TAMAR publicada: es la que se proyecta en todas las TIR.
+  const tamarVigente = datos?.instruments.find((i) => i.tamar)?.tamar?.tamarVigente ?? null;
 
   if (error && !datos) {
     return (
@@ -224,7 +226,17 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
               {mayorista && (
                 <Dato etiqueta="Dólar mayorista" valor={precio(mayorista.valor)} mono />
               )}
-              <Dato etiqueta="Fuente" valor={mayorista ? 'BYMA · A3' : datos.source.toUpperCase()} />
+              {tamarVigente && (
+                <Dato
+                  etiqueta={`TAMAR ${fechaCorta(tamarVigente.fecha)}`}
+                  valor={pct(tamarVigente.valor)}
+                  mono
+                />
+              )}
+              <Dato
+                etiqueta="Fuente"
+                valor={mayorista ? 'BYMA · A3' : tamarVigente ? 'BYMA · BCRA' : datos.source.toUpperCase()}
+              />
             </>
           )}
           <SelectorTema />
@@ -303,7 +315,7 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
             {datos.vista.breakeven && <PanelBreakeven />}
 
             <section className={estilos.panel} aria-label="Precios">
-              <TablaPrecios instrumentos={datos.instruments} ejeX={datos.vista.ejeX} />
+              <TablaPrecios instrumentos={datos.instruments} vista={datos.vista} />
             </section>
           </div>
         </>

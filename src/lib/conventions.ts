@@ -394,7 +394,27 @@ export const DL_CONVENTIONS_META = {
   teaDefinition: '(100 × spot A3 / precio)^(365/díasAlVencimiento) - 1, TIR sobre el dólar oficial',
 } as const;
 
+/**
+ * Títulos a tasa TAMAR: capitalizan mensualmente a la "TAMAR TEM" sobre
+ * 30/360. La TAMAR es el promedio simple de la TAMAR de bancos privados (TNA)
+ * desde diez hábiles antes de la emisión hasta diez hábiles antes del
+ * vencimiento. Verificado en la norma de emisión de cada uno
+ * (`tamar-condiciones.ts`).
+ */
+export const TAMAR_LAG_BUSINESS_DAYS = 10;
+
+/** Metadata de convenciones de la curva TAMAR. */
+export const TAMAR_CONVENTIONS_META = {
+  dayCountBasis: 'actual/365',
+  settlement: 'T+1 hábil',
+  daysPerMonth: DAYS_PER_MONTH,
+  capitalization: `pago = VN × (1 + TAMAR TEM)^(días30/360 / 30); TAMAR TEM = ((1 + (TAMAR + margen) × 32/365)^(365/32))^(1/12) − 1; TAMAR = promedio de emisión − ${TAMAR_LAG_BUSINESS_DAYS} hábiles a vencimiento − ${TAMAR_LAG_BUSINESS_DAYS} hábiles, con la última publicada para los días que faltan`,
+  temDefinition: '(pagoProyectado/precio)^(30/díasAlVencimiento) - 1',
+  teaDefinition: '(pagoProyectado/precio)^(365/díasAlVencimiento) - 1, con la TAMAR de hoy constante hasta el vencimiento',
+} as const;
+
 export type ConventionsMeta =
   | typeof CONVENTIONS_META
   | typeof CER_CONVENTIONS_META
-  | typeof DL_CONVENTIONS_META;
+  | typeof DL_CONVENTIONS_META
+  | typeof TAMAR_CONVENTIONS_META;

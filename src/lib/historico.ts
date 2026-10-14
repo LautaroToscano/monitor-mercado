@@ -33,6 +33,8 @@ export type FotoInstrumento = Pick<
   calidad: InstrumentRow['quality']['level'];
   /** Sólo en dólar linked: el eje de su curva, en años. */
   durationModificada?: number;
+  /** Se dibujaba pero no entraba al ajuste (el dual con tasa fija de TAMAR). */
+  fueraDelAjuste?: true;
 };
 
 export interface FotoCurva {
@@ -69,6 +71,7 @@ export function fotoDesde(u: UniverseResponse): FotoCurva {
         ...(i.dolarLinked && {
           durationModificada: Math.round(i.dolarLinked.durationModificada * 1e6) / 1e6,
         }),
+        ...(i.fueraDelAjuste && { fueraDelAjuste: true as const }),
       })),
   };
 }

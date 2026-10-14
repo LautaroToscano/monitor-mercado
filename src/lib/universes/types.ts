@@ -5,6 +5,7 @@ import type {
   CerDetalle,
   DolarLinkedDetalle,
   InstrumentReference,
+  TamarDetalle,
   Quote,
   VistaUniverso,
 } from '../types';
@@ -28,6 +29,9 @@ export interface UniverseValuation {
   durationDays?: number;
   cer?: CerDetalle;
   dolarLinked?: DolarLinkedDetalle;
+  tamar?: TamarDetalle;
+  /** Se dibuja pero no entra al ajuste (ver `InstrumentRow.fueraDelAjuste`). */
+  fueraDelAjuste?: boolean;
 }
 
 /**
@@ -81,6 +85,11 @@ export interface UniverseDefinition<R extends InstrumentReference = InstrumentRe
     liquidacion: Date,
     signal?: AbortSignal,
   ): Promise<C>;
+  /**
+   * Avisos del universo que no son de un papel en particular, después de
+   * valuar: van a `warnings`, nunca a la pantalla.
+   */
+  avisos?(vigentes: readonly R[], contexto: C | undefined): string[];
   valuate(
     ref: R,
     quote: Quote,

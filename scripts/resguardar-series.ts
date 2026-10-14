@@ -1,6 +1,6 @@
 /**
  * Resguarda en el repo las series de cierre de BYMA de todos los papeles de
- * las tres curvas que vivieron en los últimos dos años, vencidos incluidos.
+ * las cuatro curvas que vivieron en los últimos dos años, vencidos incluidos.
  *
  *   npm run historico:resguardar
  *   npm run historico:resguardar -- --desde=2024-10-09   (lista desde esa fecha)
@@ -26,6 +26,7 @@ import { DIAS_SERIE_COMPLETA, fetchHistory, type Cierre } from '../src/lib/sourc
 import { CANDIDATE_SYMBOL as FIJA } from '../src/lib/universes/tasa-fija-spec';
 import { CANDIDATE_SYMBOL as CER } from '../src/lib/universes/tasa-cer-spec';
 import { CANDIDATE_SYMBOL as DL } from '../src/lib/universes/dolar-linked-spec';
+import { CANDIDATE_SYMBOL as TAMAR } from '../src/lib/universes/tamar-spec';
 import { universes } from '../src/lib/universes';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '../data');
@@ -47,7 +48,7 @@ const PAUSA_BYMA_MS = 400;
 const CER_CUPON_A3 = /^(T[0-9]X[0-9])P$/;
 const aBYMA = (t: string) => t.replace(CER_CUPON_A3, '$1');
 const esCandidato = (t: string) =>
-  FIJA.test(t) || CER.test(t) || DL.test(t) || CER_CUPON_A3.test(t);
+  FIJA.test(t) || CER.test(t) || DL.test(t) || TAMAR.test(t) || CER_CUPON_A3.test(t);
 const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const arg = (nombre: string) =>
   process.argv.find((a) => a.startsWith(`--${nombre}=`))?.split('=')[1];

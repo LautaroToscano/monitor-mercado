@@ -81,6 +81,9 @@ const PAD_IZQ = 66;
 const PAD_DER = 24;
 
 const RADIO_PUNTO = 4.5;
+/** Medidas de una etiqueta de ticker: mono de 10 px. */
+const ANCHO_LETRA = 6.4;
+const ALTO_LETRA = 9;
 const ALTO_TOTAL = PAD_SUP + ALTO_CURVA + ALTO_EJE;
 
 export function PanelCurva({
@@ -92,9 +95,13 @@ export function PanelCurva({
   comparacion,
 }: Props) {
   const ejeX = vista.ejeX;
-  /** Se dibuja pero no define la curva: el dual de dólar linked. */
+  /**
+   * Se dibuja pero no define la curva. Lo decide el universo, por estructura
+   * o papel por papel (el dual con tasa fija de TAMAR).
+   */
   const fueraDelAjuste = useCallback(
-    (estructura: InstrumentRow['estructura']) => vista.fueraDelAjuste?.includes(estructura) ?? false,
+    (i: Pick<InstrumentRow, 'estructura' | 'fueraDelAjuste'>) =>
+      i.fueraDelAjuste === true || (vista.fueraDelAjuste?.includes(i.estructura) ?? false),
     [vista],
   );
   const [ancho, setAncho] = useState(960);
@@ -178,7 +185,7 @@ export function PanelCurva({
     () =>
       ajustarCurva(
         visibles
-          .filter((i) => i.quality.level === 'ok' && !fueraDelAjuste(i.estructura) && i[metrica] !== null)
+          .filter((i) => i.quality.level === 'ok' && !fueraDelAjuste(i) && i[metrica] !== null)
           .map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
         vista.modeloCurva,
       ),
@@ -190,7 +197,7 @@ export function PanelCurva({
     () =>
       ajustarCurva(
         pasados
-          .filter((i) => i.calidad === 'ok' && !fueraDelAjuste(i.estructura))
+          .filter((i) => i.calidad === 'ok' && !fueraDelAjuste(i))
           .map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
         vista.modeloCurva,
       ),
@@ -199,6 +206,42 @@ export function PanelCurva({
 
   const trazo = useMemo(() => trazar(ajuste, x, y), [ajuste, x, y]);
   const trazoPasado = useMemo(() => trazar(ajustePasado, x, y), [ajustePasado, x, y]);
+
+  /**
+   * Arriba o abajo de su punto, la etiqueta de cada papel. Alterna como
+   * siempre, pero si del lado que le toca pisa otro punto o una etiqueta ya
+   * ubicada, prueba el otro: dos papeles de plazo y tasa parecidos (TMVE8 y
+   * TMF28) se tapaban.
+   */
+  const etiquetaArriba = useMemo(() => {
+    const puntos = visibles
+      .filter((i) => i[metrica] !== null)
+      .map((i) => ({ ticker: i.ticker, cx: x(plazoEnEje(i, ejeX)), cy: y(i[metrica] as number) }));
+    const cajas: { x0: number; x1: number; y0: number; y1: number }[] = [];
+    const caja = (p: (typeof puntos)[number], arriba: boolean) => {
+      const medio = (p.ticker.length * ANCHO_LETRA) / 2;
+      const base = arriba ? p.cy - 13 : p.cy + 20;
+      return { x0: p.cx - medio, x1: p.cx + medio, y0: base - ALTO_LETRA, y1: base + 2 };
+    };
+    const choca = (c: ReturnType<typeof caja>, propio: string) =>
+      puntos.some(
+        (q) =>
+          q.ticker !== propio &&
+          q.cx + RADIO_PUNTO > c.x0 && q.cx - RADIO_PUNTO < c.x1 &&
+          q.cy + RADIO_PUNTO > c.y0 && q.cy - RADIO_PUNTO < c.y1,
+      ) ||
+      cajas.some((o) => o.x0 < c.x1 && c.x0 < o.x1 && o.y0 < c.y1 && c.y0 < o.y1);
+    const lado = new Map<string, boolean>();
+    puntos.forEach((p, idx) => {
+      const preferido = idx % 2 === 0;
+      const arriba = choca(caja(p, preferido), p.ticker) && !choca(caja(p, !preferido), p.ticker)
+        ? !preferido
+        : preferido;
+      lado.set(p.ticker, arriba);
+      cajas.push(caja(p, arriba));
+    });
+    return lado;
+  }, [visibles, metrica, x, y, ejeX]);
 
   const instrumentoActivo = visibles.find((i) => i.ticker === activo) ?? null;
 
@@ -295,9 +338,9 @@ export function PanelCurva({
           const cy = y(v);
           const marcado = i.quality.level !== 'ok';
           // Fuera del ajuste por lo que es, no por el dato: hueco pero de trazo lleno.
-          const aparte = !marcado && fueraDelAjuste(i.estructura);
+          const aparte = !marcado && fueraDelAjuste(i);
           const esActivo = i.ticker === activo;
-          const arriba = idx % 2 === 0;
+          const arriba = etiquetaArriba.get(i.ticker) ?? idx % 2 === 0;
 
           return (
             <g
@@ -371,7 +414,7 @@ export function PanelCurva({
           instrumento={instrumentoActivo}
           metrica={metrica}
           ejeX={ejeX}
-          aparte={fueraDelAjuste(instrumentoActivo.estructura)}
+          aparte={fueraDelAjuste(instrumentoActivo)}
           izquierda={x(plazoEnEje(instrumentoActivo, ejeX))}
           ancho={ancho}
         />
@@ -432,7 +475,9 @@ function Globo({
             valor={`${i.dolarLinked.durationModificada.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} años`}
           />
         )}
+        {i.tamar && <Fila etiqueta="Margen" valor={pct(i.tamar.margen)} />}
         <Fila etiqueta="Precio" valor={precio(i.lastPrice)} />
+        {i.tamar && <Fila etiqueta="Paridad" valor={pct(i.tamar.paridad)} />}
         <Fila
           etiqueta="Variación"
           valor={`${numeroFirmado(i.priceChange)}  ${pctFirmado(i.priceChangePct)}`}
@@ -444,7 +489,9 @@ function Globo({
         <ul className={estilos.globoAvisos}>
           {aparte && (
             <li data-nivel="warn">
-              Dual TAMAR / dólar: la TIR es la de la pata dólar, un piso. Se dibuja pero no entra a la curva.
+              {i.tamar
+                ? 'Dual tasa fija / TAMAR: la TIR es la de la pata TAMAR, sin margen. Se dibuja pero no entra a la curva.'
+                : 'Dual TAMAR / dólar: la TIR es la de la pata dólar, un piso. Se dibuja pero no entra a la curva.'}
             </li>
           )}
           {i.quality.flags.map((f) => (

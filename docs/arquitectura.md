@@ -6,7 +6,7 @@ Dónde vive cada cosa. Volver al [README](../README.md).
 
     /                              redirige al primer universo
     /tasa-fija, /tasa-cer,
-    /dolar-linked                  tablero de cada curva
+    /dolar-linked, /tamar          tablero de cada curva
     GET /api/universe              catálogo de universos
     GET /api/universe/[slug]       un universo completo, ya calculado
     GET /api/breakeven             inflación breakeven por mes INDEC
@@ -18,7 +18,7 @@ pantalla no se muestran.
 ## Código
 
     src/lib/conventions.ts        convenciones de cálculo: único lugar donde viven
-    src/lib/pricing/              valuación: cero cupón a tasa fija y títulos CER
+    src/lib/pricing/              valuación: tasa fija, CER, dólar linked y TAMAR
     src/lib/ajuste.ts             curva ajustada (logarítmica; Nelson-Siegel para comparar)
     src/lib/breakeven.ts          inflación breakeven
     src/lib/quality.ts            reglas de calidad del dato
@@ -26,7 +26,7 @@ pantalla no se muestran.
     src/lib/historico.ts          fotos de cierre
     src/lib/cache.ts              cache en proceso y cortacircuitos
     src/lib/devaluacion.ts        devaluación implícita de futuros y de bonos
-    src/lib/sources/              BYMA, BCRA, INDEC, A3, Secretaría de Finanzas
+    src/lib/sources/              BYMA, BCRA (CER, A3500, TAMAR), INDEC, A3, Secretaría de Finanzas
     src/lib/universes/            registro de universos y clasificación de especies
     src/lib/reference/            especies vigentes, generado y versionado
     src/lib/format.ts, escala.ts  formateo y geometría de los gráficos (ningún cálculo)
@@ -69,6 +69,7 @@ frontend cambian.
 | `npm run validate -- --universe=tasa-cer` | la curva CER, con el detalle del ajuste por CER |
 | `npm run validate:breakeven` | tabla del breakeven por mes INDEC |
 | `npm run validate:dolar-linked` | curva dólar linked, A3 contra A3500 y devaluación implícita |
+| `npm run validate:tamar` | curva TAMAR: condiciones de cada papel, TAMAR proyectada, valor técnico y ajuste |
 | `npm run validate:modelos` | logaritmo contra Nelson-Siegel sobre la historia guardada |
 | `npm run historico:ajustes` | factores para deshacer el ajuste por pagos de la serie de BYMA |
 | `npm run historico:resguardar` | guarda en `data/series/` la serie de BYMA de todos los papeles de los últimos dos años |

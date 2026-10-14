@@ -304,6 +304,8 @@ export async function buildUniverse(
     }
   }
 
+  if (universe.avisos) warnings.push(...universe.avisos([...vigentes.values()], contexto));
+
   const instruments: InstrumentRow[] = [];
 
   for (const [symbol, ref] of vigentes) {
@@ -400,6 +402,8 @@ export async function buildUniverse(
       finalPayment: valuation?.finalPayment ?? null,
       cer: valuation?.cer ?? null,
       ...(valuation?.dolarLinked && { dolarLinked: valuation.dolarLinked }),
+      ...(valuation?.tamar && { tamar: valuation.tamar }),
+      ...(valuation?.fueraDelAjuste && { fueraDelAjuste: true }),
       bid: quote.bid,
       ask: quote.ask,
       volumeAmount: quote.volumeAmount,

@@ -110,3 +110,21 @@
   opacity: 0.65;
 }
 
+
+/*
+ * Dual: la misma píldora que el estado de la rueda, en tinta. Clasifica al
+ * papel sin usar color, que está reservado para la dirección del precio.
+ */
+.dual {
+  margin-left: 7px;
+  padding: 0 5px;
+  border: 1px solid var(--eje);
+  border-radius: 999px;
+  color: var(--tinta-2);
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}

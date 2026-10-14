@@ -162,8 +162,53 @@ const VOLUMEN: Columna = {
       : 'Volumen nominal negociado en la rueda de cierre',
 };
 
+const DURATION_TAMAR: Columna = {
+  ...DURATION,
+  ayuda:
+    'Duration de Macaulay en años. Son todos cero cupón: es el plazo desde la liquidación hasta el vencimiento. Es el eje de la curva.',
+};
+
+const MARGEN: Columna = {
+  clave: 'margen',
+  titulo: 'Margen',
+  ayuda:
+    'Lo que el papel paga por encima de la TAMAR, en TNA. Lo fija la licitación o la norma de emisión.',
+  numerica: true,
+  valor: (i) => i.tamar?.margen ?? null,
+  celda: (i) => pct(i.tamar?.margen ?? null),
+  titleCelda: (i) => i.tamar?.fuenteMargen.replace(/ \(http.*\)$/, ''),
+};
+
+const VALOR_TECNICO: Columna = {
+  clave: 'valorTecnico',
+  titulo: 'Valor técnico',
+  ayuda:
+    'Por cada 100 de valor nominal: lo devengado hasta la liquidación con la TAMAR ya publicada más el margen. En el dual con dólar linked, en pesos al tipo de cambio inicial.',
+  numerica: true,
+  valor: (i) => i.tamar?.valorTecnico ?? null,
+  celda: (i) => precio(i.tamar?.valorTecnico ?? null),
+};
+
+const PARIDAD: Columna = {
+  clave: 'paridad',
+  titulo: 'Paridad',
+  ayuda: 'Precio sobre valor técnico.',
+  numerica: true,
+  valor: (i) => i.tamar?.paridad ?? null,
+  celda: (i) => pct(i.tamar?.paridad ?? null),
+};
+
 /** Las columnas de cada curva. Las de CER cambian el pago final, que no se conoce, por el capital ajustado. */
-function columnas(ejeX: VistaUniverso['ejeX']): Columna[] {
+function columnas(vista: Pick<VistaUniverso, 'ejeX' | 'tabla'>): Columna[] {
+  const { ejeX } = vista;
+  if (vista.tabla === 'tamar') {
+    return [
+      TICKER, VENCE, DIAS, DURATION_TAMAR, PRECIO, VARIACION, VARIACION_PCT,
+      tem('Efectiva mensual, con la TAMAR de hoy constante hasta el vencimiento'),
+      tir('Efectiva anual, actual/365, con la última TAMAR publicada constante hasta el vencimiento. En los duales, la de la pata TAMAR.'),
+      MARGEN, VALOR_TECNICO, PARIDAD, VOLUMEN,
+    ];
+  }
   if (ejeX === 'duration-modificada') {
     return [
       TICKER, VENCE, DIAS, PRECIO, VARIACION, VARIACION_PCT,
@@ -190,12 +235,14 @@ function columnas(ejeX: VistaUniverso['ejeX']): Columna[] {
 
 export function TablaPrecios({
   instrumentos,
-  ejeX,
+  vista,
 }: {
   instrumentos: InstrumentRow[];
-  ejeX: VistaUniverso['ejeX'];
+  vista: Pick<VistaUniverso, 'ejeX' | 'tabla'>;
 }) {
-  const cols = useMemo(() => columnas(ejeX), [ejeX]);
+  const cols = useMemo(() => columnas(vista), [vista]);
+  // En TAMAR los duales van marcados: su TIR es la de la pata TAMAR, un piso.
+  const marcarDuales = vista.tabla === 'tamar';
   const [orden, setOrden] = useState<{ clave: string; desc: boolean }>({
     clave: 'daysToMaturity',
     desc: false,
@@ -268,6 +315,11 @@ export function TablaPrecios({
                   c.clave === 'ticker' ? (
                     <th key={c.clave} scope="row" className={`mono ${estilos.ticker}`}>
                       {c.celda(i)}
+                      {marcarDuales && i.estructura === 'dual' && (
+                        <span className={estilos.dual} title={tituloDual(i)}>
+                          Dual
+                        </span>
+                      )}
                     </th>
                   ) : (
                     <td
@@ -293,6 +345,17 @@ export function TablaPrecios({
       </table>
     </div>
   );
+}
+
+const NOMBRE_DUAL: Record<string, string> = {
+  'dual-tasa-fija': 'tasa fija / TAMAR. Se dibuja aparte: no entra al ajuste de la curva.',
+  'dual-cer': 'CER / TAMAR + 3%.',
+  'dual-dolar-linked': 'TAMAR / dólar linked.',
+};
+
+function tituloDual(i: InstrumentRow): string {
+  const tipo = i.tamar?.tipo ? NOMBRE_DUAL[i.tamar.tipo] : undefined;
+  return `Dual ${tipo ?? ''} La TIR es la de la pata TAMAR, un piso.`.replace(/\s+/g, ' ');
 }
 
 function tono(v: number | null): 'sube' | 'baja' | undefined {

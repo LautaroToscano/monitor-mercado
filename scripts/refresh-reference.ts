@@ -24,9 +24,11 @@ import type { InstrumentReference, ZeroCouponReference } from '../src/lib/types'
 import * as fija from '../src/lib/universes/tasa-fija-spec';
 import * as cer from '../src/lib/universes/tasa-cer-spec';
 import * as dl from '../src/lib/universes/dolar-linked-spec';
+import * as tm from '../src/lib/universes/tamar-spec';
 import { reglasTasaFija } from '../src/lib/universes/tasa-fija-clasificador';
 import { reglasTasaCer } from '../src/lib/universes/tasa-cer-clasificador';
 import { reglasDolarLinked } from '../src/lib/universes/dolar-linked-clasificador';
+import { reglasTamar } from '../src/lib/universes/tamar-clasificador';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/reference');
 
@@ -62,6 +64,13 @@ const SPECS: Spec<InstrumentReference>[] = [
     panels: dl.DOLAR_LINKED_PANELS,
     candidato: dl.CANDIDATE_SYMBOL,
     reglas: reglasDolarLinked as ReglasDeDescubrimiento<InstrumentReference>,
+    describir: (r) => `${r.estructura}  emisión ${r.issueDate}  vence ${r.maturityDate}`,
+  },
+  {
+    slug: 'tamar',
+    panels: tm.TAMAR_PANELS,
+    candidato: tm.CANDIDATE_SYMBOL,
+    reglas: reglasTamar as ReglasDeDescubrimiento<InstrumentReference>,
     describir: (r) => `${r.estructura}  emisión ${r.issueDate}  vence ${r.maturityDate}`,
   },
 ];

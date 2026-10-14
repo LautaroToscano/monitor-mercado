@@ -24,6 +24,14 @@ const ID_CER = 30;
 const ID_A3500 = 5;
 
 /**
+ * TAMAR de bancos privados, en TNA: la tasa de plazos fijos de más de mil
+ * millones de pesos que toman los títulos a tasa TAMAR. Las normas la pasan a
+ * mensual con capitalización a 32 días; la variable 137 es esa misma cuenta
+ * ya hecha (TEA) y no se usa, porque el margen se suma sobre la TNA.
+ */
+const ID_TAMAR = 136;
+
+/**
  * La API devuelve como mucho 3000 filas por pedido, unos ocho años de CER.
  * Los títulos del canje de 2005 toman su CER base de diciembre de 2003, así
  * que hacen falta tres o cuatro páginas. Se pagina por `Offset` hasta que una
@@ -71,6 +79,17 @@ export function fetchCer(desde: IsoDate, signal?: AbortSignal): Promise<SerieDia
  */
 export function fetchA3500(desde: IsoDate, signal?: AbortSignal): Promise<SerieDiaria> {
   return memo(`bcra:a3500:${desde}`, TTL_CER_MS, () => traerSerie(ID_A3500, desde, signal));
+}
+
+/**
+ * Serie de la TAMAR de bancos privados (TNA, en porcentaje) desde `desde`.
+ *
+ * El dato de un día se publica recién el hábil siguiente: con la rueda en
+ * curso, el último es el de ayer o el de antes de ayer. La hora de cache es
+ * la misma que la del CER: alcanza para tomar el dato nuevo el mismo día.
+ */
+export function fetchTamar(desde: IsoDate, signal?: AbortSignal): Promise<SerieDiaria> {
+  return memo(`bcra:tamar:${desde}`, TTL_CER_MS, () => traerSerie(ID_TAMAR, desde, signal));
 }
 
 async function traerSerie(

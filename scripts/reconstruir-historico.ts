@@ -24,10 +24,11 @@ import { fotoDesde, type IndiceHistorico } from '../src/lib/historico';
 import { memo } from '../src/lib/cache';
 import { DIAS_SERIE_COMPLETA, precargarSeries, type Cierre } from '../src/lib/sources/byma';
 import { dolarLinked } from '../src/lib/universes/dolar-linked';
+import { tamar } from '../src/lib/universes/tamar';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 
-const TODOS = [tasaFija, tasaCer, dolarLinked];
+const TODOS = [tasaFija, tasaCer, dolarLinked, tamar];
 
 /**
  * Papeles que no entran a las fotos rehechas, con el motivo.

@@ -13,7 +13,7 @@ import data from '../reference/vencidos.json' with { type: 'json' };
  *
  * En vivo no cambian nada: un papel vencido nunca está vigente.
  */
-type Slug = 'tasa-fija' | 'tasa-cer' | 'dolar-linked';
+type Slug = 'tasa-fija' | 'tasa-cer' | 'dolar-linked' | 'tamar';
 
 export function vencidosDe<R extends InstrumentReference>(slug: Slug): R[] {
   return (data[slug] as unknown as (R & { origen?: unknown })[]).map(({ origen: _origen, ...ref }) => ref as R);

@@ -88,6 +88,50 @@ export interface DolarLinkedReference extends InstrumentReference {
   estructura: 'cero-cupon' | 'dual';
 }
 
+/**
+ * Referencia de un título a tasa TAMAR. Las condiciones (margen, norma, qué
+ * paga cada pata de los duales) viven en `tamar-condiciones.ts`, verificadas
+ * a mano en el Boletín Oficial: un papel nuevo sin ellas no se valúa.
+ */
+export interface TamarReference extends InstrumentReference {
+  estructura: 'cero-cupon' | 'dual';
+}
+
+/** Cómo se llegó a la TIR de un título TAMAR, para verificarla a mano. */
+export interface TamarDetalle {
+  /** Qué paga: TAMAR pura, o el máximo entre la TAMAR y otra pata. */
+  tipo: 'tamar' | 'dual-tasa-fija' | 'dual-cer' | 'dual-dolar-linked';
+  /** Última TAMAR publicada antes de la rueda (TNA). Es la que se proyecta. */
+  tamarVigente: { fecha: IsoDate; valor: number; fuente: string };
+  /** Margen sobre la TAMAR (TNA), fijado en la licitación o en la norma. */
+  margen: number;
+  /** De dónde sale el margen. */
+  fuenteMargen: string;
+  /**
+   * TAMAR promedio de todo el período: las publicadas con su valor y la
+   * vigente para los hábiles que faltan.
+   */
+  tamarPromedio: number;
+  habilesPublicados: number;
+  habilesProyectados: number;
+  /** Lo que pagaría al vencimiento con la TAMAR de hoy constante. */
+  pagoProyectado: number;
+  /** Lo devengado a la liquidación, con la TAMAR ya publicada. */
+  valorTecnico: number;
+  /** Precio / valor técnico. */
+  paridad: number;
+  /**
+   * Base de la pata TAMAR. 100 salvo en el dual con dólar linked: VN USD
+   * 100 al tipo de cambio inicial.
+   */
+  base: number;
+  /** Sólo en el dual con dólar linked: A3500 del hábil previo a la licitación. */
+  tcInicial: TipoDeCambio | null;
+  /** Sólo en el dual con tasa fija: lo que paga la pata fija. */
+  pagoTasaFija: number | null;
+  norma: string;
+}
+
 /** Un tipo de cambio puntual: de qué día es, cuánto vale y de dónde sale. */
 export interface TipoDeCambio {
   fecha: IsoDate;
@@ -219,6 +263,13 @@ export interface InstrumentRow {
   cer: CerDetalle | null;
   /** Sólo en los dólar linked: spot, tipo de cambio inicial y de pago. */
   dolarLinked?: DolarLinkedDetalle | null;
+  /** Sólo en los TAMAR: margen, TAMAR proyectada, valor técnico. */
+  tamar?: TamarDetalle | null;
+  /**
+   * Se dibuja pero no entra al ajuste, por decisión del universo y no por la
+   * calidad del dato. En TAMAR, el dual con tasa fija (TTD26).
+   */
+  fueraDelAjuste?: boolean;
   bid: number | null;
   ask: number | null;
   volumeAmount: number | null;
@@ -274,6 +325,8 @@ export interface VistaUniverso {
    * cosa: dólar linked usa una parábola (ver `regresionCuadratica`).
    */
   modeloCurva?: 'logaritmico' | 'parabolico';
+  /** Columnas propias de la tabla. Si falta, salen del eje. */
+  tabla?: 'tamar';
 }
 
 export interface UniverseResponse {

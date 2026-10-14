@@ -1033,6 +1033,148 @@
    }
   }
  ],
+ "tamar": [
+  {
+   "symbol": "M31L5",
+   "name": "LETRA TAMAR 31/07/25",
+   "isin": null,
+   "issueDate": "2025-04-16",
+   "maturityDate": "2025-07-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 16/2025, art. 1",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/324046/20250415",
+    "fechaEmision": "norma",
+    "margen": "licitación del 14/04/2025 (https://www.argentina.gob.ar/noticias/resultado-de-la-licitacion-de-lecap-boncer-letra-tamar-bono-tamar-bono-dolar-linked-y)"
+   }
+  },
+  {
+   "symbol": "M10N5",
+   "name": "LETRA TAMAR TEM 10/11/2025",
+   "isin": null,
+   "issueDate": "2025-08-18",
+   "maturityDate": "2025-11-10",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 38/2025, art. 1",
+    "fuente": "https://www.argentina.gob.ar/normativa/nacional/norma-416407/texto",
+    "fechaEmision": "norma",
+    "margen": "licitación del 13/08/2025 (https://www.argentina.gob.ar/noticias/resultado-de-la-licitacion-de-lecap-boncap-boncer-y-dolar-linked)"
+   }
+  },
+  {
+   "symbol": "M16E6",
+   "name": "LETRA TAMAR TEM 16/01/2026",
+   "isin": null,
+   "issueDate": "2025-08-18",
+   "maturityDate": "2026-01-16",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 38/2025, art. 3",
+    "fuente": "https://www.argentina.gob.ar/normativa/nacional/norma-416407/texto",
+    "fechaEmision": "norma",
+    "margen": "licitación del 13/08/2025 (https://www.argentina.gob.ar/noticias/resultado-de-la-licitacion-de-lecap-boncap-boncer-y-dolar-linked)"
+   }
+  },
+  {
+   "symbol": "M27F6",
+   "name": "LETRA TAMAR TEM 27/02/2026",
+   "isin": null,
+   "issueDate": "2025-08-29",
+   "maturityDate": "2026-02-27",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 41/2025, art. 2",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/330476/20250828",
+    "fechaEmision": "norma",
+    "margen": "licitación del 27/08/2025 (https://www.argentina.gob.ar/noticias/resultado-de-la-licitacion-de-lecap-lelink-y-letra-tamar)"
+   }
+  },
+  {
+   "symbol": "M15D5",
+   "name": "LETRA TAMAR TEM 15/12/2025",
+   "isin": null,
+   "issueDate": "2025-09-12",
+   "maturityDate": "2025-12-15",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 44/2025, art. 1",
+    "fuente": "https://www.argentina.gob.ar/normativa/nacional/norma-417398/texto",
+    "fechaEmision": "norma",
+    "margen": "licitación del 10/09/2025 (https://www.argentina.gob.ar/noticias/resultado-de-la-licitacion-de-lecap-letra-tamar-boncer-lelink-y-bono-dolar-linked)"
+   }
+  },
+  {
+   "symbol": "M31G6",
+   "name": "LETRA TAMAR TEM 31/08/2026",
+   "isin": null,
+   "issueDate": "2025-11-10",
+   "maturityDate": "2026-08-31",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 58/2025, art. 2",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/334181/20251107",
+    "fechaEmision": "norma",
+    "margen": "licitación del 05/11/2025 (https://www.argentina.gob.ar/noticias/resultado-de-licitacion-de-lecap-boncap-boncer-letamar-bono-tamar-y-lelink)"
+   }
+  },
+  {
+   "symbol": "M30A6",
+   "name": "LETRA TAMAR TEM 30/04/2026",
+   "isin": null,
+   "issueDate": "2025-11-28",
+   "maturityDate": "2026-04-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 60/2025, art. 4",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/335067/20251127",
+    "fechaEmision": "norma",
+    "margen": "licitación del 26/11/2025 (https://www.argentina.gob.ar/noticias/resultado-de-licitacion-de-instrumentos-del-tesoro-nacional-denominados-en-pesos-y-dolares)"
+   }
+  },
+  {
+   "symbol": "TTM26",
+   "name": "BONTE NAL TASA DUAL 16/3/2026",
+   "isin": null,
+   "issueDate": "2025-01-29",
+   "maturityDate": "2026-03-16",
+   "estructura": "dual",
+   "origen": {
+    "norma": "Resolución Conjunta 4/2025, art. 1",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/320147/20250127",
+    "fechaEmision": "norma",
+    "margen": "norma: la pata variable es la TAMAR TEM sin margen"
+   }
+  },
+  {
+   "symbol": "TTJ26",
+   "name": "BONTE NAL TASA DUAL 30/6/2026",
+   "isin": null,
+   "issueDate": "2025-01-29",
+   "maturityDate": "2026-06-30",
+   "estructura": "dual",
+   "origen": {
+    "norma": "Resolución Conjunta 4/2025, art. 1",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/320147/20250127",
+    "fechaEmision": "norma",
+    "margen": "norma: la pata variable es la TAMAR TEM sin margen"
+   }
+  },
+  {
+   "symbol": "TTS26",
+   "name": "BONTE NAL TASA DUAL 15/9/2026",
+   "isin": null,
+   "issueDate": "2025-01-29",
+   "maturityDate": "2026-09-15",
+   "estructura": "dual",
+   "origen": {
+    "norma": "Resolución Conjunta 4/2025, art. 1",
+    "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/320147/20250127",
+    "fechaEmision": "norma",
+    "margen": "norma: la pata variable es la TAMAR TEM sin margen"
+   }
+  }
+ ],
  "excluidos": {
   "T2X5": "CER con cupón: falta su cronograma",
   "T4X4": "CER con cupón: falta su cronograma",
