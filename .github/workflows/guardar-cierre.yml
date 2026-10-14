@@ -5,14 +5,17 @@
 # que lo que no se guarda acá, se pierde.
 #
 # Corre de lunes a viernes a las 18:00 hora argentina: el feed de BYMA
-# termina de publicar la rueda a las 17:20 y a esa hora el cierre ya está. Un
-# feriado vuelve a escribir la foto de la rueda anterior, que es idéntica, y
-# no hay nada que subir.
+# termina de publicar la rueda a las 17:20 y a esa hora el cierre ya está.
+# GitHub suele largarlo con horas de demora, y de noche BYMA rota el panel a
+# la sesión siguiente: si lo agarra a medias y la serie histórica todavía no
+# tiene la rueda, esa curva no se guarda. Por eso hay una segunda corrida a
+# la mañana siguiente, que levanta lo que faltó; lo ya guardado no se pisa.
 name: Guardar cierre
 
 on:
   schedule:
     - cron: '0 21 * * 1-5' # 21:00 UTC = 18:00 hora argentina
+    - cron: '0 10 * * 2-6' # 10:00 UTC = 07:00 hora argentina, la rueda de ayer
   workflow_dispatch:
 
 permissions:
@@ -40,7 +43,9 @@ jobs:
       - name: Guardar la foto del día
         run: npm run historico:guardar
 
+      # Aunque una curva falle, lo que se guardó de las otras se sube.
       - name: Subir si hay algo nuevo
+        if: always()
         run: |
           if [ -z "$(git status --porcelain -- public/historico)" ]; then
             echo "Sin fotos nuevas."
@@ -49,5 +54,7 @@ jobs:
           git config user.name 'LautaroToscano'
           git config user.email 'lautaro.toscano27@gmail.com'
           git add public/historico
-          git commit -m "Foto de cierre del $(date -u +%Y-%m-%d)"
+          # La fecha del título es la de la rueda guardada, no la del reloj.
+          ruedas=$(git status --porcelain -- public/historico | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | sort -u | paste -sd ' ' -)
+          git commit -m "Foto de cierre del ${ruedas:-$(date -u +%Y-%m-%d)}"
           git push

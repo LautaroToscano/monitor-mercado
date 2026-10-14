@@ -105,16 +105,33 @@ function crearPresupuesto(total = PRESUPUESTO_MS) {
  *
  * Mientras el panel tenga datos es la mejor fuente que existe, esté el mercado
  * abierto o cerrado: es la única que trae el volumen efectivo de la rueda.
+ *
+ * La rotación no es instantánea. El 14/10/2026 a las 20:17 `public-bonds`
+ * traía 22 filas (TTD26 entre ellas, con precio) y `lebacs` todo en cero.
+ * Bastaba con que un papel tuviera precio para dar el panel por bueno, y la
+ * curva TAMAR salió con un solo papel y la CER sin ocho. Por eso el panel
+ * tiene que traer con precio a casi todos los vigentes; un papel que no operó
+ * igual trae el cierre anterior, así que en una rueda normal están todos.
  */
+const COBERTURA_MINIMA_PANEL = 0.75;
+
 function panelTieneDatos(
   quotes: Map<string, Quote>,
   universe: AnyUniverse,
+  hoyIso: IsoDate,
 ): boolean {
-  for (const symbol of universe.reference.keys()) {
-    const q = quotes.get(symbol);
-    if (q && (q.last !== null || q.previousClose !== null) && q.lastTradeTime) return true;
+  let vigentes = 0;
+  let conPrecio = 0;
+  let operados = 0;
+  for (const ref of universe.reference.values()) {
+    if (ref.maturityDate <= hoyIso || ref.issueDate > hoyIso) continue;
+    vigentes += 1;
+    const q = quotes.get(ref.symbol);
+    if (!q || (q.last === null && q.previousClose === null)) continue;
+    conPrecio += 1;
+    if (q.lastTradeTime) operados += 1;
   }
-  return false;
+  return operados > 0 && conPrecio >= vigentes * COBERTURA_MINIMA_PANEL;
 }
 
 /**
@@ -171,7 +188,7 @@ async function fetchQuotes(
     }
   }
 
-  if (panel && panelTieneDatos(panel, universe)) {
+  if (panel && panelTieneDatos(panel, universe, hoyIso)) {
     // El panel manda mientras tenga datos. Si el mercado ya cerró, esos datos
     // son los del cierre —precio, variación y volumen efectivo de toda la
     // rueda—, y sólo cambia cómo se los llama.

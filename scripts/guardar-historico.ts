@@ -4,9 +4,10 @@
  *   npm run historico:guardar
  *
  * Toma los cierres de la última rueda terminada —con el mercado abierto, la
- * de ayer—, así que correrlo dos veces el mismo día, o un feriado, reescribe
- * la misma foto y no suma nada. Lo corre GitHub Actions todos los días hábiles
- * después del cierre (ver .github/workflows/guardar-cierre.yml).
+ * de ayer—. Una foto ya guardada no se pisa, así que correrlo dos veces, o un
+ * feriado, no cambia nada; si BYMA todavía no tiene esa rueda, la curva queda
+ * para la corrida siguiente. Lo corre GitHub Actions a la noche y a la mañana
+ * siguiente (ver .github/workflows/guardar-cierre.yml).
  */
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -16,6 +17,7 @@ import { buildUniverse } from '../src/lib/build';
 import { fotoDesde, type IndiceHistorico } from '../src/lib/historico';
 import type { UniverseResponse } from '../src/lib/types';
 import { CARPETA_ULTIMO_CIERRE } from '../src/lib/ultimo-cierre';
+import { ultimaRuedaTerminada } from '../src/lib/conventions';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 import { dolarLinked } from '../src/lib/universes/dolar-linked';
@@ -38,18 +40,38 @@ async function main() {
 
   // Una después de la otra: fuera del panel, los cierres son un pedido por
   // papel y juntas duplicarían los pedidos simultáneos a BYMA.
+  const esperada = ultimaRuedaTerminada(new Date());
+  const errores: string[] = [];
   for (const universo of [tasaFija, tasaCer, dolarLinked, tamar]) {
     const respuesta = await buildUniverse(universo, new Date(), 'cierre');
     const foto = fotoDesde(respuesta);
+    // De noche BYMA rota el panel a la sesión siguiente, y si lo agarra a
+    // medias los precios salen de la serie histórica, que puede no tener
+    // todavía la rueda del día. Eso no es un error: la corrida de la mañana
+    // la levanta. Guardar el cierre anterior con la fecha vieja no suma nada.
+    if (respuesta.tradeDate !== esperada) {
+      console.log(`${universo.slug}: BYMA todavía no tiene el cierre del ${esperada} (da ${respuesta.tradeDate}); queda para la próxima corrida`);
+      continue;
+    }
     if (foto.instrumentos.length < MINIMO_INSTRUMENTOS) {
-      throw new Error(
+      // Una curva rota no frena a las otras; el job igual termina en falla.
+      errores.push(
         `${universo.slug}: sólo ${foto.instrumentos.length} instrumentos con rendimiento el ${foto.tradeDate}; no se guarda.`,
       );
+      continue;
     }
 
     const carpeta = join(DIR, universo.slug);
-    mkdirSync(carpeta, { recursive: true });
-    writeFileSync(join(carpeta, `${foto.tradeDate}.json`), JSON.stringify(foto) + '\n');
+    const archivo = join(carpeta, `${foto.tradeDate}.json`);
+    // La foto ya guardada de esa rueda no se pisa: la primera sale del panel
+    // de la rueda (con volumen y operaciones), y una corrida posterior desde
+    // la serie la reemplazaría con otras marcas de calidad.
+    if (existsSync(archivo)) {
+      console.log(`${universo.slug}: ${foto.tradeDate} ya estaba guardada`);
+    } else {
+      mkdirSync(carpeta, { recursive: true });
+      writeFileSync(archivo, JSON.stringify(foto) + '\n');
+    }
     guardarUltimoCierre(respuesta);
 
     const fechas = new Set(indice[universo.slug] ?? []);
@@ -60,6 +82,7 @@ async function main() {
 
   await guardarBreakeven(indice);
   writeFileSync(INDICE, JSON.stringify(indice, null, 1) + '\n');
+  if (errores.length > 0) throw new Error(errores.join('\n'));
 }
 
 /**

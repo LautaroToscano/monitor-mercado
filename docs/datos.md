@@ -80,7 +80,19 @@ usó:
 
 El panel manda mientras tenga datos, esté el mercado abierto o cerrado: es la
 única fuente que trae el **volumen efectivo** de la rueda. BYMA lo conserva
-horas después del cierre y recién de madrugada rota a la sesión siguiente.
+horas después del cierre y después rota a la sesión siguiente, a una hora
+que varía (el 13/10/2026 a las 21:00 estaba completo; el 14/10 a las 20:17
+ya no).
+
+**La rotación no es instantánea.** A mitad de camino el panel viene a
+medias: el 14/10/2026 a las 20:17 `public-bonds` traía 22 filas, TTD26 entre
+ellas con precio, y `lebacs` todo en cero. Antes bastaba un papel con precio
+para usar el panel, y esa noche la curva TAMAR salió con un solo papel y la
+CER sin ocho. Ahora el panel vale sólo si trae con precio al 75% de los
+papeles vigentes de la curva (un papel que no operó igual trae el cierre
+anterior, así que en una rueda normal están todos); si no, se usa la serie
+histórica. La serie puede no tener todavía la rueda del día: la curva sale
+completa, con el cierre anterior y su fecha.
 
 La etiqueta de sesión sale del horario de rueda, no de si hay datos, y se lee
 con el **reloj visible** — hora de plaza menos el retraso del feed — porque
@@ -222,7 +234,12 @@ ruedas (ver [TAMAR](tamar.md)).
 **Cómo se llena.**
 
 - `npm run historico:guardar` guarda la foto del último cierre. Lo corre
-  GitHub Actions de lunes a viernes a las 18:00 (`guardar-cierre.yml`).
+  GitHub Actions de lunes a viernes a las 18:00 (`guardar-cierre.yml`), que
+  en la práctica larga con horas de demora, y otra vez a las 07:00 del día
+  siguiente. Si BYMA todavía no tiene el cierre de la rueda (panel a medias
+  y serie sin el día), esa curva queda para la corrida siguiente; una foto
+  ya guardada no se pisa, y una curva rota no frena a las otras. El título
+  del commit lleva la fecha de la rueda guardada.
 - `npm run historico:reconstruir -- --desde=AAAA-MM-DD --hasta=AAAA-MM-DD`
   rehace días pasados con la serie histórica de BYMA. Baja primero la serie
   completa de cada papel, despacio y con reintentos, y después arma cada día
