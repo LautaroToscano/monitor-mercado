@@ -89,7 +89,9 @@ jobs:
             exit 0
           fi
           git config user.name 'LautaroToscano'
-          git config user.email 'lautaro.toscano27@gmail.com'
+          # Dirección privada de GitHub: los commits quedan a nombre del usuario
+          # sin exponer su mail en el historial público.
+          git config user.email '94261012+LautaroToscano@users.noreply.github.com'
           git add src/lib/reference
           git commit -m 'Refresca la referencia de los universos'
           # Otro proceso pudo haber subido mientras éste corría.
