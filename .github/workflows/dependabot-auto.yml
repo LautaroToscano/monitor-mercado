@@ -1,0 +1,88 @@
+# Aplica solas las actualizaciones de Dependabot que pasaron el CI.
+#
+# Decisión del usuario (15/10/2026): no revisar cada actualización a mano.
+# Corre cuando termina el CI de un pull request de Dependabot y lo mergea
+# sólo si:
+#  - el CI salió bien (tipos, los tests con el cierre congelado de las
+#    cuatro curvas, build y audit) sobre el último commit del pull request;
+#  - no es un salto de versión mayor (ésas se hacen a mano, leyendo qué
+#    cambia; dependabot.yml ya no las propone, salvo por seguridad).
+# Después Vercel publica, y el vigilante revisa el sitio cada 10 minutos.
+#
+# No se baja ni se ejecuta código del pull request: sólo se lee su
+# metadata y se mergea.
+name: Aplicar actualizaciones
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  aplicar:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.actor.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Buscar el pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RAMA: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          datos=$(gh pr list --repo "$REPO" --head "$RAMA" --state open --json number,headRefOid,author \
+            -q '.[] | select(.author.login == "app/dependabot") | "\(.number) \(.headRefOid)"' | head -1)
+          numero=${datos%% *}
+          cabeza=${datos##* }
+          if [ -z "$numero" ] || [ "$cabeza" != "$SHA" ]; then
+            echo "No hay un pull request de Dependabot abierto con este commit; nada que hacer."
+            exit 0
+          fi
+          echo "numero=$numero" >> "$GITHUB_OUTPUT"
+
+      # Dependabot escribe en el pull request una línea por paquete:
+      # "Updates `react` from 19.1.1 to 19.3.0". Si en alguna cambia el
+      # primer número (o el segundo cuando el primero es 0), es mayor.
+      - name: Descartar saltos de versión mayor
+        if: steps.pr.outputs.numero
+        id: tipo
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMERO: ${{ steps.pr.outputs.numero }}
+        run: |
+          lineas=$(gh pr view "$NUMERO" --repo "$REPO" --json body -q .body \
+            | grep -oE 'Updates `[^`]+` from [^ ]+ to [^ ]+' || true)
+          if [ -z "$lineas" ]; then
+            echo "No se pudo leer qué actualiza; queda para revisar a mano."
+            exit 0
+          fi
+          mayor=$(echo "$lineas" | awk '{
+            gsub(/^v/, "", $4); gsub(/^v/, "", $6); gsub(/[^0-9.].*$/, "", $6)
+            split($4, a, "."); split($6, b, ".")
+            if (a[1] != b[1] || (a[1] == "0" && a[2] != b[2])) print $2
+          }')
+          if [ -n "$mayor" ]; then
+            echo "Salto mayor en $mayor: queda para revisar a mano."
+            exit 0
+          fi
+          echo "$lineas"
+          echo "aplicar=1" >> "$GITHUB_OUTPUT"
+
+      - name: Mergear
+        if: steps.tipo.outputs.aplicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMERO: ${{ steps.pr.outputs.numero }}
+        run: gh pr merge "$NUMERO" --repo "$REPO" --squash --delete-branch

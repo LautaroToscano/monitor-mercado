@@ -124,7 +124,9 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
   paralelo: un commit en rojo hay que corregirlo enseguida.
 - **Dependabot**: alertas y actualizaciones de seguridad automáticas, y una
   revisión semanal (lunes 08:00) de npm y de las acciones, agrupada. Las
-  versiones mayores se hacen a mano.
+  propuestas que pasan el CI se aplican solas (`dependabot-auto.yml`,
+  decisión del usuario del 15/10/2026); las versiones mayores quedan para
+  hacer a mano.
 - **CodeQL** analiza el código en cada cambio (configuración por defecto de
   GitHub).
 - **Mantenimiento**: el vigilante junta los avisos que piden una acción (un
