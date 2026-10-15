@@ -1,37 +1,49 @@
-# Vigila el sitio publicado cada media hora (scripts/vigilar.ts): que cada
-# curva responda completa y al día, que carguen las páginas, el breakeven y
-# la foto diaria.
+# Vigila el sitio publicado (scripts/vigilar.ts): que cada curva responda
+# completa y al día, que carguen las páginas, el breakeven y la foto diaria.
 #
-# El aviso es un issue, no un job fallado: un job fallado manda un mail por
-# corrida, cada media hora mientras dure el problema. El issue se abre con la
-# primera falla y menciona al dueño (eso manda el mail), suma un comentario
-# sólo si cambia lo que falla, y se cierra solo cuando todo vuelve a estar
-# bien. Si el vigilante mismo no puede correr, el job sí falla y GitHub
-# avisa por la vía de siempre.
+# Guardia continua sin servicios externos. GitHub no garantiza los horarios
+# programados (con un cron de media hora, el 15/10/2026 corrió 5 veces en 20
+# horas), así que cada corrida se queda de guardia 5 h 30 min revisando cada
+# 10 minutos (scripts/vigilar-turno.sh). El cron de cada hora sólo asegura
+# que haya siempre una corrida en espera: cuando termina la guardia, la
+# siguiente arranca en el acto. En un repo público estos minutos no se
+# cobran.
+#
+# El aviso es un issue, no un job fallado (ver vigilar-turno.sh). Si el
+# vigilante mismo no puede correr, el job falla y GitHub avisa por la vía
+# de siempre.
 name: Vigilar producción
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
       base:
         description: 'Dirección a vigilar (vacío = producción). Sirve para probar el aviso.'
         required: false
         default: ''
+      duracion:
+        description: 'Minutos de guardia (0 = una sola revisión).'
+        required: false
+        default: '0'
 
 permissions:
   contents: read
   issues: write
 
+# Una sola guardia a la vez; la próxima espera su turno. Si se juntan
+# varias en espera, GitHub deja sólo la más nueva. Las corridas a mano van
+# por su propia fila, para no esperar detrás de una guardia.
 concurrency:
-  group: vigilar
+  group: vigilar-${{ github.event_name }}
   cancel-in-progress: false
 
 jobs:
   vigilar:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Una guardia de 5 h 30 min, con margen dentro del límite de 6 h.
+    timeout-minutes: 350
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -43,55 +55,11 @@ jobs:
 
       - run: npm ci
 
-      - name: Revisar el sitio
-        id: revisar
-        env:
-          BASE: ${{ inputs.base }}
-        run: |
-          if npm run -s vigilar -- ${BASE:+--base=$BASE} > informe.md 2>&1; then
-            echo "falla=" >> "$GITHUB_OUTPUT"
-          else
-            echo "falla=1" >> "$GITHUB_OUTPUT"
-          fi
-          cat informe.md
-
-      # Dos avisos independientes, con la misma mecánica: "caida" (algo se ve
-      # mal o no responde) y "mantenimiento" (algo pide una mano: un título
-      # sin sus condiciones, los feriados del año que viene).
-      - name: Avisar o cerrar los avisos
+      - name: Guardia
         env:
           GH_TOKEN: ${{ github.token }}
-          FALLA: ${{ steps.revisar.outputs.falla }}
+          BASE: ${{ inputs.base }}
+          DURACION_MIN: ${{ github.event_name == 'schedule' && '330' || inputs.duracion }}
+          INTERVALO_MIN: '10'
           CORRIDA: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          gh label create caida --color B60205 --description 'El vigilante encontró un problema en producción' --force > /dev/null
-          gh label create mantenimiento --color FBCA04 --description 'Algo del proyecto pide una mano' --force > /dev/null
-
-          # gestionar <etiqueta> <título> <marca de línea> <intro> <hay: 1 o vacío>
-          gestionar() {
-            etiqueta=$1; titulo=$2; marca=$3; intro=$4; hay=$5
-            abierto=$(gh issue list --label "$etiqueta" --state open --json number -q '.[0].number')
-            lineas=$(grep "^- $marca" informe.md || true)
-            if [ -n "$hay" ]; then
-              if [ -z "$abierto" ]; then
-                gh issue create --title "$titulo" --label "$etiqueta" \
-                  --body "$(printf '@LautaroToscano %s\n\n%s\n\nCorrida: %s\n\nSe cierra solo cuando se resuelve.' "$intro" "$(cat informe.md)" "$CORRIDA")"
-              else
-                previas=$(gh issue view "$abierto" --json body,comments -q '([.body] + [.comments[].body]) | last' | grep "^- $marca" || true)
-                if [ "$lineas" != "$previas" ]; then
-                  gh issue comment "$abierto" --body "$(printf 'Cambió:\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
-                fi
-              fi
-            elif [ -n "$abierto" ]; then
-              gh issue comment "$abierto" --body "$(printf 'Resuelto.\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
-              gh issue close "$abierto"
-            fi
-          }
-
-          gestionar caida 'Producción con problemas' '✗' 'el vigilante encontró problemas en producción.' "$FALLA"
-          # Con el sitio caído no se sabe si el mantenimiento sigue pendiente:
-          # se deja como está hasta la próxima corrida sana.
-          if [ -z "$FALLA" ]; then
-            hay=$(grep -q '^- 🔧' informe.md && echo 1 || true)
-            gestionar mantenimiento 'Mantenimiento pendiente' '🔧' 'hay algo del proyecto que pide una mano.' "$hay"
-          fi
+        run: bash scripts/vigilar-turno.sh

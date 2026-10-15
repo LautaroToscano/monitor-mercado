@@ -94,7 +94,11 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
    por él sería peor. Lo mismo para el breakeven, con el último guardado.
    Una respuesta degradada se retiene 15 segundos en el CDN, no diez
    minutos.
-2. **Un vigilante cada media hora** (`npm run vigilar`, `vigilar.yml`).
+2. **Un vigilante de guardia continua** (`npm run vigilar`, `vigilar.yml`,
+   `scripts/vigilar-turno.sh`): revisa cada 10 minutos. GitHub no garantiza
+   los horarios programados (con un cron de media hora corrió 5 veces en 20
+   horas), así que cada corrida se queda de guardia 5 h 30 min y la
+   siguiente espera en fila; en un repo público no tiene costo.
    Revisa producción como un visitante: cada curva completa, con TIR
    posibles y de la rueda que corresponde (en rueda la de hoy; cerrada, a
    lo sumo un hábil de atraso), las páginas, el breakeven y que la foto
@@ -150,5 +154,5 @@ GitHub Actions corre estas tareas; las dos primeras suben el resultado si cambi�
   del día siguiente: la foto de cada curva, la respuesta completa del último
   cierre y el breakeven de esa rueda.
 - **Refrescar referencia**, lunes y jueves: las especies vigentes según BYMA.
-- **Vigilar producción**, cada media hora: ver "Que no se rompa".
+- **Vigilar producción**, guardia continua cada 10 minutos: ver "Que no se rompa".
 - **CI** en cada push y pull request, y **CodeQL** en cada cambio.
