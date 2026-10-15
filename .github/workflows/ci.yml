@@ -1,0 +1,48 @@
+# Control de cada cambio: tipos, tests y build, en cada push a main y en
+# cada pull request (también las de Dependabot).
+#
+# Los tests recalculan el cierre congelado del 13/10/2026 de las cuatro
+# curvas (test/cierre-congelado.test.ts): si un cambio mueve una sola TIR,
+# falla. Vercel publica en paralelo; con una falla acá, el commit queda
+# marcado en rojo en GitHub y hay que corregirlo.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Dependencias sin vulnerabilidades altas
+        run: npm audit --audit-level=high --omit=dev

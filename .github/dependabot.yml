@@ -1,0 +1,40 @@
+# Actualizaciones de dependencias.
+#
+# Las de seguridad las abre Dependabot apenas se publica el aviso (alertas y
+# security updates activados en el repo). Además, una revisión semanal de lo
+# que tenga versión nueva, agrupada en un solo pull request por ecosistema
+# para no recibir uno por paquete. Cada pull request pasa por el CI (tipos,
+# tests con el cierre congelado y build) antes de mergearlo.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Argentina/Buenos_Aires
+    open-pull-requests-limit: 5
+    groups:
+      menores:
+        update-types: [minor, patch]
+    # TypeScript 7 y las mayores de React y Next se hacen a mano, leyendo
+    # qué cambia: no se mergean desde un pull request automático.
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    commit-message:
+      prefix: 'Dependencias'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Argentina/Buenos_Aires
+    groups:
+      acciones:
+        patterns: ['*']
+    commit-message:
+      prefix: 'Acciones'

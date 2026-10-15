@@ -115,7 +115,7 @@ function crearPresupuesto(total = PRESUPUESTO_MS) {
  */
 const COBERTURA_MINIMA_PANEL = 0.75;
 
-function panelTieneDatos(
+export function panelTieneDatos(
   quotes: Map<string, Quote>,
   universe: AnyUniverse,
   hoyIso: IsoDate,

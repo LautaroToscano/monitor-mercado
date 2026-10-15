@@ -69,6 +69,7 @@ frontend cambian.
 | `npm run validate -- --universe=tasa-cer` | la curva CER, con el detalle del ajuste por CER |
 | `npm run validate:breakeven` | tabla del breakeven por mes INDEC |
 | `npm run validate:dolar-linked` | curva dólar linked, A3 contra A3500 y devaluación implícita |
+| `npm test` | tests: convenciones, fórmulas y el cierre congelado del 13/10/2026 |
 | `npm run vigilar` | revisa producción (o `-- --base=URL`) y falla si algo no está bien |
 | `npm run validate:tamar` | curva TAMAR: condiciones de cada papel, TAMAR proyectada, valor técnico y ajuste |
 | `npm run validate:modelos` | logaritmo contra Nelson-Siegel sobre la historia guardada |
@@ -103,6 +104,30 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
    la etiqueta `caida` que menciona al dueño (eso manda el mail), comenta
    sólo si cambia lo que falla y lo cierra cuando todo se normaliza.
 
+## Control de cambios
+
+- **Tests** (`npm test`, `test/`), con el `node:test` de Node, sin
+  dependencias. Lo central es `cierre-congelado.test.ts`: el cierre del
+  13/10/2026 de las cuatro curvas, validado a mano, congelado en
+  `test/fixtures/`; el test recalcula la TIR de los 59 papeles desde su
+  precio con el código de hoy y falla si una se mueve en la novena cifra.
+  Si una convención cambia a propósito, se regenera el congelado sabiendo
+  por qué. Además: convenciones y calendario, la TAMAR TEM contra la TEA que
+  publica el BCRA (variable 137), los ajustes, la regla del panel a medias,
+  los casos del respaldo y que todo endpoint use las protecciones.
+- **CI** (`ci.yml`) en cada push a main y cada pull request: tipos, tests,
+  build y `npm audit` sin vulnerabilidades altas. Vercel publica en
+  paralelo: un commit en rojo hay que corregirlo enseguida.
+- **Dependabot**: alertas y actualizaciones de seguridad automáticas, y una
+  revisión semanal (lunes 08:00) de npm y de las acciones, agrupada. Las
+  versiones mayores se hacen a mano.
+- **CodeQL** analiza el código en cada cambio (configuración por defecto de
+  GitHub).
+- **Mantenimiento**: el vigilante junta los avisos que piden una acción (un
+  título que no se pudo incorporar o sin sus condiciones, la TAMAR que dejó
+  de publicarse, los feriados del año que viene desde octubre) y abre un
+  issue `mantenimiento`, aparte del de caídas.
+
 ## Seguridad
 
 - **La API no recibe parámetros.** Un pedido con `?algo` da 400 antes de
@@ -119,10 +144,11 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
 
 ## Procesos automáticos
 
-GitHub Actions corre tres tareas; las dos primeras suben el resultado si cambió algo:
+GitHub Actions corre estas tareas; las dos primeras suben el resultado si cambió algo:
 
 - **Guardar cierre**, de lunes a viernes a las 18:00 y otra vez a las 07:00
   del día siguiente: la foto de cada curva, la respuesta completa del último
   cierre y el breakeven de esa rueda.
 - **Refrescar referencia**, lunes y jueves: las especies vigentes según BYMA.
 - **Vigilar producción**, cada media hora: ver "Que no se rompa".
+- **CI** en cada push y pull request, y **CodeQL** en cada cambio.

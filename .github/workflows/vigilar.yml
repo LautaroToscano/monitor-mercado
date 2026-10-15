@@ -55,27 +55,43 @@ jobs:
           fi
           cat informe.md
 
-      - name: Avisar o cerrar el aviso
+      # Dos avisos independientes, con la misma mecánica: "caida" (algo se ve
+      # mal o no responde) y "mantenimiento" (algo pide una mano: un título
+      # sin sus condiciones, los feriados del año que viene).
+      - name: Avisar o cerrar los avisos
         env:
           GH_TOKEN: ${{ github.token }}
           FALLA: ${{ steps.revisar.outputs.falla }}
           CORRIDA: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           gh label create caida --color B60205 --description 'El vigilante encontró un problema en producción' --force > /dev/null
-          abierto=$(gh issue list --label caida --state open --json number -q '.[0].number')
-          fallas=$(grep '^- ✗' informe.md || true)
+          gh label create mantenimiento --color FBCA04 --description 'Algo del proyecto pide una mano' --force > /dev/null
 
-          if [ -n "$FALLA" ]; then
-            cuerpo=$(printf '@LautaroToscano el vigilante encontró problemas en producción.\n\n%s\n\nCorrida: %s\n\nSe cierra solo cuando todo vuelve a estar bien.' "$(cat informe.md)" "$CORRIDA")
-            if [ -z "$abierto" ]; then
-              gh issue create --title 'Producción con problemas' --label caida --body "$cuerpo"
-            else
-              previas=$(gh issue view "$abierto" --json body,comments -q '([.body] + [.comments[].body]) | last' | grep '^- ✗' || true)
-              if [ "$fallas" != "$previas" ]; then
-                gh issue comment "$abierto" --body "$(printf 'Cambió lo que falla:\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
+          # gestionar <etiqueta> <título> <marca de línea> <intro> <hay: 1 o vacío>
+          gestionar() {
+            etiqueta=$1; titulo=$2; marca=$3; intro=$4; hay=$5
+            abierto=$(gh issue list --label "$etiqueta" --state open --json number -q '.[0].number')
+            lineas=$(grep "^- $marca" informe.md || true)
+            if [ -n "$hay" ]; then
+              if [ -z "$abierto" ]; then
+                gh issue create --title "$titulo" --label "$etiqueta" \
+                  --body "$(printf '@LautaroToscano %s\n\n%s\n\nCorrida: %s\n\nSe cierra solo cuando se resuelve.' "$intro" "$(cat informe.md)" "$CORRIDA")"
+              else
+                previas=$(gh issue view "$abierto" --json body,comments -q '([.body] + [.comments[].body]) | last' | grep "^- $marca" || true)
+                if [ "$lineas" != "$previas" ]; then
+                  gh issue comment "$abierto" --body "$(printf 'Cambió:\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
+                fi
               fi
+            elif [ -n "$abierto" ]; then
+              gh issue comment "$abierto" --body "$(printf 'Resuelto.\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
+              gh issue close "$abierto"
             fi
-          elif [ -n "$abierto" ]; then
-            gh issue comment "$abierto" --body "$(printf 'Se normalizó.\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
-            gh issue close "$abierto"
+          }
+
+          gestionar caida 'Producción con problemas' '✗' 'el vigilante encontró problemas en producción.' "$FALLA"
+          # Con el sitio caído no se sabe si el mantenimiento sigue pendiente:
+          # se deja como está hasta la próxima corrida sana.
+          if [ -z "$FALLA" ]; then
+            hay=$(grep -q '^- 🔧' informe.md && echo 1 || true)
+            gestionar mantenimiento 'Mantenimiento pendiente' '🔧' 'hay algo del proyecto que pide una mano.' "$hay"
           fi

@@ -19,6 +19,12 @@
  *  - el breakeven responde con meses;
  *  - la foto diaria se guardó (después del mediodía, la de la última rueda).
  *
+ * Aparte, el mantenimiento: lo que no rompe nada hoy pero pide una mano
+ * (un título nuevo que no se pudo incorporar o al que le faltan sus
+ * condiciones, la TAMAR que dejó de publicarse, los feriados del año que
+ * viene). Esos avisos viven en `warnings` de cada endpoint, donde nadie los
+ * lee; el vigilante los junta en su propia sección, que abre otro issue.
+ *
  * Una respuesta de respaldo (ver `src/lib/respaldo.ts`) no es una falla de
  * la página —se ve completa—, pero dice que una fuente anduvo mal: se
  * informa sin fallar. Cada control se reintenta una vez antes de fallar,
@@ -27,6 +33,7 @@
 import { appendFileSync } from 'node:fs';
 import {
   isWithinTradingHours,
+  MARKET_HOLIDAYS,
   marketToday,
   momentoVisible,
   restarDiasHabiles,
@@ -48,7 +55,21 @@ const ESPERA_REINTENTO_MS = 45_000;
 const TIR_POSIBLE = { min: -0.9, max: 5 };
 const MINIMO_PAPELES = 5;
 
+/**
+ * Avisos de los endpoints que piden una acción. Los demás son de la fuente
+ * (una caída pasajera) y ya los cubre el respaldo, o son conocidos y
+ * permanentes (los títulos que promedian TAMAR después del último año con
+ * feriados cargados: eso lo controla `feriados()`).
+ */
+const PIDEN_ACCION = [
+  /^Especies nuevas incorporadas automáticamente/,
+  /^No se pudo incorporar /,
+  /sin condiciones verificadas/,
+  /^La última TAMAR publicada/,
+];
+
 const fallas: string[] = [];
+const mantenimiento = new Set<string>();
 const avisos: string[] = [];
 const ok: string[] = [];
 
@@ -115,7 +136,25 @@ function revisarCurva(u: UniverseResponse): string {
   }
   const respaldo = u.warnings.find((w) => w.startsWith(AVISO_RESPALDO));
   if (respaldo) avisos.push(`${u.universe}: ${respaldo}`);
+  recogerMantenimiento(u.universe, u.warnings);
   return `${n} papeles, rueda ${u.tradeDate} (${u.session})`;
+}
+
+function recogerMantenimiento(origen: string, warnings: readonly string[] = []) {
+  for (const w of warnings) if (PIDEN_ACCION.some((r) => r.test(w))) mantenimiento.add(`${origen}: ${w}`);
+}
+
+/** Desde octubre, los feriados del año que viene tienen que estar cargados. */
+function feriados() {
+  const anio = Number(hoy.slice(0, 4));
+  const ultimo = Number(MARKET_HOLIDAYS[MARKET_HOLIDAYS.length - 1].slice(0, 4));
+  const mes = Number(hoy.slice(5, 7));
+  const hacenFalta = mes >= 10 ? anio + 1 : anio;
+  if (ultimo < hacenFalta) {
+    mantenimiento.add(
+      `feriados: están cargados hasta ${ultimo}; falta ${hacenFalta} (MARKET_HOLIDAYS en src/lib/conventions.ts).`,
+    );
+  }
 }
 
 async function main() {
@@ -145,6 +184,7 @@ async function main() {
     if (be.tradeDate < minimaAceptable) throw new Error(`es del ${be.tradeDate}; la última rueda es del ${ultima}`);
     const respaldo = be.warnings.find((w) => w.startsWith(AVISO_RESPALDO));
     if (respaldo) avisos.push(`breakeven: ${respaldo}`);
+    recogerMantenimiento('breakeven', be.warnings);
     return `${be.meses.length} meses, rueda ${be.tradeDate}`;
   });
 
@@ -163,11 +203,21 @@ async function main() {
     return `al día (${exigida})`;
   });
 
+  // La devaluación no tiene pantalla: no se vigila que responda, sólo sus
+  // avisos (un dólar linked nuevo sin sus condiciones aparece ahí).
+  await json<{ warnings?: string[] }>('/api/devaluacion')
+    .then((d) => recogerMantenimiento('devaluación', d.warnings))
+    .catch(() => undefined);
+  feriados();
+
   const informe = [
     fallas.length ? `## ✗ ${fallas.length} control(es) fallaron` : '## ✓ Todo en orden',
     ...fallas.map((f) => `- ✗ ${f}`),
     ...avisos.map((a) => `- ⚠ ${a}`),
     ...ok.map((o) => `- ✓ ${o}`),
+    '',
+    mantenimiento.size ? '## 🔧 Mantenimiento pendiente' : '## Sin mantenimiento pendiente',
+    ...[...mantenimiento].map((m) => `- 🔧 ${m}`),
   ].join('\n');
   console.log(informe);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, informe + '\n');

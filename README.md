@@ -69,6 +69,8 @@ Abre en <http://localhost:3000>.
 |---|---|
 | `npm run build` | build de producción |
 | `npm run typecheck` | chequeo de tipos |
+| `npm test` | tests, con el cierre congelado de las cuatro curvas |
+| `npm run vigilar` | revisa el sitio publicado |
 | `npm run validate` | imprime una curva calculada, sin levantar Next |
 | `npm run validate:breakeven` | tabla del breakeven por mes INDEC |
 | `npm run validate:modelos` | compara modelos de curva sobre la historia guardada |
