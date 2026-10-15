@@ -53,10 +53,10 @@ const avisos: string[] = [];
 const ok: string[] = [];
 
 async function pedir(ruta: string): Promise<Response> {
-  // Un parámetro que cambia en cada pedido: se mide lo que calcula el
-  // servidor, no una copia vieja del CDN.
-  const sep = ruta.includes('?') ? '&' : '?';
-  return fetch(`${BASE}${ruta}${ruta.startsWith('/api') ? `${sep}vigilante=${Date.now()}` : ''}`, {
+  // Lo mismo que pide un visitante, con el cache del CDN incluido: la API no
+  // acepta parámetros (ver `src/lib/api.ts`). Una respuesta degradada se
+  // retiene sólo 15 segundos, así que una falla se ve igual.
+  return fetch(`${BASE}${ruta}`, {
     headers: { 'User-Agent': 'monitor-mercado-vigilante/1.0' },
     signal: AbortSignal.timeout(TIMEOUT_MS),
     cache: 'no-store',

@@ -4,6 +4,7 @@ import { getUniverse, listUniverses } from '@/lib/universes';
 import type { UniverseResponse } from '@/lib/types';
 import { CARPETA_ULTIMO_CIERRE, leerGuardado } from '@/lib/ultimo-cierre';
 import { elegirRespuesta } from '@/lib/respaldo';
+import { origenPropio, rechazarParametros } from '@/lib/api';
 
 /**
  * Proxy server-side hacia la fuente de mercado.
@@ -42,6 +43,8 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
+  const rechazo = rechazarParametros(request);
+  if (rechazo) return rechazo;
   const { slug } = await params;
   const universe = getUniverse(slug);
 
@@ -52,7 +55,7 @@ export async function GET(
     );
   }
 
-  const origen = new URL(request.url).origin;
+  const origen = origenPropio(request);
   const ruta = `${CARPETA_ULTIMO_CIERRE}/${slug}.json`;
   let actual: UniverseResponse | null = null;
   let motivo: string | undefined;

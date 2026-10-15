@@ -20,7 +20,7 @@
     "historico:ajustes": "tsx scripts/ajustes-byma.ts"
   },
   "dependencies": {
-    "next": "^16.3.3",
+    "next": "^16.4.1",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },

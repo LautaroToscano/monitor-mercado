@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { buildDevaluacion } from '@/lib/devaluacion';
+import { rechazarParametros } from '@/lib/api';
 
 /**
  * Devaluación implícita por mes: de los futuros de dólar de A3 y, al lado,
@@ -15,7 +16,9 @@ export const maxDuration = 60;
 const CACHE_S = 600;
 const STALE_WHILE_REVALIDATE = 86_400;
 
-export async function GET() {
+export async function GET(request: Request) {
+  const rechazo = rechazarParametros(request);
+  if (rechazo) return rechazo;
   try {
     const payload = await buildDevaluacion();
     return NextResponse.json(payload, {

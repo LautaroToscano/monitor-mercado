@@ -3,6 +3,7 @@ import { AVISO_SIN_CIERRE, buildBreakeven, type BreakevenResponse } from '@/lib/
 import { ultimaRuedaTerminada } from '@/lib/conventions';
 import { leerGuardado } from '@/lib/ultimo-cierre';
 import { AVISO_RESPALDO } from '@/lib/respaldo';
+import { origenPropio, rechazarParametros } from '@/lib/api';
 
 /**
  * Inflación breakeven, calculada entera en el backend: arma las dos curvas
@@ -64,7 +65,9 @@ async function ultimoGuardado(origen: string): Promise<BreakevenResponse | null>
 }
 
 export async function GET(request: Request) {
-  const origen = new URL(request.url).origin;
+  const rechazo = rechazarParametros(request);
+  if (rechazo) return rechazo;
+  const origen = origenPropio(request);
   let payload: BreakevenResponse | null = null;
   let motivo: string | null = null;
   try {

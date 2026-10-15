@@ -103,6 +103,20 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
    la etiqueta `caida` que menciona al dueño (eso manda el mail), comenta
    sólo si cambia lo que falla y lo cierra cuando todo se normaliza.
 
+## Seguridad
+
+- **La API no recibe parámetros.** Un pedido con `?algo` da 400 antes de
+  calcular nada (`src/lib/api.ts`): si no, cualquiera se salteaba el cache
+  del CDN y obligaba a recalcular, con pedidos a BYMA, que bloquea por IP.
+- **Los archivos guardados se leen del dominio del proyecto**
+  (`VERCEL_PROJECT_PRODUCTION_URL`), no de la dirección que trae el pedido.
+- **Encabezados** (`next.config.mjs`): CSP que sólo deja cargar lo del
+  propio sitio, prohibido meter la página en un iframe, nosniff,
+  Referrer-Policy y ningún permiso del navegador. HSTS lo pone Vercel.
+- **Workflows** con las acciones fijadas por SHA, permisos mínimos y
+  `git pull --rebase` antes de subir, para que dos procesos no se pisen.
+- **Dependencias:** `npm audit` en cero al 15/10/2026 (Next 16.4.1).
+
 ## Procesos automáticos
 
 GitHub Actions corre tres tareas; las dos primeras suben el resultado si cambió algo:
