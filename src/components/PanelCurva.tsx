@@ -3,7 +3,13 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { InstrumentRow, VistaUniverso } from '@/lib/types';
 import { escalaLineal, marcasLimpias } from '@/lib/escala';
-import { HABILES_MINIMOS_EN_CURVA, ajustarCurva, type AjusteDibujado } from '@/lib/ajuste';
+import {
+  HABILES_MINIMOS_EN_CURVA,
+  ajustarCurva,
+  apartadoDelAjuste,
+  elegirParaElAjuste,
+  type AjusteDibujado,
+} from '@/lib/ajuste';
 import type { FotoCurva } from '@/lib/historico';
 import {
   anios,
@@ -95,13 +101,9 @@ export function PanelCurva({
   comparacion,
 }: Props) {
   const ejeX = vista.ejeX;
-  /**
-   * Se dibuja pero no define la curva. Lo decide el universo, por estructura
-   * o papel por papel (el dual con tasa fija de TAMAR).
-   */
+  /** Se dibuja pero no define la curva, por lo que es (`apartadoDelAjuste`). */
   const fueraDelAjuste = useCallback(
-    (i: Pick<InstrumentRow, 'estructura' | 'fueraDelAjuste'>) =>
-      i.fueraDelAjuste === true || (vista.fueraDelAjuste?.includes(i.estructura) ?? false),
+    (i: Pick<InstrumentRow, 'estructura' | 'fueraDelAjuste'>) => apartadoDelAjuste(i, vista),
     [vista],
   );
   const [ancho, setAncho] = useState(960);
@@ -178,30 +180,34 @@ export function PanelCurva({
 
   /**
    * Entran al ajuste los instrumentos dibujados que no tengan marcas de
-   * calidad. La curva se recalcula con lo que quede, contra el mismo plazo
-   * que el eje: en la CER, la duration.
+   * calidad, o también los de poco volumen si sin ellos no alcanza para la
+   * curva (`elegirParaElAjuste`). La curva se recalcula con lo que quede,
+   * contra el mismo plazo que el eje: en la CER, la duration.
    */
   const ajuste = useMemo(
     () =>
       ajustarCurva(
-        visibles
-          .filter((i) => i.quality.level === 'ok' && !fueraDelAjuste(i) && i[metrica] !== null)
-          .map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
+        elegirParaElAjuste(
+          visibles.filter((i) => i[metrica] !== null),
+          (i) => i.quality.level,
+          vista,
+        ).map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
         vista.modeloCurva,
       ),
-    [visibles, metrica, ejeX, fueraDelAjuste, vista.modeloCurva],
+    [visibles, metrica, ejeX, vista],
   );
 
-  /** La curva vieja se ajusta igual que la de hoy: sin los papeles marcados ese día. */
+  /** La curva vieja se ajusta con la misma regla que la de hoy, con las marcas de ese día. */
   const ajustePasado = useMemo(
     () =>
       ajustarCurva(
-        pasados
-          .filter((i) => i.calidad === 'ok' && !fueraDelAjuste(i))
-          .map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
+        elegirParaElAjuste(pasados, (i) => i.calidad, vista).map((i) => ({
+          dias: plazoEnEje(i, ejeX),
+          valor: i[metrica] as number,
+        })),
         vista.modeloCurva,
       ),
-    [pasados, metrica, ejeX, fueraDelAjuste, vista.modeloCurva],
+    [pasados, metrica, ejeX, vista],
   );
 
   const trazo = useMemo(() => trazar(ajuste, x, y), [ajuste, x, y]);

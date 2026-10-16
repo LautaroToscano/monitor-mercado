@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
-import { ajustarCurva, entraALaCurvaPorDefecto } from '@/lib/ajuste';
+import { ajustarCurva, apartadoDelAjuste, elegirParaElAjuste, entraALaCurvaPorDefecto } from '@/lib/ajuste';
 import { listUniverses, getUniverse } from '@/lib/universes';
 import type { InstrumentRow, UniverseResponse, VistaUniverso } from '@/lib/types';
 import { ALT_IMAGEN } from '@/lib/compartir';
@@ -78,10 +78,9 @@ function mini(slug: string, label: string): Mini | null {
   const X = (v: number) => ((v - x0) / (x1 - x0)) * ANCHO_CURVA;
   const Y = (v: number) => ALTO_CURVA - ((v - y0) / (y1 - y0)) * ALTO_CURVA;
 
-  const aparte = (i: InstrumentRow) =>
-    i.fueraDelAjuste === true || (vista.fueraDelAjuste?.includes(i.estructura) ?? false);
+  const aparte = (i: InstrumentRow) => apartadoDelAjuste(i, vista);
   const ajuste = ajustarCurva(
-    con.filter((i) => i.quality.level === 'ok' && !aparte(i)).map((i) => ({ dias: plazo(i, vista.ejeX), valor: i.tea! })),
+    elegirParaElAjuste(con, (i) => i.quality.level, vista).map((i) => ({ dias: plazo(i, vista.ejeX), valor: i.tea! })),
     vista.modeloCurva,
   );
   let trazo: string | null = null;

@@ -62,7 +62,16 @@ sepa cuánto confiar en el trazo.
 **Qué entra a la curva** se elige: cada bono se saca o se vuelve a poner desde
 la lista de fichas o haciendo clic en su punto. Al sacarlo desaparece del
 gráfico — punto y etiqueta — y la regresión se recalcula con los que queden.
-Los instrumentos con marcas de calidad quedan fuera del ajuste siempre.
+Los instrumentos con marcas de calidad quedan fuera del ajuste, con una
+excepción: si sin ellos no alcanza para dibujar la curva (3 papeles para la
+logarítmica, 4 para la parábola), se suman los de **poco volumen**. El
+16/10/2026 a las 11:45, con 45 minutos de rueda, sólo 3 de los 9 dólar
+linked tenían diez operaciones y la curva no se dibujaba aunque habían
+operado 8. Los que no operaron, o tienen un dato que no cierra, no entran
+nunca. Los de poco volumen se siguen dibujando huecos, así se ve que la
+curva se apoya en ellos. Es la misma regla (`elegirParaElAjuste` en
+`ajuste.ts`) en la pantalla, la curva de comparación, la imagen para
+compartir y el vigilante, que avisa si una curva no se puede dibujar.
 
 **Los papeles a un día hábil o menos del vencimiento salen por defecto.** A ese
 plazo la tasa implícita deja de ser información: la TEM eleva el cociente a la

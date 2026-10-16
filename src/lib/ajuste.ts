@@ -363,3 +363,44 @@ export function puntosDelAjuste(
     )
     .map((i) => ({ dias: i.daysToMaturity, valor: i[metrica] as number }));
 }
+
+/** Con menos puntos que esto no se dibuja la curva de cada forma. */
+export function minimoDePuntos(modelo: VistaUniverso['modeloCurva']): number {
+  return modelo === 'parabolico' ? MINIMO_PUNTOS_PARABOLA : 3;
+}
+
+/**
+ * Si un papel se dibuja pero no define la curva por lo que es, no por el
+ * dato: lo decide el universo, por estructura o papel por papel (el dual con
+ * tasa fija de TAMAR).
+ */
+export function apartadoDelAjuste(
+  i: { estructura: InstrumentRow['estructura']; fueraDelAjuste?: boolean | true },
+  vista: Pick<VistaUniverso, 'fueraDelAjuste'>,
+): boolean {
+  return i.fueraDelAjuste === true || (vista.fueraDelAjuste?.includes(i.estructura) ?? false);
+}
+
+/**
+ * Qué papeles definen la curva, entre los que se dibujan. Una sola regla para
+ * la pantalla, la curva de comparación, la imagen para compartir y el
+ * vigilante, para que no digan cosas distintas.
+ *
+ * Primero, los que no tienen marcas de calidad. Si no alcanzan para dibujar
+ * la curva, se suman los de poco volumen (`warn`): el 16/10/2026 a las 11:45,
+ * con 45 minutos de rueda, sólo 3 de los 9 dólar linked tenían diez
+ * operaciones y la parábola, que pide 4, no se dibujaba aunque habían operado
+ * 8. Los marcados en serio (`bad`: sin operar, sin referencia, vencimiento
+ * que no cierra) no entran nunca. Los de poco volumen se siguen dibujando
+ * huecos: se ve que la curva se apoya en ellos.
+ */
+export function elegirParaElAjuste<T extends { estructura: InstrumentRow['estructura']; fueraDelAjuste?: boolean | true }>(
+  candidatos: readonly T[],
+  nivel: (i: T) => InstrumentRow['quality']['level'],
+  vista: Pick<VistaUniverso, 'fueraDelAjuste' | 'modeloCurva'>,
+): T[] {
+  const propios = candidatos.filter((i) => !apartadoDelAjuste(i, vista));
+  const sinMarcas = propios.filter((i) => nivel(i) === 'ok');
+  if (sinMarcas.length >= minimoDePuntos(vista.modeloCurva)) return sinMarcas;
+  return propios.filter((i) => nivel(i) !== 'bad');
+}

@@ -102,7 +102,8 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
    los horarios programados (con un cron de media hora corrió 5 veces en 20
    horas), así que cada corrida se queda de guardia 5 h 30 min y la
    siguiente espera en fila; en un repo público no tiene costo.
-   Revisa producción como un visitante: cada curva completa, con TIR
+   Revisa producción como un visitante: cada curva completa y que se pueda
+   dibujar (misma regla de ajuste que la pantalla), con TIR
    posibles y de la rueda que corresponde (en rueda la de hoy; cerrada, a
    lo sumo un hábil de atraso), las páginas, el breakeven y que la foto
    diaria esté (desde el mediodía del día siguiente). Cada control se

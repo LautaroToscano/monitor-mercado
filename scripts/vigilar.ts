@@ -43,6 +43,12 @@ import {
   MARKET_TIMEZONE,
 } from '../src/lib/conventions';
 import { AVISO_RESPALDO } from '../src/lib/respaldo';
+import {
+  ajustarCurva,
+  elegirParaElAjuste,
+  entraALaCurvaPorDefecto,
+  minimoDePuntos,
+} from '../src/lib/ajuste';
 import type { UniverseResponse } from '../src/lib/types';
 
 const BASE =
@@ -137,7 +143,26 @@ function revisarCurva(u: UniverseResponse): string {
   const respaldo = u.warnings.find((w) => w.startsWith(AVISO_RESPALDO));
   if (respaldo) avisos.push(`${u.universe}: ${respaldo}`);
   recogerMantenimiento(u.universe, u.warnings);
-  return `${n} papeles, rueda ${u.tradeDate} (${u.session})`;
+  // Que la curva se pueda dibujar, con la misma regla que la pantalla. El
+  // 16/10/2026 los 9 dólar linked tenían TIR y aun así no había curva: los
+  // de poco volumen quedaban afuera y no alcanzaba para la parábola.
+  const candidatos = u.instruments.filter((i) => i.tea !== null && entraALaCurvaPorDefecto(i, u.vista));
+  const puntos = elegirParaElAjuste(candidatos, (i) => i.quality.level, u.vista);
+  const eje = (i: (typeof puntos)[number]) =>
+    u.vista.ejeX === 'vencimiento'
+      ? i.daysToMaturity
+      : u.vista.ejeX === 'duration-modificada'
+        ? (i.dolarLinked?.durationModificada ?? i.daysToMaturity / 365)
+        : (i.durationDays ?? i.daysToMaturity) / 365;
+  const curva = ajustarCurva(puntos.map((i) => ({ dias: eje(i), valor: i.tea! })), u.vista.modeloCurva);
+  if (!curva) {
+    const motivo = `la curva no se dibuja: ${puntos.length} papeles para el ajuste, hacen falta ${minimoDePuntos(u.vista.modeloCurva)}`;
+    // En la primera hora de rueda es normal que varios no hayan operado
+    // todavía: se informa sin abrir una caída.
+    if (enRueda && horaPlaza < 12) avisos.push(`${u.universe}: ${motivo} (primera hora de rueda)`);
+    else throw new Error(motivo);
+  }
+  return `${n} papeles, ${puntos.length} en el ajuste, rueda ${u.tradeDate} (${u.session})`;
 }
 
 function recogerMantenimiento(origen: string, warnings: readonly string[] = []) {
