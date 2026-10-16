@@ -59,7 +59,7 @@ export function evaluateQuote(
     flags.push({
       code: 'THIN_VOLUME',
       level: 'warn',
-      message: `Solo ${quote.orderCount} operación${quote.orderCount === 1 ? '' : 'es'} en la rueda.`,
+      message: `Solo ${quote.orderCount} ${quote.orderCount === 1 ? 'operación' : 'operaciones'} en la rueda.`,
     });
   }
 
