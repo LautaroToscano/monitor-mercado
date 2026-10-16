@@ -66,8 +66,8 @@ gráfico — punto y etiqueta — y la regresión se recalcula con los que quede
 poco o nada en la rueda** (decisión del usuario del 16/10/2026). Ese día a
 las 11:45, con 45 minutos de rueda, sólo 3 de los 9 dólar linked tenían
 diez operaciones; los demás quedaban fuera del ajuste y la parábola, que
-pide 4, no se dibujaba. La marca de poco volumen sigue en la tabla y el
-punto se dibuja hueco, así se ve que el precio es de pocas operaciones.
+pide 4, no se dibujaba. El punto se dibuja lleno como todos; la marca de
+poco volumen queda en la tabla y en el globo del punto.
 Queda afuera sólo un dato que no cierra (el vencimiento de la fuente
 distinto del de la norma). Es la misma regla (`elegirParaElAjuste` en
 `ajuste.ts`) en la pantalla, la curva de comparación, la imagen para
@@ -149,5 +149,9 @@ problema inherente al par. La mitigación es que acá el color es redundante —
 todo número lleva su signo `+` o `−` explícito, así que el sentido nunca
 depende del hue. No sacar los signos.
 
-Los instrumentos marcados se dibujan con punto hueco y anillo punteado — la
-forma los distingue, no el color — y la razón aparece al pasar por encima.
+Todo punto que define la curva va lleno, también los de poco volumen o sin
+operar en la rueda (decisión del usuario del 16/10/2026): su último precio
+es de mercado. Hueco va sólo lo que no la define: lo apartado por lo que es
+(el dual con tasa fija de TAMAR), con trazo lleno, y un dato que no cierra,
+con anillo punteado. La forma los distingue, no el color, y la razón de
+cualquier marca aparece al pasar por encima.

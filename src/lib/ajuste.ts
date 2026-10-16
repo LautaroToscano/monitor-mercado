@@ -401,9 +401,8 @@ export function datoQueNoCierra(i: Pick<InstrumentRow, 'quality'>): boolean {
  * Entran todos con su último precio, aunque hayan operado poco o nada en la
  * rueda: decisión del usuario del 16/10/2026, después de ver la curva dólar
  * linked sin dibujar a la mañana (con 45 minutos de rueda, 3 de los 9
- * papeles tenían diez operaciones). La marca de poco volumen sigue en la
- * tabla y el punto se dibuja hueco: se ve que el precio es de pocas
- * operaciones. Quedan afuera sólo los apartados por lo que son (el dual con
+ * papeles tenían diez operaciones). El punto se dibuja lleno como todos;
+ * la marca de poco volumen queda en la tabla y en el globo. Quedan afuera sólo los apartados por lo que son (el dual con
  * tasa fija de TAMAR) y los que tienen un dato que no cierra.
  */
 export function elegirParaElAjuste<T extends { estructura: InstrumentRow['estructura']; fueraDelAjuste?: boolean | true }>(

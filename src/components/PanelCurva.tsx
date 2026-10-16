@@ -344,7 +344,11 @@ export function PanelCurva({
           if (v === null) return null;
           const cx = x(plazoEnEje(i, ejeX));
           const cy = y(v);
-          const marcado = i.quality.level !== 'ok';
+          // Hueco sólo lo que no define la curva. Poco volumen o sin operar en
+          // la rueda va lleno, como todos: su último precio es de mercado y
+          // entra al ajuste (decisión del usuario, 16/10/2026). La marca queda
+          // en el globo y en la tabla.
+          const marcado = datoQueNoCierra(i);
           // Fuera del ajuste por lo que es, no por el dato: hueco pero de trazo lleno.
           const aparte = !marcado && fueraDelAjuste(i);
           const esActivo = i.ticker === activo;
