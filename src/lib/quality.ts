@@ -50,7 +50,7 @@ export function evaluateQuote(
     flags.push({
       code: 'NO_TRADES_TODAY',
       level: 'bad',
-      message: 'No registró operaciones en la rueda; el precio no es de mercado.',
+      message: 'No operó en la rueda: el precio es el último, el del cierre anterior.',
     });
   } else if (
     quote.orderCount !== null &&
