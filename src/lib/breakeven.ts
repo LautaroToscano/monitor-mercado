@@ -233,6 +233,8 @@ const DIAS_MINIMOS_CONTROL = 20;
 
 /** Cómo empieza el aviso de que a una curva le faltó un papel. */
 export const AVISO_SIN_CIERRE = 'Sin cierre en BYMA';
+/** Con el INDEC caído los meses conocidos salen del CER: no se guarda así. */
+export const AVISO_SIN_IPC = 'Sin IPC del INDEC';
 
 export async function buildBreakeven(now: Date = new Date()): Promise<BreakevenResponse> {
   // Con precios de cierre de la última rueda terminada: el breakeven es un
@@ -270,7 +272,7 @@ export async function buildBreakeven(now: Date = new Date()): Promise<BreakevenR
   const [serie, ipc] = await Promise.all([
     fetchCer(fechaL),
     fetchIpcMensual().catch((err: Error): ReadonlyMap<string, number> => {
-      warnings.push(`Sin IPC del INDEC (${err.message}): los meses conocidos salen del CER.`);
+      warnings.push(`${AVISO_SIN_IPC} (${err.message}): los meses conocidos salen del CER.`);
       return new Map();
     }),
   ]);

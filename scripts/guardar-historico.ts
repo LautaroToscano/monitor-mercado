@@ -12,7 +12,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AVISO_SIN_CIERRE, buildBreakeven } from '../src/lib/breakeven';
+import { AVISO_SIN_CIERRE, AVISO_SIN_IPC, buildBreakeven } from '../src/lib/breakeven';
 import { buildUniverse } from '../src/lib/build';
 import { fotoDesde, type IndiceHistorico } from '../src/lib/historico';
 import type { UniverseResponse } from '../src/lib/types';
@@ -137,6 +137,12 @@ async function guardarBreakeven(indice: IndiceHistorico) {
     }
     if (be.warnings.some((w) => w.startsWith(AVISO_SIN_CIERRE))) {
       console.log(`breakeven: incompleto el ${be.tradeDate}; no se guarda`);
+      return;
+    }
+    // Una caída del INDEC no se guarda: el archivo se sirve todo el día y no
+    // se pisa. La corrida siguiente lo vuelve a intentar.
+    if (be.warnings.some((w) => w.startsWith(AVISO_SIN_IPC))) {
+      console.log(`breakeven: sin IPC del INDEC el ${be.tradeDate}; queda para la próxima corrida`);
       return;
     }
     mkdirSync(carpeta, { recursive: true });
