@@ -7,6 +7,9 @@ Dónde vive cada cosa. Volver al [README](../README.md).
     /                              redirige al primer universo
     /tasa-fija, /tasa-cer,
     /dolar-linked, /tamar          tablero de cada curva
+    /opengraph-image               la tarjeta al compartir el link: las cuatro curvas
+                                   del último cierre, armada en el build (se renueva
+                                   con cada foto diaria, que vuelve a publicar)
     GET /api/universe              catálogo de universos
     GET /api/universe/[slug]       un universo completo, ya calculado
     GET /api/breakeven             inflación breakeven por mes INDEC

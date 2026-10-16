@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Tablero } from '@/components/Tablero';
 import { getUniverse, listUniverses } from '@/lib/universes';
+import { ALT_IMAGEN } from '@/lib/compartir';
 
 /**
  * El universo es un parámetro de ruta. Cuando se sumen las curvas CER y dólar
@@ -18,7 +19,23 @@ export async function generateMetadata({
 }) {
   const { universe } = await params;
   const def = getUniverse(universe);
-  return { title: def ? `${def.label} · Monitor Mercado` : 'Monitor Mercado' };
+  if (!def) return { title: 'Monitor Mercado' };
+  // Cada pestaña se comparte con su propio título y descripción; la imagen
+  // es la del sitio (`app/opengraph-image.tsx`), con las cuatro curvas.
+  const title = `${def.label} · Monitor Mercado`;
+  return {
+    title,
+    description: def.description,
+    // El bloque openGraph de la pestaña reemplaza entero al del sitio, así
+    // que la imagen se repite acá: si no, se pierde.
+    openGraph: {
+      title,
+      description: def.description,
+      url: `/${def.slug}`,
+      images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: ALT_IMAGEN }],
+    },
+    twitter: { card: 'summary_large_image', images: ['/opengraph-image'] },
+  };
 }
 
 export default async function PaginaUniverso({

@@ -19,10 +19,23 @@ const plexMono = IBM_Plex_Mono({
   display: 'swap',
 });
 
+const DESCRIPCION =
+  'Curvas de tasa fija, CER, dólar linked y TAMAR, e inflación breakeven: la renta fija en pesos del Tesoro argentino, en vivo, con datos de BYMA, A3, BCRA e INDEC.';
+
 export const metadata: Metadata = {
+  // Las imágenes y los links que leen WhatsApp o LinkedIn tienen que ser
+  // direcciones completas.
+  metadataBase: new URL('https://monitor-mercado-4net.vercel.app'),
   title: 'Monitor Mercado · Renta fija en pesos',
-  description:
-    'Curvas de tasa fija y CER, precios, variación diaria e inflación breakeven de la renta fija en pesos del Tesoro argentino.',
+  description: DESCRIPCION,
+  openGraph: {
+    siteName: 'Monitor Mercado',
+    title: 'Monitor Mercado · Renta fija en pesos',
+    description: DESCRIPCION,
+    locale: 'es_AR',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image' },
 };
 
 /**
