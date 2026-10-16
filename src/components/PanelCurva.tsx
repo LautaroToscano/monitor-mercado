@@ -7,6 +7,7 @@ import {
   HABILES_MINIMOS_EN_CURVA,
   ajustarCurva,
   apartadoDelAjuste,
+  datoQueNoCierra,
   elegirParaElAjuste,
   type AjusteDibujado,
 } from '@/lib/ajuste';
@@ -179,17 +180,17 @@ export function PanelCurva({
   const { x, y } = geometria;
 
   /**
-   * Entran al ajuste los instrumentos dibujados que no tengan marcas de
-   * calidad, o también los de poco volumen si sin ellos no alcanza para la
-   * curva (`elegirParaElAjuste`). La curva se recalcula con lo que quede,
-   * contra el mismo plazo que el eje: en la CER, la duration.
+   * Entran al ajuste todos los instrumentos dibujados con su último precio,
+   * aunque hayan operado poco (`elegirParaElAjuste`). La curva se recalcula
+   * con lo que quede, contra el mismo plazo que el eje: en la CER, la
+   * duration.
    */
   const ajuste = useMemo(
     () =>
       ajustarCurva(
         elegirParaElAjuste(
           visibles.filter((i) => i[metrica] !== null),
-          (i) => i.quality.level,
+          datoQueNoCierra,
           vista,
         ).map((i) => ({ dias: plazoEnEje(i, ejeX), valor: i[metrica] as number })),
         vista.modeloCurva,
@@ -197,11 +198,12 @@ export function PanelCurva({
     [visibles, metrica, ejeX, vista],
   );
 
-  /** La curva vieja se ajusta con la misma regla que la de hoy, con las marcas de ese día. */
+  /** La curva vieja se ajusta con la misma regla que la de hoy. */
   const ajustePasado = useMemo(
     () =>
       ajustarCurva(
-        elegirParaElAjuste(pasados, (i) => i.calidad, vista).map((i) => ({
+        // Las fotos guardan sólo el nivel de calidad, no la marca: entran todas.
+        elegirParaElAjuste(pasados, () => false, vista).map((i) => ({
           dias: plazoEnEje(i, ejeX),
           valor: i[metrica] as number,
         })),

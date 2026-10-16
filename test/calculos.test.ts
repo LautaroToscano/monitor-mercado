@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { tamarTem } from '../src/lib/pricing/tamar';
 import { finalPayment } from '../src/lib/pricing/zero-coupon';
-import { elegirParaElAjuste, regresionCuadratica, regresionLogaritmica } from '../src/lib/ajuste';
+import { datoQueNoCierra, elegirParaElAjuste, regresionCuadratica, regresionLogaritmica } from '../src/lib/ajuste';
 import { panelTieneDatos } from '../src/lib/build';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 import type { Quote } from '../src/lib/types';
@@ -76,24 +76,28 @@ test('panel de BYMA: a medias no se usa (el caso del 14/10/2026)', () => {
   assert.equal(panelTieneDatos(new Map(), tasaFija, hoy), false, 'vacío');
 });
 
-test('la curva se dibuja aunque a la mañana casi todos operaron poco (16/10/2026, 11:45)', () => {
+test('la curva usa siempre el último precio, aunque haya pocas operaciones (16/10/2026)', () => {
   // Dólar linked con 45 minutos de rueda: 3 papeles con diez operaciones o
-  // más, 5 con menos y uno sin operar. La parábola pide 4.
-  const vista = { modeloCurva: 'parabolico' as const, fueraDelAjuste: undefined };
-  const papel = (ticker: string, nivel: 'ok' | 'warn' | 'bad') => ({ ticker, estructura: 'cero-cupon' as const, nivel });
+  // más, 5 con menos y uno sin operar. Decisión del usuario: entran todos.
+  // Sólo queda afuera un dato que no cierra (vencimiento distinto del de la
+  // norma) y lo apartado por lo que es (el dual con tasa fija de TAMAR).
+  const vista = { fueraDelAjuste: undefined };
+  const papel = (ticker: string, marca: string | null, fueraDelAjuste?: true) => ({
+    ticker,
+    estructura: 'cero-cupon' as const,
+    fueraDelAjuste,
+    quality: { level: 'ok' as const, flags: marca ? [{ code: marca, level: 'warn', message: '' }] : [] },
+  });
   const rueda = [
-    papel('D30O6', 'ok'), papel('D30N6', 'ok'), papel('TMVE8', 'ok'),
-    papel('D15E7', 'warn'), papel('D31M7', 'warn'), papel('TZV27', 'warn'), papel('TZV28', 'warn'), papel('TZVD8', 'warn'),
-    papel('D10Y7', 'bad'),
+    papel('D30O6', null), papel('D30N6', null), papel('TMVE8', null),
+    papel('D15E7', 'THIN_VOLUME'), papel('D31M7', 'THIN_VOLUME'), papel('TZV27', 'THIN_VOLUME'),
+    papel('TZV28', 'THIN_VOLUME'), papel('TZVD8', 'THIN_VOLUME'),
+    papel('D10Y7', 'NO_TRADES_TODAY'),
+    papel('MAL01', 'MATURITY_MISMATCH'),
+    papel('TTD26', null, true),
   ];
-  const elegidos = elegirParaElAjuste(rueda, (p) => p.nivel, vista).map((p) => p.ticker);
-  assert.equal(elegidos.length, 8, 'entran los de poco volumen');
-  assert.ok(!elegidos.includes('D10Y7'), 'el que no operó, nunca');
-
-  // Con suficientes papeles sin marcas, los de poco volumen no entran.
-  const tarde = rueda.map((p) => (p.ticker === 'D15E7' ? { ...p, nivel: 'ok' as const } : p));
-  assert.deepEqual(
-    elegirParaElAjuste(tarde, (p) => p.nivel, vista).map((p) => p.ticker),
-    ['D30O6', 'D30N6', 'TMVE8', 'D15E7'],
-  );
+  const elegidos = elegirParaElAjuste(rueda as never[], datoQueNoCierra, vista).map((p: { ticker: string }) => p.ticker);
+  assert.equal(elegidos.length, 9, 'los 9 con precio, operaran mucho, poco o nada hoy');
+  assert.ok(!elegidos.includes('MAL01'), 'un dato que no cierra, nunca');
+  assert.ok(!elegidos.includes('TTD26'), 'lo apartado por lo que es, nunca');
 });

@@ -45,6 +45,7 @@ import {
 import { AVISO_RESPALDO } from '../src/lib/respaldo';
 import {
   ajustarCurva,
+  datoQueNoCierra,
   elegirParaElAjuste,
   entraALaCurvaPorDefecto,
   minimoDePuntos,
@@ -147,7 +148,7 @@ function revisarCurva(u: UniverseResponse): string {
   // 16/10/2026 los 9 dólar linked tenían TIR y aun así no había curva: los
   // de poco volumen quedaban afuera y no alcanzaba para la parábola.
   const candidatos = u.instruments.filter((i) => i.tea !== null && entraALaCurvaPorDefecto(i, u.vista));
-  const puntos = elegirParaElAjuste(candidatos, (i) => i.quality.level, u.vista);
+  const puntos = elegirParaElAjuste(candidatos, datoQueNoCierra, u.vista);
   const eje = (i: (typeof puntos)[number]) =>
     u.vista.ejeX === 'vencimiento'
       ? i.daysToMaturity

@@ -1,7 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
-import { ajustarCurva, apartadoDelAjuste, elegirParaElAjuste, entraALaCurvaPorDefecto } from '@/lib/ajuste';
+import {
+  ajustarCurva,
+  apartadoDelAjuste,
+  datoQueNoCierra,
+  elegirParaElAjuste,
+  entraALaCurvaPorDefecto,
+} from '@/lib/ajuste';
 import { listUniverses, getUniverse } from '@/lib/universes';
 import type { InstrumentRow, UniverseResponse, VistaUniverso } from '@/lib/types';
 import { ALT_IMAGEN } from '@/lib/compartir';
@@ -80,7 +86,7 @@ function mini(slug: string, label: string): Mini | null {
 
   const aparte = (i: InstrumentRow) => apartadoDelAjuste(i, vista);
   const ajuste = ajustarCurva(
-    elegirParaElAjuste(con, (i) => i.quality.level, vista).map((i) => ({ dias: plazo(i, vista.ejeX), valor: i.tea! })),
+    elegirParaElAjuste(con, datoQueNoCierra, vista).map((i) => ({ dias: plazo(i, vista.ejeX), valor: i.tea! })),
     vista.modeloCurva,
   );
   let trazo: string | null = null;

@@ -382,25 +382,34 @@ export function apartadoDelAjuste(
 }
 
 /**
+ * Marcas que dicen que el dato no cierra, no que el papel operó poco: con
+ * ellas la TIR está calculada sobre algo que no es, y no entra a la curva.
+ * (Sin referencia o ya vencido no tienen TIR y no llegan hasta acá.)
+ */
+const DATO_QUE_NO_CIERRA: ReadonlySet<string> = new Set(['MATURITY_MISMATCH']);
+
+/** Si un papel trae una marca de dato que no cierra. */
+export function datoQueNoCierra(i: Pick<InstrumentRow, 'quality'>): boolean {
+  return i.quality.flags.some((f) => DATO_QUE_NO_CIERRA.has(f.code));
+}
+
+/**
  * Qué papeles definen la curva, entre los que se dibujan. Una sola regla para
  * la pantalla, la curva de comparación, la imagen para compartir y el
  * vigilante, para que no digan cosas distintas.
  *
- * Primero, los que no tienen marcas de calidad. Si no alcanzan para dibujar
- * la curva, se suman los de poco volumen (`warn`): el 16/10/2026 a las 11:45,
- * con 45 minutos de rueda, sólo 3 de los 9 dólar linked tenían diez
- * operaciones y la parábola, que pide 4, no se dibujaba aunque habían operado
- * 8. Los marcados en serio (`bad`: sin operar, sin referencia, vencimiento
- * que no cierra) no entran nunca. Los de poco volumen se siguen dibujando
- * huecos: se ve que la curva se apoya en ellos.
+ * Entran todos con su último precio, aunque hayan operado poco o nada en la
+ * rueda: decisión del usuario del 16/10/2026, después de ver la curva dólar
+ * linked sin dibujar a la mañana (con 45 minutos de rueda, 3 de los 9
+ * papeles tenían diez operaciones). La marca de poco volumen sigue en la
+ * tabla y el punto se dibuja hueco: se ve que el precio es de pocas
+ * operaciones. Quedan afuera sólo los apartados por lo que son (el dual con
+ * tasa fija de TAMAR) y los que tienen un dato que no cierra.
  */
 export function elegirParaElAjuste<T extends { estructura: InstrumentRow['estructura']; fueraDelAjuste?: boolean | true }>(
   candidatos: readonly T[],
-  nivel: (i: T) => InstrumentRow['quality']['level'],
-  vista: Pick<VistaUniverso, 'fueraDelAjuste' | 'modeloCurva'>,
+  noCierra: (i: T) => boolean,
+  vista: Pick<VistaUniverso, 'fueraDelAjuste'>,
 ): T[] {
-  const propios = candidatos.filter((i) => !apartadoDelAjuste(i, vista));
-  const sinMarcas = propios.filter((i) => nivel(i) === 'ok');
-  if (sinMarcas.length >= minimoDePuntos(vista.modeloCurva)) return sinMarcas;
-  return propios.filter((i) => nivel(i) !== 'bad');
+  return candidatos.filter((i) => !apartadoDelAjuste(i, vista) && !noCierra(i));
 }
