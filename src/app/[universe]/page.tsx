@@ -2,12 +2,21 @@ import { notFound } from 'next/navigation';
 import { Tablero } from '@/components/Tablero';
 import { getUniverse, listUniverses } from '@/lib/universes';
 import { ALT_IMAGEN } from '@/lib/compartir';
+import { breakevenInicial, cierreInicial } from '@/lib/foto-inicial';
 
 /**
  * El universo es un parámetro de ruta. Cuando se sumen las curvas CER y dólar
  * linked al registro, aparecen solas en la navegación y en su propia URL sin
  * tocar esta página.
  */
+/**
+ * La página se arma con el último cierre guardado (`foto-inicial.ts`) y se
+ * regenera cada hora: así el control de que esa foto sea reciente se
+ * reevalúa aunque no haya deploy. El deploy diario, que dispara la foto de
+ * cierre, la renueva igual.
+ */
+export const revalidate = 3600;
+
 export function generateStaticParams() {
   return listUniverses().map((u) => ({ universe: u.slug }));
 }
@@ -47,6 +56,13 @@ export default async function PaginaUniverso({
   const def = getUniverse(universe);
   if (!def) notFound();
 
+  // La curva, la tabla y el breakeven llegan ya dibujados en el HTML, con el
+  // último cierre guardado; el tablero pide después los datos de siempre.
+  const inicial = cierreInicial(universe);
+  // La vista (eje, forma de la curva) es del código, no del archivo, como en
+  // el endpoint: un cambio se ve aunque la foto sea de antes.
+  const datosIniciales = inicial ? { ...inicial, vista: def.vista } : null;
+
   // La clave hace que cada curva arranque su propio tablero al navegar entre
   // pestañas, sin arrastrar las elecciones ni los datos de la otra.
   return (
@@ -55,6 +71,8 @@ export default async function PaginaUniverso({
       slug={universe}
       universos={listUniverses().map(({ slug, label }) => ({ slug, label }))}
       conBreakeven={def.vista.breakeven}
+      inicial={datosIniciales}
+      breakevenInicial={def.vista.breakeven ? breakevenInicial() : null}
     />
   );
 }

@@ -200,7 +200,16 @@ async function main() {
       if (!res.ok) throw new Error(`respondió ${res.status}`);
       const html = await res.text();
       if (!html.includes(label)) throw new Error(`no aparece "${label}" en la página`);
-      return 'carga';
+      // La página llega con el último cierre ya dibujado (lib/foto-inicial.ts).
+      // Si llega con el cartel de carga, la foto guardada es vieja o falta: la
+      // página anda igual, pero la foto diaria se quedó atrás.
+      const sinScripts = html.replace(/<script[\s\S]*?<\/script>/g, '');
+      if (sinScripts.includes('Trayendo la rueda')) {
+        avisos.push(`página ${slug}: llega sin datos (con el cartel de carga); la foto del último cierre es vieja o falta`);
+        return 'carga, sin datos en el HTML';
+      }
+      const rueda = sinScripts.match(/Rueda<\/span><span[^>]*>(\d{2}\/\d{2}\/\d{2})/)?.[1];
+      return `carga, con datos en el HTML${rueda ? ` (rueda ${rueda})` : ''}`;
     });
   }
 

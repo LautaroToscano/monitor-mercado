@@ -38,6 +38,16 @@ const encabezados = [
 /** @type {import('next').NextConfig} */
 export default {
   poweredByHeader: false,
+  // Las pestañas se arman con el último cierre guardado (`lib/foto-inicial.ts`)
+  // y se regeneran cada hora en el servidor: ahí tienen que estar esos
+  // archivos, que por ser de public/ no viajan solos con la función.
+  outputFileTracingIncludes: {
+    '/[universe]': [
+      './public/historico/ultimo/*.json',
+      './public/historico/breakeven/*.json',
+      './public/historico/indice.json',
+    ],
+  },
   async headers() {
     return [{ source: '/:path*', headers: encabezados }];
   },

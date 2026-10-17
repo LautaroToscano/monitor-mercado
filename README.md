@@ -27,8 +27,9 @@ e INDEC.
 
 ## Cómo está hecho
 
-- **Todo el cálculo vive en el backend.** El navegador pide un JSON ya
-  calculado y sólo dibuja. Las convenciones (base de días, liquidación T+1,
+- **Todo el cálculo vive en el backend.** La página llega con el último
+  cierre ya dibujado y el navegador pide después el JSON en vivo, ya
+  calculado, y sólo dibuja. Las convenciones (base de días, liquidación T+1,
   feriados, rezago del CER) están en un único archivo.
 - **Sin dato inventado.** Cada precio lleva fecha y origen; lo dudoso se
   marca y sale de la curva, y lo que falta se informa en vez de estimarse.

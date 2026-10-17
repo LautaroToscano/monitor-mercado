@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { BreakevenResponse } from '@/lib/breakeven';
+import { reemplaza } from '@/lib/reemplazo';
 import type { UniverseResponse } from '@/lib/types';
 import { NOMBRE_METRICA, PanelCurva, type Metrica } from './PanelCurva';
 import { PanelBreakeven, RUTA_BREAKEVEN } from './PanelBreakeven';
@@ -46,19 +48,32 @@ interface Props {
   universos: { slug: string; label: string }[];
   /** Si esta curva lleva el panel de breakeven: se pide junto con la curva. */
   conBreakeven: boolean;
+  /**
+   * El último cierre guardado, para dibujar apenas abre la página, antes del
+   * primer pedido (`lib/foto-inicial.ts`). Null si no hay uno reciente: ahí
+   * se espera el pedido, como antes.
+   */
+  inicial?: UniverseResponse | null;
+  /** Lo mismo para el panel de breakeven, en la CER. */
+  breakevenInicial?: BreakevenResponse | null;
 }
+
 
 const rutaUniverso = (slug: string) => `/api/universe/${slug}`;
 
 /** Lo que se trajo hace menos que esto se usa sin volver a pedirlo. */
 const VIGENCIA_AL_ENTRAR_MS = 30_000;
 
-export function Tablero({ slug, universos, conBreakeven }: Props) {
-  // Al volver a una curva ya vista, se dibuja lo último que se tenía y se
-  // refresca por detrás.
-  const [datos, setDatos] = useState<UniverseResponse | null>(() =>
-    ultimoValor<UniverseResponse>(rutaUniverso(slug)),
+export function Tablero({ slug, universos, conBreakeven, inicial = null, breakevenInicial = null }: Props) {
+  // Al volver a una curva ya vista, se dibuja lo último que se tenía; al
+  // abrir la página, el último cierre que trae el HTML. Las dos se refrescan
+  // por detrás.
+  const [datos, setDatos] = useState<UniverseResponse | null>(
+    () => ultimoValor<UniverseResponse>(rutaUniverso(slug)) ?? inicial,
   );
+  // El primer pedido no atenúa lo que ya se ve: la foto del HTML es de un
+  // cierre real y se reemplaza sin parpadeo si llega algo más nuevo.
+  const sinAtenuar = useRef(datos !== null);
   const [error, setError] = useState<string | null>(null);
   const [cargando, setCargando] = useState(() => datos === null);
   const [metricaElegida, setMetrica] = useState<Metrica>('tea');
@@ -92,11 +107,13 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
   );
 
   const traer = useCallback(async (vigenciaMs = 0) => {
-    setCargando(true);
+    if (sinAtenuar.current) sinAtenuar.current = false;
+    else setCargando(true);
     try {
       // Sin 'no-store': así el CDN puede servir la respuesta cacheada y la
       // función —y con ella la fuente— sólo se toca cuando el cache vence.
-      setDatos(await pedirJson<UniverseResponse>(rutaUniverso(slug), vigenciaMs));
+      const nueva = await pedirJson<UniverseResponse>(rutaUniverso(slug), vigenciaMs);
+      setDatos((actual) => (reemplaza(actual, nueva) ? nueva : actual));
       setError(null);
     } catch (err) {
       setError((err as Error).message);
@@ -222,7 +239,9 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
                   </span>
                 </span>
               </div>
-              <Dato etiqueta="Hora" valor={hora} mono />
+              {/* La hora del servidor y la del navegador nunca coinciden al
+                  segundo: no es un error de la página. */}
+              <Dato etiqueta="Hora" valor={hora} mono reloj />
               {mayorista && (
                 <Dato etiqueta="Dólar mayorista" valor={precio(mayorista.valor)} mono />
               )}
@@ -312,7 +331,7 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
               />
             </section>
 
-            {datos.vista.breakeven && <PanelBreakeven />}
+            {datos.vista.breakeven && <PanelBreakeven inicial={breakevenInicial} />}
 
             <section className={estilos.panel} aria-label="Precios">
               <TablaPrecios instrumentos={datos.instruments} vista={datos.vista} />
@@ -326,11 +345,24 @@ export function Tablero({ slug, universos, conBreakeven }: Props) {
   );
 }
 
-function Dato({ etiqueta, valor, mono }: { etiqueta: string; valor: string; mono?: boolean }) {
+function Dato({
+  etiqueta,
+  valor,
+  mono,
+  reloj,
+}: {
+  etiqueta: string;
+  valor: string;
+  mono?: boolean;
+  /** Cambia segundo a segundo: el del servidor y el del navegador difieren. */
+  reloj?: boolean;
+}) {
   return (
     <div className={estilos.selloItem}>
       <span className={estilos.selloEtiqueta}>{etiqueta}</span>
-      <span className={mono ? `mono ${estilos.selloValor}` : estilos.selloValor}>{valor}</span>
+      <span className={mono ? `mono ${estilos.selloValor}` : estilos.selloValor} suppressHydrationWarning={reloj}>
+        {valor}
+      </span>
     </div>
   );
 }

@@ -53,11 +53,12 @@ interface Barra {
   detalle: string;
 }
 
-export function PanelBreakeven() {
+export function PanelBreakeven({ inicial = null }: { inicial?: BreakevenResponse | null }) {
   // Si ya se trajo antes —en esta pestaña o precargado desde la otra— se
-  // dibuja en el acto.
-  const [datos, setDatos] = useState<BreakevenResponse | null>(() =>
-    ultimoValor<BreakevenResponse>(RUTA_BREAKEVEN),
+  // dibuja en el acto; al abrir la página, el último breakeven guardado que
+  // trae el HTML.
+  const [datos, setDatos] = useState<BreakevenResponse | null>(
+    () => ultimoValor<BreakevenResponse>(RUTA_BREAKEVEN) ?? inicial,
   );
   const [error, setError] = useState<string | null>(null);
   const [ancho, setAncho] = useState(960);
@@ -70,7 +71,15 @@ export function PanelBreakeven() {
   const traer = useCallback(async (vigenciaMs = 0) => {
     for (let intento = 0; ; intento++) {
       try {
-        setDatos(await pedirJson<BreakevenResponse>(RUTA_BREAKEVEN, intento === 0 ? vigenciaMs : 0));
+        const nuevo = await pedirJson<BreakevenResponse>(RUTA_BREAKEVEN, intento === 0 ? vigenciaMs : 0);
+        // Sólo si es de otra rueda o de otro cálculo: el mismo no se vuelve a dibujar.
+        setDatos((actual) =>
+          actual && actual.tradeDate === nuevo.tradeDate && actual.fetchedAt === nuevo.fetchedAt
+            ? actual
+            : !actual || nuevo.tradeDate >= actual.tradeDate
+              ? nuevo
+              : actual,
+        );
         setError(null);
         return;
       } catch (err) {

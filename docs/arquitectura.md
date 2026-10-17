@@ -43,6 +43,22 @@ frontend cambian.
 
 ## Velocidad
 
+- **La página llega con los datos.** Cada pestaña se arma en el servidor con
+  el último cierre guardado (`public/historico/ultimo/<curva>.json` y, en la
+  CER, el último breakeven), así que la curva, la tabla y el breakeven ya
+  vienen en el HTML: quien abre el link no ve un cartel de carga, y los
+  buscadores y las vistas previas ven los datos (`lib/foto-inicial.ts`).
+  Después el tablero pide los datos de siempre sin atenuar lo que se ve y
+  reemplaza sólo si llega algo más nuevo (`lib/reemplazo.ts`): una rueda
+  más nueva, o en rueda cada precio nuevo. Ningún cálculo cambia: la foto es
+  la respuesta del mismo backend, ya guardada.
+  - *Nunca una foto de hace días.* Sólo se usa si es de la última rueda
+    terminada o de la anterior; si es más vieja o falta el archivo, la
+    pestaña arranca con el cartel de carga, como antes. La foto se renueva
+    con el deploy que dispara cada commit de la foto de cierre, y la página
+    se regenera cada hora (ISR) para reevaluar ese control aunque no haya
+    deploy. El vigilante avisa si una página llega sin datos.
+
 - **Breakeven guardado.** Calcularlo en frío son cuarenta series de BYMA, el
   CER y el IPC: unos diez segundos. El proceso diario lo guarda en
   `public/historico/breakeven/` y el endpoint sirve ese archivo cuando es el
