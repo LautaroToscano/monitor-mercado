@@ -152,7 +152,10 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
 - **Mantenimiento**: el vigilante junta los avisos que piden una acción (un
   título que no se pudo incorporar o sin sus condiciones, la TAMAR que dejó
   de publicarse, los feriados del año que viene desde octubre) y abre un
-  issue `mantenimiento`, aparte del de caídas.
+  issue `mantenimiento`, aparte del de caídas. Ese aviso se abre recién si
+  lo mismo aparece tres revisiones seguidas y se cierra con tres limpias,
+  y un error pasajero de la fuente (una ficha que no respondió a tiempo) no
+  cuenta: en octubre de 2026 TVSJ1 abría y cerraba el aviso en 20 minutos.
 
 ## Seguridad
 

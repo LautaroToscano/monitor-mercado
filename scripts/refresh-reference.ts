@@ -29,6 +29,7 @@ import { reglasTasaFija } from '../src/lib/universes/tasa-fija-clasificador';
 import { reglasTasaCer } from '../src/lib/universes/tasa-cer-clasificador';
 import { reglasDolarLinked } from '../src/lib/universes/dolar-linked-clasificador';
 import { reglasTamar } from '../src/lib/universes/tamar-clasificador';
+import { EXCLUIDOS } from '../src/lib/universes/excluidos';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/reference');
 
@@ -107,7 +108,8 @@ async function ficha(symbol: string): Promise<BymaFicha | null> {
 
 async function refrescar(spec: Spec<InstrumentReference>) {
   const quotes = await fetchQuotes(spec.panels);
-  const candidatos = [...quotes.keys()].filter((s) => spec.candidato.test(s)).sort();
+  // Los excluidos a mano no se miran: ni ficha, ni lista de sin resolver.
+  const candidatos = [...quotes.keys()].filter((s) => spec.candidato.test(s) && !EXCLUIDOS.has(s)).sort();
   console.log(`\n[${spec.slug}] ${candidatos.length} candidatos en ${spec.panels.join(', ')}`);
   // Un panel sin candidatos no es que el universo se vació: BYMA no tiene
   // rueda (un feriado) o no contestó bien. Se conserva la referencia que

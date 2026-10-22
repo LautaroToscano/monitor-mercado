@@ -70,7 +70,11 @@ const MINIMO_PAPELES = 5;
  */
 const PIDEN_ACCION = [
   /^Especies nuevas incorporadas automáticamente/,
-  /^No se pudo incorporar /,
+  // Un título que es de la curva pero le falta algo para valuarse. Si lo que
+  // falló fue el pedido de su ficha (BYMA no respondió a tiempo), es un error
+  // pasajero de la fuente, no algo para hacer: no cuenta. TVSJ1 abrió así
+  // tres avisos que se cerraban solos a los 20 minutos.
+  /^No se pudo incorporar (?!.*error al pedir la ficha)/,
   /sin condiciones verificadas/,
   /^La última TAMAR publicada/,
 ];

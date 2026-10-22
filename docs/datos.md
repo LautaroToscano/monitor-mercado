@@ -143,6 +143,11 @@ papel sin operar no puede deformar la curva de todos los demás.
 El universo vigente se arma en cada request; la referencia versionada es la
 base y el lugar de los overrides manuales, no una lista cerrada.
 
+Las especies que el usuario no quiere en ninguna curva están en
+`src/lib/universes/excluidos.ts`, con el motivo: no se miran ni en el
+request ni en el refresco de la referencia. Hoy, TVSJ1 (no es del Tesoro:
+BYMA no tiene su ficha, nunca operó y no figura en A3).
+
 **Bajas.** Una especie cuyo vencimiento ya pasó sale sola. El día que S31G6
 liquide deja de existir para la curva sin que nadie toque nada.
 

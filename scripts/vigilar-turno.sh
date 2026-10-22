@@ -46,6 +46,9 @@ gestionar() {
   fi
 }
 
+VUELTAS_MANTENIMIENTO=${VUELTAS_MANTENIMIENTO:-3}
+con_mant=0
+sin_mant=0
 vuelta=0
 while :; do
   vuelta=$((vuelta + 1))
@@ -58,9 +61,23 @@ while :; do
   gestionar caida 'Producción con problemas' '✗' 'el vigilante encontró problemas en producción.' "$falla" || true
   # Con el sitio caído no se sabe si el mantenimiento sigue pendiente: se
   # deja como está hasta la próxima vuelta sana.
+  #
+  # El mantenimiento no es urgente, así que se confirma antes de avisar: el
+  # aviso se abre (o cambia) recién cuando lo mismo aparece en
+  # VUELTAS_MANTENIMIENTO vueltas seguidas, y se cierra con otras tantas
+  # limpias. Sin esto, algo intermitente abría y cerraba el aviso cada 20
+  # minutos, con un mail por cada paso (TVSJ1, octubre de 2026).
   if [ -z "$falla" ]; then
-    hay=$(grep -q '^- 🔧' informe.md && echo 1 || true)
-    gestionar mantenimiento 'Mantenimiento pendiente' '🔧' 'hay algo del proyecto que pide una mano.' "$hay" || true
+    if grep -q '^- 🔧' informe.md; then
+      con_mant=$((con_mant + 1)); sin_mant=0
+    else
+      sin_mant=$((sin_mant + 1)); con_mant=0
+    fi
+    if [ "$con_mant" -ge "$VUELTAS_MANTENIMIENTO" ]; then
+      gestionar mantenimiento 'Mantenimiento pendiente' '🔧' 'hay algo del proyecto que pide una mano.' 1 || true
+    elif [ "$sin_mant" -ge "$VUELTAS_MANTENIMIENTO" ]; then
+      gestionar mantenimiento 'Mantenimiento pendiente' '🔧' 'hay algo del proyecto que pide una mano.' '' || true
+    fi
   fi
 
   [ "$(date +%s)" -ge "$fin" ] && break

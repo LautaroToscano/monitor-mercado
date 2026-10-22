@@ -21,6 +21,7 @@ import type {
   UniverseResponse,
 } from './types';
 import type { AnyUniverse } from './universes/types';
+import { EXCLUIDOS } from './universes/excluidos';
 
 /**
  * Presupuesto total del request, por debajo del maxDuration de la función.
@@ -280,6 +281,7 @@ export async function buildUniverse(
         !vigentes.has(symbol) &&
         !universe.reference.has(symbol) &&
         !universe.knownNonMembers.has(symbol) &&
+        !EXCLUIDOS.has(symbol) &&
         quote.maturityDate !== null &&
         quote.maturityDate > tradeDateIso,
     )
