@@ -55,8 +55,14 @@ test('respaldo: papeles nuevos sin precio no disparan el respaldo', () => {
 });
 
 test('respaldo: si el cálculo falla entero, la última completa en vez de un error', () => {
-  const e = elegirRespuesta('r6', null, completa('2026-10-13'), 'BYMA no respondió')!;
-  assert.equal(e.respuesta.tradeDate, '2026-10-13');
+  // Sin respuesta nueva, la antigüedad del respaldo se mide contra hoy: la
+  // fecha del caso tiene que ser relativa, no fija (con una fija, el test
+  // empezó a fallar solo una semana después de escrito).
+  const ayer = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+  const haceDiezDias = new Date(Date.now() - 10 * 86_400_000).toISOString().slice(0, 10);
+  const e = elegirRespuesta('r6', null, completa(ayer), 'BYMA no respondió')!;
+  assert.equal(e.respuesta.tradeDate, ayer);
+  assert.equal(elegirRespuesta('r6b', null, completa(haceDiezDias), 'BYMA no respondió'), null, 'uno de hace diez días, no');
   assert.equal(elegirRespuesta('r7', null, null, 'BYMA no respondió'), null, 'sin nada, error');
 });
 
