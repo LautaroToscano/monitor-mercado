@@ -298,7 +298,7 @@ export async function buildBreakeven(now: Date = new Date()): Promise<BreakevenR
 /** Lo que el cálculo necesita de cada papel. Lo cumplen la fila viva y la foto guardada. */
 export type PapelBreakeven = Pick<
   InstrumentRow,
-  'ticker' | 'estructura' | 'maturityDate' | 'daysToMaturity' | 'businessDaysToMaturity' | 'tea'
+  'ticker' | 'estructura' | 'maturityDate' | 'daysToMaturity' | 'businessDaysToMaturity' | 'tea' | 'fueraDelAjuste'
 > & {
   /** Sin marcas de calidad. */
   ok: boolean;
@@ -585,9 +585,20 @@ function tramoComun(puntos: PuntoAjuste[], hasta: number): PuntoAjuste[] {
   return ordenados.filter((p) => p.dias <= hasta || p === siguiente);
 }
 
-/** Los papeles que valen para el control por pares: la misma regla que el ajuste. */
+/**
+ * Los papeles que valen para el ajuste y para el control por pares. Un CER
+ * con el pago ya fijado (`pagoFijado` en tasa-cer.ts) viene marcado fuera
+ * del ajuste: su TIR no es una tasa real y no dice nada de la inflación que
+ * se espera.
+ */
 function entraAlControl(i: PapelBreakeven): boolean {
-  return i.estructura === 'cero-cupon' && entraALaCurvaPorDefecto(i) && i.ok && i.tea !== null;
+  return (
+    i.estructura === 'cero-cupon' &&
+    entraALaCurvaPorDefecto(i) &&
+    i.ok &&
+    i.tea !== null &&
+    i.fueraDelAjuste !== true
+  );
 }
 
 // ─── Meses INDEC y ventanas del CER ──────────────────────────────────────

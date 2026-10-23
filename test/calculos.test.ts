@@ -9,6 +9,7 @@ import { finalPayment } from '../src/lib/pricing/zero-coupon';
 import { datoQueNoCierra, elegirParaElAjuste, regresionCuadratica, regresionLogaritmica } from '../src/lib/ajuste';
 import { panelTieneDatos } from '../src/lib/build';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
+import { pagoFijado } from '../src/lib/universes/tasa-cer';
 import type { Quote } from '../src/lib/types';
 
 test('TAMAR TEM: reproduce la TEA que publica el BCRA (variable 137)', () => {
@@ -100,4 +101,16 @@ test('la curva usa siempre el último precio, aunque haya pocas operaciones (16/
   assert.equal(elegidos.length, 9, 'los 9 con precio, operaran mucho, poco o nada hoy');
   assert.ok(!elegidos.includes('MAL01'), 'un dato que no cierra, nunca');
   assert.ok(!elegidos.includes('TTD26'), 'lo apartado por lo que es, nunca');
+});
+
+test('un CER con el pago ya fijado no mide una tasa real (TZXO6, 23/10/2026)', () => {
+  // El BCRA tenía publicado el CER hasta el 15/11/2026. TZXO6 vence el 30/10
+  // y X30N6 el 30/11: el CER de diez hábiles antes de su vencimiento ya
+  // estaba publicado, así que su pago ya está fijado. TZXD6 vence el 15/12:
+  // su CER todavía no existe, mide una tasa real.
+  const serie = { valor: () => null, ultimaFecha: '2026-11-15', fechas: [] };
+  assert.equal(pagoFijado('2026-10-30', serie), true, 'TZXO6');
+  assert.equal(pagoFijado('2026-11-30', serie), true, 'X30N6');
+  assert.equal(pagoFijado('2026-12-15', serie), false, 'TZXD6');
+  assert.equal(pagoFijado('2026-10-30', { ...serie, ultimaFecha: null }), false, 'sin CER publicado, no se presume');
 });

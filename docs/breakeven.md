@@ -84,6 +84,22 @@ no se publica. `npm run validate:modelos` repite la comparación sobre toda la
 historia guardada: vale la pena volver a correrlo cuando haya más ruedas o
 más papeles por curva.
 
+### Los CER con el pago ya fijado no entran
+
+Un CER paga ajustado por el CER de diez hábiles antes de su vencimiento, y
+el BCRA publica el CER hasta el 15 del mes siguiente. Cuando ese CER ya
+está publicado, el pago está fijado: el papel es un bono en pesos con pago
+conocido y su TIR "real" no mide ninguna expectativa de inflación. No entra
+a la curva real ni a los pares de control (`pagoFijado` en
+`universes/tasa-cer.ts`).
+
+Pasó el 23/10/2026: TZXO6, a 4 días del vencimiento, daba −14,74% real (el
+día anterior, −1,31%; a tan pocos días cualquier diferencia de precio se
+multiplica al anualizar). Por el peso del papel más corto en el ajuste
+logarítmico dio vuelta la curva real: octubre saltó de 1,75% a 2,22% y los
+pares se apartaban hasta 0,19 puntos. Sin los de pago fijado (TZXO6 y
+X30N6), octubre da 1,83% y el par de enero coincide (1,81 contra 1,80).
+
 ### Control contra pares
 
 Los pares se usan igual, de control. Para cada LECAP o BONCAP que vence el

@@ -27,6 +27,27 @@ const knownNonMembers = new Map<string, string>(
   (referenceData.nonMembers as { symbol: string; reason: string }[]).map((n) => [n.symbol, n.reason]),
 );
 
+/**
+ * Si el pago de un CER ya está fijado: el CER que lo ajusta, el de diez
+ * hábiles antes del vencimiento, ya está publicado (el BCRA lo publica hasta
+ * el 15 del mes siguiente). Un papel así es, en los hechos, un bono en pesos
+ * con pago conocido: su TIR "real" no mide ninguna expectativa de inflación,
+ * y a pocos días del vencimiento cualquier diferencia mínima de precio se
+ * multiplica al anualizarla.
+ *
+ * El 23/10/2026 TZXO6, a 4 días del vencimiento, daba −14,74% real (el día
+ * anterior, −1,31%): por el peso del papel más corto en el ajuste
+ * logarítmico, dio vuelta la curva real y llevó el breakeven de octubre de
+ * 1,75% a 2,22%, con los pares de control desviados hasta 0,19 puntos. Sin
+ * los de pago fijado daba 1,83% y los pares, a 0,01–0,11. Decisión del
+ * usuario: no entran a la curva CER ni al breakeven; siguen en la tabla y
+ * como punto, aparte.
+ */
+export function pagoFijado(vencimiento: string, serie: SerieDiaria): boolean {
+  const fijacion = toIsoDate(restarDiasHabiles(parseIsoDate(vencimiento), CER_LAG_BUSINESS_DAYS));
+  return serie.ultimaFecha !== null && fijacion <= serie.ultimaFecha;
+}
+
 export const tasaCer: UniverseDefinition<CerReference, SerieDiaria> = {
   slug: 'tasa-cer',
   label: 'CER',
@@ -65,6 +86,9 @@ export const tasaCer: UniverseDefinition<CerReference, SerieDiaria> = {
         tem: v.tem,
         tea: v.tea,
         cer: v.cer,
+        // Con el pago ya fijado no mide una tasa real: se dibuja, pero no
+        // define la curva ni entra al breakeven (`pagoFijado`).
+        ...(pagoFijado(ref.maturityDate, serie) && { fueraDelAjuste: true }),
       }
     );
   },

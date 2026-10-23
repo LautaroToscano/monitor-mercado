@@ -501,9 +501,11 @@ function Globo({
         <ul className={estilos.globoAvisos}>
           {aparte && (
             <li data-nivel="warn">
-              {i.tamar
-                ? 'Dual tasa fija / TAMAR: la TIR es la de la pata TAMAR, sin margen. Se dibuja pero no entra a la curva.'
-                : 'Dual TAMAR / dólar: la TIR es la de la pata dólar, un piso. Se dibuja pero no entra a la curva.'}
+              {i.cer
+                ? 'Su pago ya está fijado: el CER que lo ajusta ya se publicó, así que su TIR no es una tasa real. Se dibuja pero no entra a la curva ni al breakeven.'
+                : i.tamar
+                  ? 'Dual tasa fija / TAMAR: la TIR es la de la pata TAMAR, sin margen. Se dibuja pero no entra a la curva.'
+                  : 'Dual TAMAR / dólar: la TIR es la de la pata dólar, un piso. Se dibuja pero no entra a la curva.'}
             </li>
           )}
           {i.quality.flags.map((f) => (
