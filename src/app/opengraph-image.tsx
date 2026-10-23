@@ -7,6 +7,7 @@ import {
   datoQueNoCierra,
   elegirParaElAjuste,
   entraALaCurvaPorDefecto,
+  seGrafica,
 } from '@/lib/ajuste';
 import { listUniverses, getUniverse } from '@/lib/universes';
 import type { InstrumentRow, UniverseResponse, VistaUniverso } from '@/lib/types';
@@ -72,7 +73,7 @@ function mini(slug: string, label: string): Mini | null {
   const def = getUniverse(slug);
   if (!u || !def) return null;
   const vista = def.vista;
-  const con = u.instruments.filter((i) => i.tea !== null && entraALaCurvaPorDefecto(i, vista));
+  const con = u.instruments.filter((i) => i.tea !== null && seGrafica(i) && entraALaCurvaPorDefecto(i, vista));
   if (con.length < 3) return null;
 
   const xs = con.map((i) => plazo(i, vista.ejeX));

@@ -382,6 +382,15 @@ export function apartadoDelAjuste(
 }
 
 /**
+ * Si un papel va al gráfico. Un CER con el pago ya fijado (`pagoFijado` en
+ * tasa-cer.ts) va sólo en la tabla: no es un punto de la curva real, y el
+ * usuario no lo quiere ni como punto hueco (23/10/2026).
+ */
+export function seGrafica(i: Pick<InstrumentRow, 'cer' | 'fueraDelAjuste'>): boolean {
+  return !(i.cer && i.fueraDelAjuste === true);
+}
+
+/**
  * Marcas que dicen que el dato no cierra, no que el papel operó poco: con
  * ellas la TIR está calculada sobre algo que no es, y no entra a la curva.
  * (Sin referencia o ya vencido no tienen TIR y no llegan hasta acá.)
