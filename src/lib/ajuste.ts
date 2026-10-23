@@ -382,12 +382,16 @@ export function apartadoDelAjuste(
 }
 
 /**
- * Si un papel va al gráfico. Un CER con el pago ya fijado (`pagoFijado` en
- * tasa-cer.ts) va sólo en la tabla: no es un punto de la curva real, y el
- * usuario no lo quiere ni como punto hueco (23/10/2026).
+ * Si un papel apartado del ajuste se dibuja hueco, con su motivo en el globo.
+ * Un CER con el pago ya fijado (`pagoFijado` en tasa-cer.ts) no define la
+ * curva, pero se dibuja lleno y sin explicación, como cualquier punto:
+ * pedido del usuario del 23/10/2026.
  */
-export function seGrafica(i: Pick<InstrumentRow, 'cer' | 'fueraDelAjuste'>): boolean {
-  return !(i.cer && i.fueraDelAjuste === true);
+export function seMarcaAparte(
+  i: Pick<InstrumentRow, 'estructura' | 'fueraDelAjuste' | 'cer'>,
+  vista: Pick<VistaUniverso, 'fueraDelAjuste'>,
+): boolean {
+  return apartadoDelAjuste(i, vista) && !i.cer;
 }
 
 /**

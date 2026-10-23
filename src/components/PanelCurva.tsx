@@ -6,9 +6,9 @@ import { escalaLineal, marcasLimpias } from '@/lib/escala';
 import {
   HABILES_MINIMOS_EN_CURVA,
   ajustarCurva,
-  apartadoDelAjuste,
   datoQueNoCierra,
   elegirParaElAjuste,
+  seMarcaAparte,
   type AjusteDibujado,
 } from '@/lib/ajuste';
 import type { FotoCurva } from '@/lib/historico';
@@ -102,9 +102,9 @@ export function PanelCurva({
   comparacion,
 }: Props) {
   const ejeX = vista.ejeX;
-  /** Se dibuja pero no define la curva, por lo que es (`apartadoDelAjuste`). */
+  /** Se dibuja hueco: no define la curva por lo que es (`seMarcaAparte`). */
   const fueraDelAjuste = useCallback(
-    (i: Pick<InstrumentRow, 'estructura' | 'fueraDelAjuste'>) => apartadoDelAjuste(i, vista),
+    (i: Pick<InstrumentRow, 'estructura' | 'fueraDelAjuste' | 'cer'>) => seMarcaAparte(i, vista),
     [vista],
   );
   const [ancho, setAncho] = useState(960);

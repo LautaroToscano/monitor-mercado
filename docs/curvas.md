@@ -123,11 +123,12 @@ fija. Tasa fija, que es toda cero cupón, sigue contra los días al vencimiento.
 plazo. Un bono con cupón promedia plazos y un dual trae una opción adentro que
 le baja la TIR "CER".
 
-**Los de pago ya fijado van sólo en la tabla.** Cuando el CER que ajusta el
+**Los de pago ya fijado no definen la curva.** Cuando el CER que ajusta el
 pago (el de diez hábiles antes del vencimiento) ya está publicado, el papel
 es un bono en pesos con pago conocido y su TIR real no es una tasa real:
-no va al gráfico (ni punto ni ficha), no define la curva ni entra al
-breakeven (ver [Breakeven](breakeven.md); `seGrafica` en `ajuste.ts`). Pasa todos los meses con los CER
+no entra al ajuste ni al breakeven (ver [Breakeven](breakeven.md)). Se
+dibuja lleno y sin explicación, como cualquier punto (pedido del usuario;
+`seMarcaAparte` en `ajuste.ts`). Pasa todos los meses con los CER
 a pocas semanas de vencer.
 
 En las dos curvas la tasa anual se muestra como **TIR**: es la tasa efectiva

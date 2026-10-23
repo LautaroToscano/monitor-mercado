@@ -3,11 +3,10 @@ import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 import {
   ajustarCurva,
-  apartadoDelAjuste,
   datoQueNoCierra,
   elegirParaElAjuste,
   entraALaCurvaPorDefecto,
-  seGrafica,
+  seMarcaAparte,
 } from '@/lib/ajuste';
 import { listUniverses, getUniverse } from '@/lib/universes';
 import type { InstrumentRow, UniverseResponse, VistaUniverso } from '@/lib/types';
@@ -73,7 +72,7 @@ function mini(slug: string, label: string): Mini | null {
   const def = getUniverse(slug);
   if (!u || !def) return null;
   const vista = def.vista;
-  const con = u.instruments.filter((i) => i.tea !== null && seGrafica(i) && entraALaCurvaPorDefecto(i, vista));
+  const con = u.instruments.filter((i) => i.tea !== null && entraALaCurvaPorDefecto(i, vista));
   if (con.length < 3) return null;
 
   const xs = con.map((i) => plazo(i, vista.ejeX));
@@ -85,7 +84,7 @@ function mini(slug: string, label: string): Mini | null {
   const X = (v: number) => ((v - x0) / (x1 - x0)) * ANCHO_CURVA;
   const Y = (v: number) => ALTO_CURVA - ((v - y0) / (y1 - y0)) * ALTO_CURVA;
 
-  const aparte = (i: InstrumentRow) => apartadoDelAjuste(i, vista);
+  const aparte = (i: InstrumentRow) => seMarcaAparte(i, vista);
   const ajuste = ajustarCurva(
     elegirParaElAjuste(con, datoQueNoCierra, vista).map((i) => ({ dias: plazo(i, vista.ejeX), valor: i.tea! })),
     vista.modeloCurva,

@@ -10,7 +10,7 @@ import { datoQueNoCierra, elegirParaElAjuste, regresionCuadratica, regresionLoga
 import { panelTieneDatos } from '../src/lib/build';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 import { pagoFijado } from '../src/lib/universes/tasa-cer';
-import { seGrafica } from '../src/lib/ajuste';
+import { seMarcaAparte } from '../src/lib/ajuste';
 import type { Quote } from '../src/lib/types';
 
 test('TAMAR TEM: reproduce la TEA que publica el BCRA (variable 137)', () => {
@@ -114,9 +114,11 @@ test('un CER con el pago ya fijado no mide una tasa real (TZXO6, 23/10/2026)', (
   assert.equal(pagoFijado('2026-11-30', serie), true, 'X30N6');
   assert.equal(pagoFijado('2026-12-15', serie), false, 'TZXD6');
   assert.equal(pagoFijado('2026-10-30', { ...serie, ultimaFecha: null }), false, 'sin CER publicado, no se presume');
-  // Va sólo en la tabla; el dual de TAMAR fuera del ajuste sí se dibuja.
-  const cer = {} as NonNullable<Parameters<typeof seGrafica>[0]['cer']>;
-  assert.equal(seGrafica({ cer, fueraDelAjuste: true }), false, 'CER con pago fijado');
-  assert.equal(seGrafica({ cer }), true, 'CER que mide una tasa real');
-  assert.equal(seGrafica({ cer: null, fueraDelAjuste: true }), true, 'TTD26');
+  // Fuera del ajuste, pero se dibuja lleno; el dual de TAMAR sí va hueco.
+  const cer = {} as NonNullable<Parameters<typeof seMarcaAparte>[0]['cer']>;
+  const vista = {};
+  const papel = { estructura: 'cero-cupon' as const, cer, fueraDelAjuste: true };
+  assert.equal(elegirParaElAjuste([papel], () => false, vista).length, 0, 'no define la curva');
+  assert.equal(seMarcaAparte(papel, vista), false, 'CER con pago fijado: punto lleno');
+  assert.equal(seMarcaAparte({ estructura: 'cero-cupon', cer: null, fueraDelAjuste: true }, vista), true, 'TTD26: hueco');
 });

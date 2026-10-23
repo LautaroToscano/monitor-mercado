@@ -40,8 +40,8 @@ const knownNonMembers = new Map<string, string>(
  * logarítmico, dio vuelta la curva real y llevó el breakeven de octubre de
  * 1,75% a 2,22%, con los pares de control desviados hasta 0,19 puntos. Sin
  * los de pago fijado daba 1,83% y los pares, a 0,01–0,11. Decisión del
- * usuario: no entran a la curva CER ni al breakeven; siguen sólo en la
- * tabla, sin punto en el gráfico (`seGrafica` en ajuste.ts).
+ * usuario: no entran a la curva CER ni al breakeven; se dibujan como
+ * cualquier punto, sin marca (`seMarcaAparte` en ajuste.ts).
  */
 export function pagoFijado(vencimiento: string, serie: SerieDiaria): boolean {
   const fijacion = toIsoDate(restarDiasHabiles(parseIsoDate(vencimiento), CER_LAG_BUSINESS_DAYS));
@@ -86,8 +86,8 @@ export const tasaCer: UniverseDefinition<CerReference, SerieDiaria> = {
         tem: v.tem,
         tea: v.tea,
         cer: v.cer,
-        // Con el pago ya fijado no mide una tasa real: va sólo en la tabla,
-        // no define la curva ni entra al breakeven (`pagoFijado`).
+        // Con el pago ya fijado no mide una tasa real: se dibuja, pero no
+        // define la curva ni entra al breakeven (`pagoFijado`).
         ...(pagoFijado(ref.maturityDate, serie) && { fueraDelAjuste: true }),
       }
     );

@@ -16,7 +16,7 @@ import { SelectorTema } from './SelectorTema';
 import { fechaCorta, pct, precio } from '@/lib/format';
 import { momentoVisible } from '@/lib/conventions';
 import estilos from './Tablero.module.css';
-import { entraALaCurvaPorDefecto, seGrafica } from '@/lib/ajuste';
+import { entraALaCurvaPorDefecto } from '@/lib/ajuste';
 
 /**
  * Cada cuánto se vuelve a pedir el universo.
@@ -95,9 +95,6 @@ export function Tablero({ slug, universos, conBreakeven, inicial = null, breakev
     }
     return fuera;
   }, [datos, decisiones]);
-
-  // Lo que va al gráfico y a sus fichas; la tabla lleva todos.
-  const graficables = useMemo(() => (datos?.instruments ?? []).filter(seGrafica), [datos]);
 
   const alternarInstrumento = useCallback(
     (ticker: string) => {
@@ -312,20 +309,20 @@ export function Tablero({ slug, universos, conBreakeven, inicial = null, breakev
                 />
               </div>
               <SelectorInstrumentos
-                instrumentos={graficables}
+                instrumentos={datos.instruments}
                 excluidos={excluidos}
                 metrica={metrica}
                 onToggle={alternarInstrumento}
                 onTodos={() =>
                   setDecisiones(
                     Object.fromEntries(
-                      graficables.map((i) => [i.ticker, 'dentro' as const]),
+                      datos.instruments.map((i) => [i.ticker, 'dentro' as const]),
                     ),
                   )
                 }
               />
               <PanelCurva
-                instrumentos={graficables}
+                instrumentos={datos.instruments}
                 metrica={metrica}
                 vista={datos.vista}
                 excluidos={excluidos}
