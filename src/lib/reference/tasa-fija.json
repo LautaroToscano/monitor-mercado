@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T18:24:39.410Z",
+  "generatedAt": "2026-10-29T18:10:32.909Z",
   "source": "BYMA ficha técnica (bnown/fichatecnica/especies/general)",
   "instruments": [
     {
@@ -10,15 +10,6 @@
       "maturityDate": "2026-11-13",
       "issueTem": 0.021,
       "temSource": "manual"
-    },
-    {
-      "symbol": "S29E7",
-      "name": "LETRA DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VENCIMIENTO 29 DE ENERO DE 2027",
-      "isin": "AR0048313164",
-      "issueDate": "2026-08-31",
-      "maturityDate": "2027-01-29",
-      "issueTem": 0.0225,
-      "temSource": "licitacion"
     },
     {
       "symbol": "S30N6",
@@ -267,5 +258,7 @@
       "reason": "ajustable por CER"
     }
   ],
-  "unresolved": []
+  "unresolved": [
+    "S29E7"
+  ]
 }
