@@ -12,7 +12,7 @@
  "D15E7": {
   "descripcion": "D15E7  (LETE VINC U$S VTO 15/01/27)",
   "desde": "2026-08-05",
-  "hasta": "2026-10-02"
+  "hasta": "2026-11-05"
  },
  "D16E6": {
   "descripcion": "D16E6  (LETE VINC U$S VTO 16/01/26)",
@@ -42,12 +42,12 @@
  "D30N6": {
   "descripcion": "D30N6  (LETE VINC U$S VTO 30/11/26)",
   "desde": "2026-09-21",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "D30O6": {
   "descripcion": "D30O6  (LETE VINC U$S VTO 30/10/26)",
   "desde": "2026-08-14",
-  "hasta": "2026-10-09"
+  "hasta": "2026-10-29"
  },
  "D30S6": {
   "descripcion": "D30S6  (LETE VINC U$S VTO 30/09/26)",
@@ -67,7 +67,7 @@
  "D31M7": {
   "descripcion": "D31M7  (LETE VINC U$S VTO 31/03/27)",
   "desde": "2026-05-29",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "D31O5": {
   "descripcion": "D31O5  (LETE VINC U$S VTO 31/10/25)",
@@ -77,7 +77,7 @@
  "DICP": {
   "descripcion": "DICP  (BONOS DISCOUNT PESOS 2033)",
   "desde": "2024-09-09",
-  "hasta": "2026-10-01"
+  "hasta": "2026-11-05"
  },
  "DIP0": {
   "descripcion": "BONOS DE LA REPUBLICA ARGENTINA DISCOUNT EN PESOS REGIDOS POR LA LEY ARGENTINA (AJUSTABLES POR CER)",
@@ -132,7 +132,7 @@
  "PARP": {
   "descripcion": "PARP  (BONOS PAR EN PESOS 2038)",
   "desde": "2024-09-11",
-  "hasta": "2026-10-07"
+  "hasta": "2026-10-21"
  },
  "S10L5": {
   "descripcion": "S10L5  (LECAP $ 2,58% 10/07/25)",
@@ -167,7 +167,7 @@
  "S13N6": {
   "descripcion": "S13N6  (LECAP $ 13/11/26)",
   "desde": "2026-06-30",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "S13S4": {
   "descripcion": "S13S4  (LECAP $ 4,25% 13/09/24)",
@@ -227,7 +227,7 @@
  "S16O6": {
   "descripcion": "S16O6  (LECAP $ 2,05% 16/10/26)",
   "desde": "2026-07-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-10-15"
  },
  "S16Y5": {
   "descripcion": "S16Y5  (LECAP $ 3,95% 16/05/25)",
@@ -254,6 +254,11 @@
   "desde": "2024-09-09",
   "hasta": "2025-06-17"
  },
+ "S26F7": {
+  "descripcion": "S26F7  (LECAP $ 26/02/27)",
+  "desde": "2026-10-30",
+  "hasta": "2026-11-05"
+ },
  "S27F6": {
   "descripcion": "S27F6  (LECAP $ 3,95% 27/02/26)",
   "desde": "2025-09-05",
@@ -277,7 +282,7 @@
  "S29E7": {
   "descripcion": "S29E7  (LECAP $ 29/01/27)",
   "desde": "2026-08-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "S29G5": {
   "descripcion": "S29G5  (LECAP $ 3,88% 29/08/25)",
@@ -307,12 +312,12 @@
  "S30N6": {
   "descripcion": "S30N6  (LECAP $ 2,30% 30/11/26)",
   "desde": "2025-12-17",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "S30O6": {
   "descripcion": "S30O6  (LECAP $ 2,55% 30/10/26)",
   "desde": "2025-10-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-10-28"
  },
  "S30S4": {
   "descripcion": "S30S4  (LECAP $ 4,25% 30/09/24)",
@@ -372,7 +377,7 @@
  "SFD34": {
   "descripcion": "SFD34  (TIT PUBLICOS U$D 2034 STA FE)",
   "desde": "2025-12-11",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "SFN27": {
   "descripcion": "SFN27  (BONO INFRA VIAL PROV. SANTA FE)",
@@ -382,7 +387,7 @@
  "SJO35": {
   "descripcion": "SJO35  (TIT.DEUDA PROV.SAN JUAN 2035)",
   "desde": "2026-10-01",
-  "hasta": "2026-10-02"
+  "hasta": "2026-10-28"
  },
  "T13F6": {
   "descripcion": "T13F6  (BONCAP $ 2,60% 13/02/26)",
@@ -397,7 +402,7 @@
  "T15E7": {
   "descripcion": "T15E7  (BONCAP $ 2,05% 15/01/27)",
   "desde": "2025-01-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "T17O5": {
   "descripcion": "T17O5  (BONCAP $ 3,90% 17/10/25)",
@@ -412,7 +417,7 @@
  "T30A7": {
   "descripcion": "T30A7  (BONCAP $ 2,55% 30/04/27)",
   "desde": "2025-10-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "T30E6": {
   "descripcion": "T30E6  (BONCAP $ 2,65% 30/01/26)",
@@ -427,12 +432,12 @@
  "T30J7": {
   "descripcion": "T30J7  (BONCAP $ 2,58% 30/06/27)",
   "desde": "2026-01-16",
-  "hasta": "2026-10-01"
+  "hasta": "2026-11-03"
  },
  "T31Y7": {
   "descripcion": "T31Y7  (BONCAP $ 2,4 % 31/05/27)",
   "desde": "2025-12-15",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "T4X4": {
   "descripcion": "T4X4P  (BONOS TESORO CER+4,0% 14/10/24)",
@@ -467,37 +472,37 @@
  "TMF27": {
   "descripcion": "TMF27  (LETRA TAMAR TEM 26/02/2027)",
   "desde": "2026-02-13",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TMF28": {
   "descripcion": "TMF28  (BONO TAMAR 25/02/2028)",
   "desde": "2026-07-13",
-  "hasta": "2026-09-18"
+  "hasta": "2026-10-21"
  },
  "TMG27": {
   "descripcion": "TMG27  (BONO TAMAR 31/07/2027)",
   "desde": "2026-04-21",
-  "hasta": "2026-10-08"
+  "hasta": "2026-11-05"
  },
  "TMG28": {
   "descripcion": "TMG28  (BONO TAMAR 31/08/2028)",
   "desde": "2026-04-30",
-  "hasta": "2026-10-08"
+  "hasta": "2026-11-04"
  },
  "TML27": {
   "descripcion": "TML27  (BONO TAMAR 30/07/2027)",
   "desde": "2026-06-30",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TMVE8": {
   "descripcion": "TMVE8  (BONO DUAL DOL/TAMAR 31/01/28)",
   "desde": "2026-07-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TTD26": {
   "descripcion": "TTD26  (BONTE NAL TASA DUAL 15/12/2026)",
   "desde": "2025-01-29",
-  "hasta": "2026-10-08"
+  "hasta": "2026-11-05"
  },
  "TTJ26": {
   "descripcion": "TTJ26  (BONTE NAL TASA DUAL 30/6/2026)",
@@ -517,12 +522,12 @@
  "TX26": {
   "descripcion": "TX26  (BONO TESORO CER 2% CANJE LOCAL)",
   "desde": "2024-09-09",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TX28": {
   "descripcion": "TX28  (BONOS TESORO CER 2,25% CANJE L)",
   "desde": "2024-09-10",
-  "hasta": "2026-10-08"
+  "hasta": "2026-11-02"
  },
  "TX31": {
   "descripcion": "BONOS DEL TESORO NACIONAL EN PESOS AJUSTADO POR CER 2,50% VENCIMIENTO 30 DE NOVIEMBRE DE 2031",
@@ -532,27 +537,27 @@
  "TXMD8": {
   "descripcion": "TXMD8  (BONO DUAL CER/TAMAR 15/12/28)",
   "desde": "2026-06-12",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TXMD9": {
   "descripcion": "TXMD9  (BONO DUAL CER/TAMAR 14/12/29)",
   "desde": "2026-06-12",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TXMJ0": {
   "descripcion": "TXMJ0  (BONO DUAL CER/TAMAR 28/06/30)",
   "desde": "2026-06-12",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TXMJ8": {
   "descripcion": "TXMJ8  (BONO DUAL CER/TAMAR 30/06/28)",
   "desde": "2026-05-15",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TXMJ9": {
   "descripcion": "TXMJ9  (BONO DUAL CER/TAMAR 29/06/29)",
   "desde": "2026-04-30",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZV25": {
   "descripcion": "TZV25  (BONTE VINC DOLAR CERO CUPON)",
@@ -567,12 +572,12 @@
  "TZV27": {
   "descripcion": "TZV27  (BONTE VINC DOLAR CERO CUPON 27)",
   "desde": "2026-02-27",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-04"
  },
  "TZV28": {
   "descripcion": "TZV28  (BONTE VINC DOLAR CERO CUPON 28)",
   "desde": "2026-03-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-04"
  },
  "TZVD5": {
   "descripcion": "TZVD5  (BONTE VINC DOLAR CERO CUPON)",
@@ -582,7 +587,7 @@
  "TZVD8": {
   "descripcion": "TZVD8  (BONTE VINC DOLAR CERO CUPON 28)",
   "desde": "2026-06-16",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZX25": {
   "descripcion": "TZX25  (BONCER $ CUPON CERO 30/06/2025)",
@@ -597,17 +602,17 @@
  "TZX27": {
   "descripcion": "TZX27  (BONCER $ CUPON CERO 30/06/2027)",
   "desde": "2024-09-11",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZX28": {
   "descripcion": "TZX28  (BONCER $ CUPON CERO 30/06/2028)",
   "desde": "2024-09-12",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZXA7": {
   "descripcion": "TZXA7  (BONCER $ CUPON CERO 30/04/2027)",
   "desde": "2025-12-04",
-  "hasta": "2026-10-06"
+  "hasta": "2026-11-05"
  },
  "TZXD5": {
   "descripcion": "TZXD5  (BONCER $ CUPON CERO 15/12/2025)",
@@ -617,17 +622,17 @@
  "TZXD6": {
   "descripcion": "TZXD6  (BONCER $ CUPON CERO 15/12/2026)",
   "desde": "2024-09-09",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZXD7": {
   "descripcion": "TZXD7  (BONCER $ CUPON CERO 15/12/2027)",
   "desde": "2024-09-09",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZXD8": {
   "descripcion": "TZXD8  (BONCER $ CUPON CERO 15/12/2028)",
   "desde": "2026-06-30",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-04"
  },
  "TZXM5": {
   "descripcion": "TZXM5  (BONCER $ CUPON CERO 31/03/2025)",
@@ -642,17 +647,17 @@
  "TZXM7": {
   "descripcion": "TZXM7  (BONCER $ CUPON CERO 31/03/2027)",
   "desde": "2024-10-02",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZXM8": {
   "descripcion": "TZXM8  (BONCER $ CUPON CERO 31/03/2028)",
   "desde": "2026-04-10",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZXM9": {
   "descripcion": "TZXM9  (BONCER $ CUPON CERO 28/03/2029)",
   "desde": "2026-04-16",
-  "hasta": "2026-10-08"
+  "hasta": "2026-10-13"
  },
  "TZXO5": {
   "descripcion": "TZXO5  (BONCER $ CUPON CERO 31/10/2025)",
@@ -662,22 +667,22 @@
  "TZXO6": {
   "descripcion": "TZXO6  (BONCER $ CUPON CERO 30/10/2026)",
   "desde": "2024-10-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-10-29"
  },
  "TZXO7": {
   "descripcion": "TZXO7  (BONCER $ CUPON CERO 29/10/2027)",
   "desde": "2026-06-30",
-  "hasta": "2026-10-08"
+  "hasta": "2026-11-05"
  },
  "TZXS7": {
   "descripcion": "TZXS7  (BONCER $ CUPON CERO 30/09/2027)",
   "desde": "2026-03-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZXS8": {
   "descripcion": "TZXS8  (BONCER $ CUPON CERO 29/09/2028)",
   "desde": "2026-03-31",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "TZXY5": {
   "descripcion": "TZXY5  (BONCER $ CUPON CERO 30/05/2025)",
@@ -687,7 +692,7 @@
  "TZXY7": {
   "descripcion": "TZXY7  (BONCER $ CUPON CERO 31/05/2027)",
   "desde": "2026-04-13",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "X15Y6": {
   "descripcion": "X15Y6  (LECER $ 15/05/2026)",
@@ -697,7 +702,7 @@
  "X29E7": {
   "descripcion": "X29E7  (LECER $ 29/01/2027)",
   "desde": "2026-08-14",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "X29Y6": {
   "descripcion": "X29Y6  (LECER $ 29/05/2026)",
@@ -707,7 +712,7 @@
  "X30N6": {
   "descripcion": "X30N6  (LECER $ 30/11/2026)",
   "desde": "2025-12-15",
-  "hasta": "2026-10-09"
+  "hasta": "2026-11-05"
  },
  "X30S6": {
   "descripcion": "X30S6  (LECER $ 30/09/2026)",
