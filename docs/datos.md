@@ -310,8 +310,7 @@ siendo a mano: los trasladables que caen sábado o domingo pueden pasar al
 viernes anterior o al lunes siguiente (Decreto 614/2025); faltan el
 20/11/2027 y el 17/06/2028.
 
-**Pendiente de decidir:** los rezagos de "diez hábiles" del CER y de la
-TAMAR se cuentan con los días de rueda. Si la norma habla de hábiles
-bancarios, los días sin liquidación (bancos cerrados) tampoco deberían
-contar; cambiaría el CER o la TAMAR de un día en los papeles cuya ventana
-cruza uno de esos días.
+**Los rezagos de "diez hábiles" del CER y de la TAMAR cuentan días de
+rueda**, con o sin liquidación (decisión del usuario del 07/11/2026: son
+hábiles de negociación). Un día sin liquidación cuenta; un día sin rueda,
+no.
