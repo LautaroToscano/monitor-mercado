@@ -118,15 +118,25 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
    los horarios programados (con un cron de media hora corrió 5 veces en 20
    horas), así que cada corrida se queda de guardia 5 h 30 min y la
    siguiente espera en fila; en un repo público no tiene costo.
-   Revisa producción como un visitante: cada curva completa y que se pueda
-   dibujar (misma regla de ajuste que la pantalla), con TIR
-   posibles y de la rueda que corresponde (en rueda la de hoy; cerrada, a
-   lo sumo un hábil de atraso), las páginas, el breakeven y que la foto
-   diaria esté (desde el mediodía del día siguiente). Cada control se
-   reintenta una vez. Una respuesta de respaldo se informa sin fallar.
-3. **El aviso llega solo.** Ante una falla el vigilante abre un issue con
-   la etiqueta `caida` que menciona al dueño (eso manda el mail), comenta
-   sólo si cambia lo que falla y lo cierra cuando todo se normaliza.
+   Revisa producción como un visitante: que cada curva se pueda dibujar
+   (misma regla de ajuste que la pantalla), con TIR posibles y de la rueda
+   que corresponde (en rueda la de hoy; cerrada, a lo sumo un hábil de
+   atraso), las páginas y el breakeven. Cada control se reintenta una vez.
+   Se informan sin fallar: una respuesta de respaldo y un papel suelto sin
+   precio (TX26 a días de vencer abrió un aviso de caída en noviembre de
+   2026).
+3. **Casi sin mails** (pedido del usuario del 07/11/2026: "la idea era
+   automatizar todo"). El estado vive en un issue fijo, "Estado de
+   producción" (etiqueta `estado`), que no se cierra nunca: cada vuelta le
+   reescribe el cuerpo, y editarlo no manda mail. Sólo si el sitio se ve
+   mal (un ✗) tres vueltas seguidas, media hora, el vigilante comenta
+   mencionando al dueño: ése es el único mail. No vuelve a mandar mientras
+   siga mal ni cuando se arregla. Antes cada aviso abría un issue,
+   comentaba cada cambio y se cerraba solo, un mail por paso: cinco en dos
+   días por un mantenimiento que no rompía nada.
+   Por la misma razón, guardar la foto y refrescar la referencia no
+   terminan en un job fallado (otro mail de GitHub) por un dato que falta:
+   lo anotan en la corrida y el vigilante ve lo que importa.
 
 ## Control de cambios
 
@@ -143,19 +153,30 @@ curva TAMAR salió con un papel). En vez de un arreglo por caso, tres capas:
   build y `npm audit` sin vulnerabilidades altas. Vercel publica en
   paralelo: un commit en rojo hay que corregirlo enseguida.
 - **Dependabot**: alertas y actualizaciones de seguridad automáticas, y una
-  revisión semanal (lunes 08:00) de npm y de las acciones, agrupada. Las
+  revisión mensual de npm y de las acciones, agrupada (mensual para que
+  lleguen menos mails). Las
   propuestas que pasan el CI se aplican solas (`dependabot-auto.yml`,
   decisión del usuario del 15/10/2026); las versiones mayores quedan para
   hacer a mano.
 - **CodeQL** analiza el código en cada cambio (configuración por defecto de
   GitHub).
-- **Mantenimiento**: el vigilante junta los avisos que piden una acción (un
-  título que no se pudo incorporar o sin sus condiciones, la TAMAR que dejó
-  de publicarse, los feriados del año que viene desde octubre) y abre un
-  issue `mantenimiento`, aparte del de caídas. Ese aviso se abre recién si
-  lo mismo aparece tres revisiones seguidas y se cierra con tres limpias,
-  y un error pasajero de la fuente (una ficha que no respondió a tiempo) no
-  cuenta: en octubre de 2026 TVSJ1 abría y cerraba el aviso en 20 minutos.
+- **Mantenimiento**: el vigilante junta lo que pide una acción pero no
+  rompe la pantalla (un título que no se pudo incorporar o sin sus
+  condiciones, la TAMAR que dejó de publicarse, los feriados del año que
+  viene desde octubre, una foto diaria que falta) en su sección del issue
+  de estado. Nunca manda mail: se lee al empezar cada chat. Un error
+  pasajero de la fuente (una ficha que no respondió a tiempo) no cuenta, y
+  "especies nuevas incorporadas" tampoco: ya se hizo solo.
+- **Una referencia resuelta no se pierde.** Si el refresco no puede volver
+  a resolver un papel que ya estaba (su ficha no responde, o la licitación
+  de donde salió la TEM ya no figura en las novedades de Finanzas), se
+  conserva lo anterior: las condiciones de emisión no cambian. S29E7 se
+  perdió así el 29/10/2026.
+- **Días sin foto, con motivo** (`public/historico/sin-foto.json`). El Día
+  del Bancario (6/11/2026) BYMA operó pero el mercado de cambios no: sin
+  mayorista de A3 no hay TIR dólar linked y esa foto no existe. La
+  pantalla sigue con la última rueda completa y el vigilante no la
+  reclama.
 
 ## Seguridad
 

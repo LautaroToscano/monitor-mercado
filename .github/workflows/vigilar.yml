@@ -9,7 +9,8 @@
 # siguiente arranca en el acto. En un repo público estos minutos no se
 # cobran.
 #
-# El aviso es un issue, no un job fallado (ver vigilar-turno.sh). Si el
+# El estado vive en un issue fijo que se edita en silencio; sólo una caída
+# visible que dura media hora manda un mail (ver vigilar-turno.sh). Si el
 # vigilante mismo no puede correr, el job falla y GitHub avisa por la vía
 # de siempre.
 name: Vigilar producción

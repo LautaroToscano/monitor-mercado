@@ -1,7 +1,7 @@
 # Actualizaciones de dependencias.
 #
 # Las de seguridad las abre Dependabot apenas se publica el aviso (alertas y
-# security updates activados en el repo). Además, una revisión semanal de lo
+# security updates activados en el repo). Además, una revisión mensual de lo
 # que tenga versión nueva, agrupada en un solo pull request por ecosistema
 # para no recibir uno por paquete. Cada pull request pasa por el CI (tipos,
 # tests con el cierre congelado y build) antes de mergearlo.
@@ -10,8 +10,7 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '08:00'
       timezone: America/Argentina/Buenos_Aires
     open-pull-requests-limit: 5
@@ -23,14 +22,15 @@ updates:
     ignore:
       - dependency-name: '*'
         update-types: ['version-update:semver-major']
+    # Mensual y no semanal: cada pull request y su merge son mails para el
+    # dueño del repo (pedido del usuario, 07/11/2026: menos mails).
     commit-message:
       prefix: 'Dependencias'
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '08:00'
       timezone: America/Argentina/Buenos_Aires
     groups:

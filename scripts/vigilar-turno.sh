@@ -8,11 +8,19 @@
 # siguiente (el workflow tiene una en espera). Sin cuentas ni servicios
 # externos: en un repo público los minutos de Actions no se cobran.
 #
-# En cada vuelta corre scripts/vigilar.ts y maneja dos avisos (issues) con
-# la misma mecánica: "caida" (algo se ve mal o no responde) y
-# "mantenimiento" (algo pide una mano). Se abren con la primera falla y
-# mencionan al dueño (eso manda el mail), comentan sólo si cambia lo que
-# falla y se cierran solos cuando se resuelve.
+# Mails: casi ninguno (pedido del usuario, 07/11/2026: "la idea era
+# automatizar todo"). Antes cada aviso era un issue que se abría, comentaba
+# cada cambio y se cerraba solo, y cada paso era un mail: cinco en dos días
+# por un mantenimiento que no rompía nada. Ahora:
+#
+#  - Hay UN issue fijo, "Estado de producción" (etiqueta `estado`), que no
+#    se cierra nunca. Cada vuelta le reescribe el cuerpo con el informe, y
+#    editar un cuerpo no manda mail. Ahí queda también el mantenimiento, que
+#    se lee al empezar cada chat (hook de inicio), no por mail.
+#  - Manda UN mail —un comentario que menciona al dueño— sólo cuando el
+#    sitio se ve mal (un control con ✗) VUELTAS_FALLA vueltas seguidas. No
+#    vuelve a mandar mientras siga mal, ni cuando se arregla: con
+#    VUELTAS_FALLA vueltas sanas el estado vuelve a "en orden" en silencio.
 #
 # Variables: GH_TOKEN, CORRIDA (link a la corrida), BASE (opcional, otra
 # dirección a vigilar), DURACION_MIN (0 = una sola vuelta), INTERVALO_MIN.
@@ -20,35 +28,33 @@ set -u
 
 DURACION_MIN=${DURACION_MIN:-0}
 INTERVALO_MIN=${INTERVALO_MIN:-10}
+VUELTAS_FALLA=${VUELTAS_FALLA:-3}
 fin=$(( $(date +%s) + DURACION_MIN * 60 ))
 
-gh label create caida --color B60205 --description 'El vigilante encontró un problema en producción' --force > /dev/null
-gh label create mantenimiento --color FBCA04 --description 'Algo del proyecto pide una mano' --force > /dev/null
+gh label create estado --color 0E8A16 --description 'Estado de producción, lo escribe el vigilante' --force > /dev/null
 
-# gestionar <etiqueta> <título> <marca de línea> <intro> <hay: 1 o vacío>
-gestionar() {
-  local etiqueta=$1 titulo=$2 marca=$3 intro=$4 hay=$5 abierto lineas previas
-  abierto=$(gh issue list --label "$etiqueta" --state open --json number -q '.[0].number')
-  lineas=$(grep "^- $marca" informe.md || true)
-  if [ -n "$hay" ]; then
-    if [ -z "$abierto" ]; then
-      gh issue create --title "$titulo" --label "$etiqueta" \
-        --body "$(printf '@LautaroToscano %s\n\n%s\n\nCorrida: %s\n\nSe cierra solo cuando se resuelve.' "$intro" "$(cat informe.md)" "$CORRIDA")"
-    else
-      previas=$(gh issue view "$abierto" --json body,comments -q '([.body] + [.comments[].body]) | last' | grep "^- $marca" || true)
-      if [ "$lineas" != "$previas" ]; then
-        gh issue comment "$abierto" --body "$(printf 'Cambió:\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
-      fi
-    fi
-  elif [ -n "$abierto" ]; then
-    gh issue comment "$abierto" --body "$(printf 'Resuelto.\n\n%s\n\nCorrida: %s' "$(cat informe.md)" "$CORRIDA")"
-    gh issue close "$abierto"
-  fi
+# El issue fijo; si no existe se crea (es la única vez que se crea uno).
+issue=$(gh issue list --label estado --state open --json number -q '.[0].number')
+if [ -z "$issue" ]; then
+  issue=$(gh issue create --title 'Estado de producción' --label estado \
+    --body '<!-- incidente: no -->' | grep -oE '[0-9]+$')
+fi
+
+# El cuerpo: la marca del incidente, una línea de estado y el informe.
+escribir() {
+  local incidente=$1 cuerpo
+  cuerpo=$(printf '<!-- incidente: %s -->\n%s\n\nActualizado %s UTC · [corrida](%s)\n\n%s\n' \
+    "$incidente" \
+    "$([ "$incidente" = si ] && echo '**✗ Con problemas** (se avisó por mail)' || echo '**✓ En orden**')" \
+    "$(date -u '+%d/%m %H:%M')" "$CORRIDA" "$(cat informe.md)")
+  gh issue edit "$issue" --body "$cuerpo" > /dev/null
 }
 
-VUELTAS_MANTENIMIENTO=${VUELTAS_MANTENIMIENTO:-3}
-con_mant=0
-sin_mant=0
+# Lo que importa del informe: si cambia, se reescribe el cuerpo.
+importante() { grep -E '^- (✗|⚠|🔧)' "${1:-informe.md}" | sed -E 's/[0-9]{1,2}\/[0-9]{1,2}, [0-9]{2}:[0-9]{2}//g' || true; }
+
+con_falla=0
+sin_falla=0
 vuelta=0
 while :; do
   vuelta=$((vuelta + 1))
@@ -57,28 +63,23 @@ while :; do
   echo "── vuelta $vuelta, $(date -u +%H:%M) UTC: $([ -n "$falla" ] && echo 'con fallas' || echo 'en orden')"
   [ -n "$falla" ] && cat informe.md
 
-  # Un error de GitHub al manejar los avisos no corta la guardia.
-  gestionar caida 'Producción con problemas' '✗' 'el vigilante encontró problemas en producción.' "$falla" || true
-  # Con el sitio caído no se sabe si el mantenimiento sigue pendiente: se
-  # deja como está hasta la próxima vuelta sana.
-  #
-  # El mantenimiento no es urgente, así que se confirma antes de avisar: el
-  # aviso se abre (o cambia) recién cuando lo mismo aparece en
-  # VUELTAS_MANTENIMIENTO vueltas seguidas, y se cierra con otras tantas
-  # limpias. Sin esto, algo intermitente abría y cerraba el aviso cada 20
-  # minutos, con un mail por cada paso (TVSJ1, octubre de 2026).
-  if [ -z "$falla" ]; then
-    if grep -q '^- 🔧' informe.md; then
-      con_mant=$((con_mant + 1)); sin_mant=0
-    else
-      sin_mant=$((sin_mant + 1)); con_mant=0
+  if [ -n "$falla" ]; then con_falla=$((con_falla + 1)); sin_falla=0; else sin_falla=$((sin_falla + 1)); con_falla=0; fi
+
+  # Un error de GitHub al escribir el estado no corta la guardia.
+  {
+    gh issue view "$issue" --json body -q .body > previo.md
+    incidente=$(grep -oE 'incidente: (si|no)' previo.md | cut -d' ' -f2)
+    incidente=${incidente:-no}
+    if [ "$incidente" = no ] && [ "$con_falla" -ge "$VUELTAS_FALLA" ]; then
+      gh issue comment "$issue" --body "$(printf '@LautaroToscano el sitio se ve mal desde hace %s minutos.\n\n%s\n\n[Estado al día](%s)' \
+        "$(( VUELTAS_FALLA * INTERVALO_MIN ))" "$(grep -E '^- ✗' informe.md)" "$(gh issue view "$issue" --json url -q .url)")" > /dev/null
+      escribir si
+    elif [ "$incidente" = si ] && [ "$sin_falla" -ge "$VUELTAS_FALLA" ]; then
+      escribir no
+    elif [ "$(importante informe.md)" != "$(importante previo.md)" ]; then
+      escribir "$incidente"
     fi
-    if [ "$con_mant" -ge "$VUELTAS_MANTENIMIENTO" ]; then
-      gestionar mantenimiento 'Mantenimiento pendiente' '🔧' 'hay algo del proyecto que pide una mano.' 1 || true
-    elif [ "$sin_mant" -ge "$VUELTAS_MANTENIMIENTO" ]; then
-      gestionar mantenimiento 'Mantenimiento pendiente' '🔧' 'hay algo del proyecto que pide una mano.' '' || true
-    fi
-  fi
+  } || true
 
   [ "$(date +%s)" -ge "$fin" ] && break
   sleep $(( INTERVALO_MIN * 60 ))

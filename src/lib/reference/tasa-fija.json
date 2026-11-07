@@ -12,6 +12,15 @@
       "temSource": "manual"
     },
     {
+      "symbol": "S29E7",
+      "name": "LETRA DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VENCIMIENTO 29 DE ENERO DE 2027",
+      "isin": "AR0048313164",
+      "issueDate": "2026-08-31",
+      "maturityDate": "2027-01-29",
+      "issueTem": 0.0225,
+      "temSource": "licitacion"
+    },
+    {
       "symbol": "S26F7",
       "name": "LETRA DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VENCIMIENTO 26 DE FEBRERO DE 2027",
       "isin": "AR0195982894",
@@ -253,7 +262,5 @@
       "reason": "ajustable por CER"
     }
   ],
-  "unresolved": [
-    "S29E7"
-  ]
+  "unresolved": []
 }

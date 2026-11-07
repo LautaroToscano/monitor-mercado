@@ -20,11 +20,17 @@ import { CARPETA_ULTIMO_CIERRE } from '../src/lib/ultimo-cierre';
 import { ultimaRuedaTerminada } from '../src/lib/conventions';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
-import { dolarLinked } from '../src/lib/universes/dolar-linked';
+import { dolarLinked, SIN_MAYORISTA } from '../src/lib/universes/dolar-linked';
 import { tamar } from '../src/lib/universes/tamar';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '../public/historico');
 const INDICE = join(DIR, 'indice.json');
+/**
+ * Las ruedas que una curva no tiene, a propósito y con el motivo:
+ * `{ "dolar-linked": { "2026-11-06": "…" } }`. El vigilante no reclama esas
+ * fotos (`scripts/vigilar.ts`).
+ */
+const SIN_FOTO = join(DIR, 'sin-foto.json');
 
 /**
  * Menos de esto no es una curva: es una respuesta rota de la fuente. No se
@@ -36,6 +42,9 @@ const MINIMO_INSTRUMENTOS = 5;
 async function main() {
   const indice: IndiceHistorico = existsSync(INDICE)
     ? JSON.parse(readFileSync(INDICE, 'utf8'))
+    : {};
+  const sinFoto: Record<string, Record<string, string>> = existsSync(SIN_FOTO)
+    ? JSON.parse(readFileSync(SIN_FOTO, 'utf8'))
     : {};
 
   // Una después de la otra: fuera del panel, los cierres son un pedido por
@@ -53,8 +62,18 @@ async function main() {
       console.log(`${universo.slug}: BYMA todavía no tiene el cierre del ${esperada} (da ${respuesta.tradeDate}); queda para la próxima corrida`);
       continue;
     }
+    // BYMA operó pero el mercado de cambios no (el Día del Bancario): sin
+    // mayorista de esa rueda no hay TIR dólar linked, y esa foto no existe.
+    // No es una falla: queda anotada para que el vigilante no la reclame.
+    const sinCambios = respuesta.warnings.some((w) => w.includes(`${SIN_MAYORISTA} ${respuesta.tradeDate}`));
+    if (foto.instrumentos.length === 0 && sinCambios) {
+      (sinFoto[universo.slug] ??= {})[respuesta.tradeDate] = 'sin mercado de cambios: A3 no tiene el mayorista de esa rueda';
+      console.log(`${universo.slug}: ${respuesta.tradeDate} sin mercado de cambios; no hay foto`);
+      continue;
+    }
     if (foto.instrumentos.length < MINIMO_INSTRUMENTOS) {
-      // Una curva rota no frena a las otras; el job igual termina en falla.
+      // Una curva rota no frena a las otras. No corta el job: el aviso lo da
+      // el vigilante, que reclama la foto que falta.
       errores.push(
         `${universo.slug}: sólo ${foto.instrumentos.length} instrumentos con rendimiento el ${foto.tradeDate}; no se guarda.`,
       );
@@ -74,6 +93,8 @@ async function main() {
     }
     guardarUltimoCierre(respuesta);
 
+    // Si una corrida anterior no la pudo armar y ésta sí, deja de faltar.
+    if (sinFoto[universo.slug]?.[foto.tradeDate]) delete sinFoto[universo.slug][foto.tradeDate];
     const fechas = new Set(indice[universo.slug] ?? []);
     fechas.add(foto.tradeDate);
     indice[universo.slug] = [...fechas].sort();
@@ -82,7 +103,10 @@ async function main() {
 
   await guardarBreakeven(indice);
   writeFileSync(INDICE, JSON.stringify(indice, null, 1) + '\n');
-  if (errores.length > 0) throw new Error(errores.join('\n'));
+  if (Object.keys(sinFoto).length > 0) writeFileSync(SIN_FOTO, JSON.stringify(sinFoto, null, 1) + '\n');
+  // Queda anotado en la corrida, sin hacerla fallar: un job fallado es un
+  // mail de GitHub, y el aviso ya lo da el vigilante si la foto no aparece.
+  for (const e of errores) console.log(`::warning::${e}`);
 }
 
 /**

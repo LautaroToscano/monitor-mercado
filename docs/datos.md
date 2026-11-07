@@ -174,7 +174,9 @@ emisión nueva no se clasifique distinto según quién la mire.
 la publica en la ficha — le pasa a una minoría, como `S13N6` y `S15S6`. Sin
 ese dato no hay pago al vencimiento y por lo tanto no hay rendimiento. Esas
 especies quedan fuera con un aviso explícito en `warnings` que dice qué
-cargar y dónde: `MANUAL_ISSUE_TEM` en `tasa-fija-spec.ts`.
+cargar y dónde: `MANUAL_ISSUE_TEM` en `tasa-fija-spec.ts`. Una TEM ya
+resuelta (de la ficha, a mano o de la licitación) no se vuelve a perder en
+el refresco: se conserva la anterior.
 
 ## Historia de las curvas
 

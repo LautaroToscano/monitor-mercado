@@ -50,6 +50,12 @@ interface ContextoDolarLinked {
 const FUENTE_SPOT = 'A3, mercado de cambios: UST$T mayorista contado, último precio';
 const FUENTE_SPOT_LOCAL =
   'A3, mercado de cambios: USMEP (dólar local) mayorista contado, último precio; ese día no hubo transferencia de contado';
+/**
+ * Comienzo del aviso cuando A3 contestó pero no tiene el mayorista de la
+ * rueda: ese día no hubo mercado de cambios. La foto diaria lo usa para no
+ * contarlo como falla (`scripts/guardar-historico.ts`).
+ */
+export const SIN_MAYORISTA = 'A3 no tiene el mayorista del';
 const FUENTE_FUTUROS = 'A3 (ex Matba Rofex), futuros DLR mensuales: precio de ajuste';
 const FUENTE_BYMA = 'BYMA, paneles lebacs y public-bonds, 24hs';
 const FUENTE_A3500 = 'BCRA, Com. A 3500';
@@ -121,11 +127,16 @@ export const dolarLinked: UniverseDefinition<DolarLinkedReference, ContextoDolar
     const { desde, hasta } = ventana(rueda);
     const [vivo, cierres, a3500] = await Promise.all([
       fetchMayoristaEnVivo(signal).catch(() => null),
-      fetchCierresMayorista(desde, hasta, signal).catch(() => new Map<IsoDate, never>()),
+      fetchCierresMayorista(desde, hasta, signal).catch(() => null),
       fetchA3500(inicioA3500(vigentes), signal).catch(() => null),
     ]);
-    const dato = vivo?.fecha === rueda ? vivo : cierres.get(rueda);
-    if (!dato) throw new Error(`A3 no tiene el mayorista del ${rueda}`);
+    const dato = vivo?.fecha === rueda ? vivo : cierres?.get(rueda);
+    if (!dato) {
+      // Que A3 no conteste es una falla de la fuente. Que conteste sin esa
+      // rueda es que el mercado de cambios no operó aunque BYMA sí: el Día
+      // del Bancario (6/11/2026) los bancos cierran y no hay mayorista.
+      throw new Error(cierres ? `${SIN_MAYORISTA} ${rueda}` : 'A3 no respondió el mayorista');
+    }
     const fuente = dato.ticker === 'UST$T' ? FUENTE_SPOT : FUENTE_SPOT_LOCAL;
     return { spot: { fecha: rueda, valor: dato.cierre, fuente }, a3500 };
   },

@@ -41,7 +41,13 @@ jobs:
 
       - run: npm ci
 
+      # Si algo de acá falla, no se sube nada y la página sigue con la
+      # referencia anterior. El job no termina en falla: sería un mail de
+      # GitHub por algo que no rompe nada (los papeles nuevos los incorpora
+      # igual el descubrimiento en caliente) y el vigilante ve lo que importa.
       - name: Regenerar la referencia
+        id: regenerar
+        continue-on-error: true
         run: npm run refresh:reference
 
       # Red de contención: el archivo se sube sin que nadie lo mire, así que
@@ -49,6 +55,9 @@ jobs:
       # cualquier cosa —un panel vacío, una TEM absurda— el job falla y no se
       # sube nada; la página sigue con la referencia anterior, que funciona.
       - name: Verificar lo regenerado
+        id: verificar
+        if: steps.regenerar.outcome == 'success'
+        continue-on-error: true
         run: |
           node --input-type=module -e '
             import { readFileSync, readdirSync } from "node:fs";
@@ -77,6 +86,7 @@ jobs:
           '
 
       - name: Subir si cambió
+        if: steps.regenerar.outcome == 'success' && steps.verificar.outcome == 'success'
         run: |
           # Cada archivo trae un `generatedAt` que cambia en cada corrida aunque
           # el contenido sea idéntico. Si se mirara el diff a secas, cada

@@ -5,19 +5,21 @@
  *   npm run vigilar                       -> contra producción
  *   npm run vigilar -- --base=http://localhost:3210
  *
- * Lo corre GitHub Actions cada media hora (`.github/workflows/vigilar.yml`).
- * Si falla, GitHub manda un mail: es la forma de enterarse de un problema
- * antes que quien mira la página.
+ * Lo corre GitHub Actions cada diez minutos (`.github/workflows/vigilar.yml`
+ * y `scripts/vigilar-turno.sh`, que decide cuándo una falla merece un mail:
+ * casi nunca).
  *
  * Qué controla:
- *  - cada curva responde, con todos sus papeles con precio y rendimiento, y
- *    las tasas en un rango posible;
+ *  - cada curva responde y se puede dibujar, con las tasas en un rango
+ *    posible (un papel suelto sin precio es un aviso, no una falla: TX26 a
+ *    días de vencer dejó de cotizar y abrió un aviso de caída);
  *  - los precios son de la rueda que corresponde (en rueda, la de hoy; con
  *    el mercado cerrado, a lo sumo un hábil de atraso, que es lo que tarda
  *    BYMA en cargar el cierre en la serie histórica);
  *  - las páginas cargan;
  *  - el breakeven responde con meses;
- *  - la foto diaria se guardó (después del mediodía, la de la última rueda).
+ *  - la foto diaria se guardó (después del mediodía, la de la última rueda;
+ *    si falta, es mantenimiento).
  *
  * Aparte, el mantenimiento: lo que no rompe nada hoy pero pide una mano
  * (un título nuevo que no se pudo incorporar o al que le faltan sus
@@ -69,7 +71,7 @@ const MINIMO_PAPELES = 5;
  * feriados cargados: eso lo controla `feriados()`).
  */
 const PIDEN_ACCION = [
-  /^Especies nuevas incorporadas automáticamente/,
+  // "Especies nuevas incorporadas automáticamente" no está: ya se hizo sola.
   // Un título que es de la curva pero le falta algo para valuarse. Si lo que
   // falló fue el pedido de su ficha (BYMA no respondió a tiempo), es un error
   // pasajero de la fuente, no algo para hacer: no cuenta. TVSJ1 abrió así
@@ -129,12 +131,16 @@ const horaPlaza = Number(
 function revisarCurva(u: UniverseResponse): string {
   const n = u.instruments.length;
   if (n < MINIMO_PAPELES) throw new Error(`sólo ${n} papeles`);
+  // Un papel suelto sin precio o sin rendimiento no rompe la pantalla: sale
+  // del gráfico y la curva se arma con los demás. Si faltan muchos, el
+  // respaldo sirve la última completa. Lo que sí es falla es que la curva no
+  // se pueda dibujar, y eso se controla abajo.
   const sinPrecio = u.instruments.filter((i) => i.lastPrice === null).map((i) => i.ticker);
-  const sinTir = u.instruments.filter((i) => i.tea === null).map((i) => i.ticker);
-  if (sinPrecio.length) throw new Error(`sin precio: ${sinPrecio.join(', ')}`);
-  if (sinTir.length) throw new Error(`sin rendimiento: ${sinTir.join(', ')}`);
+  const sinTir = u.instruments.filter((i) => i.lastPrice !== null && i.tea === null).map((i) => i.ticker);
+  if (sinPrecio.length) avisos.push(`${u.universe}: sin precio ${sinPrecio.join(', ')}`);
+  if (sinTir.length) avisos.push(`${u.universe}: sin rendimiento ${sinTir.join(', ')}`);
   const raras = u.instruments.filter(
-    (i) => !Number.isFinite(i.tea) || i.tea! < TIR_POSIBLE.min || i.tea! > TIR_POSIBLE.max,
+    (i) => i.tea !== null && (!Number.isFinite(i.tea) || i.tea < TIR_POSIBLE.min || i.tea > TIR_POSIBLE.max),
   );
   if (raras.length) {
     throw new Error(`TIR imposible: ${raras.map((i) => `${i.ticker} ${((i.tea ?? NaN) * 100).toFixed(1)}%`).join(', ')}`);
@@ -230,15 +236,24 @@ async function main() {
 
   await control('fotos diarias', async () => {
     const indice = await json<Record<string, string[]>>('/historico/indice.json');
+    // Las ruedas que una curva no tiene a propósito (el dólar linked el Día
+    // del Bancario, sin mercado de cambios): las anota guardar-historico.
+    const sinFoto = await json<Record<string, Record<string, string>>>('/historico/sin-foto.json').catch(
+      () => ({}) as Record<string, Record<string, string>>,
+    );
     // La foto de la noche puede demorarse; la corrida de las 07:00 la
     // levanta. Desde el mediodía del día siguiente, la de la última rueda
     // tiene que estar.
     const exigida = hoy > ultima && horaPlaza >= 12 ? ultima : minimaAceptable;
     const atrasadas = universes
       .map(({ slug }) => [slug, indice[slug]?.at(-1) ?? 'ninguna'] as const)
-      .filter(([, f]) => f < exigida);
+      .filter(([slug, f]) => f < exigida && !sinFoto[slug]?.[exigida]);
+    // Una foto que falta no se ve en la página y se puede rehacer (BYMA
+    // guarda dos años de cierres): es mantenimiento, no una caída.
     if (atrasadas.length) {
-      throw new Error(`falta la foto del ${exigida}: ${atrasadas.map(([s, f]) => `${s} (última ${f})`).join(', ')}`);
+      const detalle = atrasadas.map(([s, f]) => `${s} (última ${f})`).join(', ');
+      mantenimiento.add(`fotos diarias: falta la del ${exigida}: ${detalle}`);
+      return `atrasadas: ${detalle}`;
     }
     return `al día (${exigida})`;
   });

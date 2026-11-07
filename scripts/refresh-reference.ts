@@ -14,7 +14,7 @@
  * Las reglas de clasificación son las mismas que usa el descubrimiento en
  * caliente (`ReglasDeDescubrimiento`): una sola fuente de verdad por universo.
  */
-import { writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { isBusinessDay, marketToday } from '../src/lib/conventions';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -106,6 +106,13 @@ async function ficha(symbol: string): Promise<BymaFicha | null> {
   return f;
 }
 
+/** Los miembros del archivo actual, por símbolo. */
+function referenciasAnteriores(archivo: string): Map<string, InstrumentReference> {
+  if (!existsSync(archivo)) return new Map();
+  const { instruments = [] } = JSON.parse(readFileSync(archivo, 'utf8')) as { instruments?: InstrumentReference[] };
+  return new Map(instruments.map((r) => [r.symbol, r]));
+}
+
 async function refrescar(spec: Spec<InstrumentReference>) {
   const quotes = await fetchQuotes(spec.panels);
   // Los excluidos a mano no se miran: ni ficha, ni lista de sin resolver.
@@ -119,14 +126,20 @@ async function refrescar(spec: Spec<InstrumentReference>) {
     return;
   }
 
+  const archivo = join(DIR, `${spec.slug}.json`);
+  const anteriores = referenciasAnteriores(archivo);
   const members: InstrumentReference[] = [];
   const nonMembers: { symbol: string; name: string; reason: string }[] = [];
   const unresolved: string[] = [];
 
   for (const symbol of candidatos) {
     const f = await ficha(symbol);
+    const anterior = anteriores.get(symbol);
     if (!f) {
-      unresolved.push(symbol);
+      if (anterior) {
+        console.warn(`  ${symbol}: sin ficha; se conserva la referencia anterior`);
+        members.push(anterior);
+      } else unresolved.push(symbol);
       continue;
     }
     const { esMiembro, motivo } = spec.reglas.clasificar(f);
@@ -136,15 +149,24 @@ async function refrescar(spec: Spec<InstrumentReference>) {
     }
     const referencia = await spec.reglas.resolver(f);
     if (!referencia) {
-      console.warn(`  ${symbol}: ${spec.reglas.motivoSinResolver}`);
-      unresolved.push(symbol);
+      // Las condiciones de emisión no cambian: si una corrida anterior las
+      // resolvió, siguen valiendo. S29E7 tenía su TEM de la licitación; el
+      // 29/10/2026 la licitación salió de la ventana de novedades de
+      // Finanzas, el refresco la borró y quedó un aviso de mantenimiento
+      // abierto durante días.
+      if (anterior) {
+        console.warn(`  ${symbol}: ${spec.reglas.motivoSinResolver}; se conserva la referencia anterior`);
+        members.push(anterior);
+      } else {
+        console.warn(`  ${symbol}: ${spec.reglas.motivoSinResolver}`);
+        unresolved.push(symbol);
+      }
       continue;
     }
     members.push(referencia);
     console.log(`  ✓ ${symbol}  ${spec.describir(referencia)}`);
   }
 
-  const archivo = join(DIR, `${spec.slug}.json`);
   const out = {
     generatedAt: new Date().toISOString(),
     source: 'BYMA ficha técnica (bnown/fichatecnica/especies/general)',

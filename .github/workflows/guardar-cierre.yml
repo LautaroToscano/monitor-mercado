@@ -40,7 +40,11 @@ jobs:
 
       - run: npm ci
 
+      # Una curva que no se pudo guardar no hace fallar el job: sería un
+      # mail de GitHub. Si la foto no aparece, lo anota el vigilante como
+      # mantenimiento (BYMA guarda dos años de cierres: se puede rehacer).
       - name: Guardar la foto del día
+        continue-on-error: true
         run: npm run historico:guardar
 
       # Aunque una curva falle, lo que se guardó de las otras se sube.
