@@ -4,7 +4,7 @@ import {
   effectiveAnnualRate,
   effectiveMonthlyRate,
   parseIsoDate,
-  restarDiasHabiles,
+  restarDiasHabilesBancarios,
   toIsoDate,
 } from '../conventions';
 import type { SerieDiaria } from '../sources/bcra';
@@ -58,7 +58,7 @@ export function valuateDolarLinked(
   let tcInicial: TipoDeCambio | null = null;
   if (condiciones?.licitacion && a3500) {
     const fecha = toIsoDate(
-      restarDiasHabiles(parseIsoDate(condiciones.licitacion), condiciones.habilesTcInicial),
+      restarDiasHabilesBancarios(parseIsoDate(condiciones.licitacion), condiciones.habilesTcInicial),
     );
     const valor = a3500.valor(fecha);
     if (valor !== null) tcInicial = { fecha, valor, fuente: 'BCRA, Com. A 3500' };
@@ -73,7 +73,7 @@ export function valuateDolarLinked(
       tcImplicito: price / FACE_VALUE,
       tcInicial,
       fijacionPago: condiciones
-        ? toIsoDate(restarDiasHabiles(vencimiento, condiciones.habilesFijacionPago))
+        ? toIsoDate(restarDiasHabilesBancarios(vencimiento, condiciones.habilesFijacionPago))
         : null,
       reglaPago: condiciones?.reglaPago ?? null,
       norma: condiciones?.norma ?? null,

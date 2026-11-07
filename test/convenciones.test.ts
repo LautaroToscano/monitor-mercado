@@ -15,6 +15,7 @@ import {
   isBusinessDay,
   parseIsoDate as P,
   restarDiasHabiles,
+  restarDiasHabilesBancarios,
   settlementDate,
   sumarDiasHabiles,
   toIsoDate as I,
@@ -46,6 +47,16 @@ test('un día con negociación y sin liquidación no liquida (calendario de BYMA
   // 7/12 no laborable turístico (sin liquidación) y 8/12 feriado.
   assert.equal(I(settlementDate(P('2026-12-04'))), '2026-12-09');
   assert.equal(I(settlementDate(P('2026-12-07'))), '2026-12-09');
+});
+
+test('los rezagos del BCRA cuentan hábiles bancarios: un día sin liquidación no cuenta (TZXM6)', () => {
+  // TZXM6 venció el 31/03/2026: sin contar el 23/03 (no laborable turístico,
+  // con rueda y sin liquidación), su pago sale del CER del 13/03. Es el que
+  // validan los precios de sus últimas ruedas (docs/datos.md).
+  assert.equal(I(restarDiasHabilesBancarios(P('2026-03-31'), 10)), '2026-03-13');
+  assert.equal(I(restarDiasHabiles(P('2026-03-31'), 10)), '2026-03-16', 'contando días de rueda');
+  // TZXD6 vence el 15/12/2026: el 07/12 tampoco cuenta.
+  assert.equal(I(restarDiasHabilesBancarios(P('2026-12-15'), 10)), '2026-11-27');
 });
 
 test('el calendario de BYMA se lee de su página', () => {

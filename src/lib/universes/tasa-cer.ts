@@ -2,7 +2,7 @@ import {
   CER_CONVENTIONS_META,
   CER_LAG_BUSINESS_DAYS,
   parseIsoDate,
-  restarDiasHabiles,
+  restarDiasHabilesBancarios,
   toIsoDate,
 } from '../conventions';
 import { DEFAULT_THRESHOLDS } from '../quality';
@@ -44,7 +44,7 @@ const knownNonMembers = new Map<string, string>(
  * cualquier punto, sin marca (`seMarcaAparte` en ajuste.ts).
  */
 export function pagoFijado(vencimiento: string, serie: SerieDiaria): boolean {
-  const fijacion = toIsoDate(restarDiasHabiles(parseIsoDate(vencimiento), CER_LAG_BUSINESS_DAYS));
+  const fijacion = toIsoDate(restarDiasHabilesBancarios(parseIsoDate(vencimiento), CER_LAG_BUSINESS_DAYS));
   return serie.ultimaFecha !== null && fijacion <= serie.ultimaFecha;
 }
 
@@ -72,7 +72,7 @@ export const tasaCer: UniverseDefinition<CerReference, SerieDiaria> = {
     const fechas = vigentes.map((ref) => parseIsoDate(ref.issueDate));
     fechas.push(liquidacion);
     const primera = fechas.reduce((a, b) => (a < b ? a : b));
-    return fetchCer(toIsoDate(restarDiasHabiles(primera, CER_LAG_BUSINESS_DAYS)), signal);
+    return fetchCer(toIsoDate(restarDiasHabilesBancarios(primera, CER_LAG_BUSINESS_DAYS)), signal);
   },
 
   valuate(ref, _quote, price, settlement, serie) {

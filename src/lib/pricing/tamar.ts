@@ -5,9 +5,9 @@ import {
   DAYS_PER_MONTH,
   effectiveAnnualRate,
   effectiveMonthlyRate,
-  isBusinessDay,
+  esDiaDeLiquidacion,
   parseIsoDate,
-  restarDiasHabiles,
+  restarDiasHabilesBancarios,
   TAMAR_LAG_BUSINESS_DAYS,
   toIsoDate,
   type IsoDate,
@@ -62,7 +62,8 @@ function promedio(
     const ultima = tamar.vigente.fecha;
     let d = addDays(parseIsoDate(ultima > desde ? ultima : desde), ultima >= desde ? 1 : 0);
     for (; toIsoDate(d) <= hasta; d = addDays(d, 1)) {
-      if (!isBusinessDay(d)) continue;
+      // La TAMAR se publica los hábiles bancarios.
+      if (!esDiaDeLiquidacion(d)) continue;
       suma += tamar.vigente.valor;
       proyectados += 1;
     }
@@ -104,8 +105,8 @@ export function valuateTamar(
   if (dias <= 0) return null;
   if (c.tipo === 'dual-dolar-linked' && !tcInicial) return null;
 
-  const desde = toIsoDate(restarDiasHabiles(emision, TAMAR_LAG_BUSINESS_DAYS));
-  const hasta = toIsoDate(restarDiasHabiles(vencimiento, TAMAR_LAG_BUSINESS_DAYS));
+  const desde = toIsoDate(restarDiasHabilesBancarios(emision, TAMAR_LAG_BUSINESS_DAYS));
+  const hasta = toIsoDate(restarDiasHabilesBancarios(vencimiento, TAMAR_LAG_BUSINESS_DAYS));
   const total = promedio(tamar, desde, hasta, true);
   if (!total) return null;
 
@@ -114,7 +115,7 @@ export function valuateTamar(
   const pagoProyectado = base * (1 + tamarTem(total.valor + c.margen)) ** meses;
 
   // Lo devengado: la TAMAR que corresponde a los días ya corridos.
-  const corte = toIsoDate(restarDiasHabiles(settlement, TAMAR_LAG_BUSINESS_DAYS));
+  const corte = toIsoDate(restarDiasHabilesBancarios(settlement, TAMAR_LAG_BUSINESS_DAYS));
   const devengado = promedio(tamar, desde, corte < hasta ? corte : hasta, false);
   const mesesCorridos = Math.max(0, dias30360(emision, settlement)) / DAYS_PER_MONTH;
   const valorTecnico = devengado

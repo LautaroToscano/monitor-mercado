@@ -28,7 +28,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseIsoDate, restarDiasHabiles, toIsoDate } from '../src/lib/conventions';
+import { parseIsoDate, restarDiasHabiles, restarDiasHabilesBancarios, toIsoDate } from '../src/lib/conventions';
 import { fetchCer } from '../src/lib/sources/bcra';
 import type { CerReference } from '../src/lib/types';
 import { tasaCer } from '../src/lib/universes/tasa-cer';
@@ -64,7 +64,7 @@ async function main() {
     const fin = serie[serie.length - 1].date;
     const plan = cronograma(ref, parseIsoDate(inicio));
     if (!plan) continue;
-    const base = cer.valor(toIsoDate(restarDiasHabiles(parseIsoDate(ref.issueDate), 10)));
+    const base = cer.valor(toIsoDate(restarDiasHabilesBancarios(parseIsoDate(ref.issueDate), 10)));
     if (!base) throw new Error(`${ref.symbol}: sin CER de emisión`);
 
     const pagos: Pago[] = [];
@@ -72,7 +72,7 @@ async function main() {
     for (const flujo of [...plan.flujos].filter((f) => f.fecha > inicio && f.fecha <= fin).reverse()) {
       const ex = toIsoDate(restarDiasHabiles(parseIsoDate(flujo.fecha), 1));
       const conDerecho = [...serie].reverse().find((b) => b.date < ex);
-      const cerPago = cer.valor(toIsoDate(restarDiasHabiles(parseIsoDate(flujo.fecha), 10)));
+      const cerPago = cer.valor(toIsoDate(restarDiasHabilesBancarios(parseIsoDate(flujo.fecha), 10)));
       if (!conDerecho || !cerPago) throw new Error(`${ref.symbol}: falta precio o CER para el pago del ${flujo.fecha}`);
       const monto = (100 * (flujo.amortizacion + flujo.interes) * plan.capitalizacion * cerPago) / base;
       const precio = conDerecho.close * acumulado;

@@ -104,6 +104,9 @@ emisión y los 10 días hábiles anteriores a la fecha de vencimiento" (ficha
 técnica de BYMA).
 
     capital ajustado = 100 × CER(liquidación − 10 háb) / CER(emisión − 10 háb)
+
+Los hábiles de ese rezago son bancarios: un día con rueda y sin liquidación
+no cuenta (ver [Datos](datos.md), "El calendario").
     TIR real         = la tasa que iguala el precio con los flujos ajustados
 
 El CER del vencimiento todavía no existe y no se estima: todo se mide en CER

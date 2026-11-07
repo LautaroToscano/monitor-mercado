@@ -2,7 +2,7 @@ import {
   addDays,
   MARKET_HOLIDAYS,
   parseIsoDate,
-  restarDiasHabiles,
+  restarDiasHabilesBancarios,
   TAMAR_CONVENTIONS_META,
   TAMAR_LAG_BUSINESS_DAYS,
   toIsoDate,
@@ -58,7 +58,7 @@ const ULTIMO_ANIO_CON_FERIADOS = MARKET_HOLIDAYS[MARKET_HOLIDAYS.length - 1].sli
  */
 const INICIO_TAMAR = toIsoDate(
   addDays(
-    restarDiasHabiles(
+    restarDiasHabilesBancarios(
       parseIsoDate(Object.values(CONDICIONES_TAMAR).map((c) => c.emision).sort()[0]),
       TAMAR_LAG_BUSINESS_DAYS,
     ),
@@ -82,7 +82,7 @@ const INICIO_A3500 = toIsoDate(
 function tcInicial(symbol: string, a3500: SerieDiaria | null): TipoDeCambio | null {
   const licitacion = CONDICIONES_TAMAR[symbol]?.licitacion;
   if (!licitacion || !a3500) return null;
-  const fecha = toIsoDate(restarDiasHabiles(parseIsoDate(licitacion), 1));
+  const fecha = toIsoDate(restarDiasHabilesBancarios(parseIsoDate(licitacion), 1));
   const valor = a3500.valor(fecha);
   return valor === null ? null : { fecha, valor, fuente: FUENTE_A3500 };
 }
@@ -150,7 +150,7 @@ export const tamar: UniverseDefinition<TamarReference, ContextoTamar> = {
         avisos.push(`${r.symbol}: sin condiciones verificadas en CONDICIONES_TAMAR; no se valúa.`);
         continue;
       }
-      const fin = toIsoDate(restarDiasHabiles(parseIsoDate(r.maturityDate), TAMAR_LAG_BUSINESS_DAYS));
+      const fin = toIsoDate(restarDiasHabilesBancarios(parseIsoDate(r.maturityDate), TAMAR_LAG_BUSINESS_DAYS));
       if (fin.slice(0, 4) > ULTIMO_ANIO_CON_FERIADOS) {
         avisos.push(
           `${r.symbol}: su TAMAR se promedia hasta ${fin} y no hay feriados cargados después de ${ULTIMO_ANIO_CON_FERIADOS}; los hábiles proyectados de esos años cuentan los feriados como hábiles.`,
@@ -162,7 +162,7 @@ export const tamar: UniverseDefinition<TamarReference, ContextoTamar> = {
     }
     if (contexto) {
       const { fecha } = contexto.tamar.vigente;
-      const vieja = toIsoDate(restarDiasHabiles(parseIsoDate(contexto.rueda), HABILES_TAMAR_VIEJA));
+      const vieja = toIsoDate(restarDiasHabilesBancarios(parseIsoDate(contexto.rueda), HABILES_TAMAR_VIEJA));
       if (fecha < vieja) {
         avisos.push(`La última TAMAR publicada antes de la rueda del ${contexto.rueda} es del ${fecha}.`);
       }

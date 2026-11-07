@@ -310,7 +310,19 @@ siendo a mano: los trasladables que caen sábado o domingo pueden pasar al
 viernes anterior o al lunes siguiente (Decreto 614/2025); faltan el
 20/11/2027 y el 17/06/2028.
 
-**Los rezagos de "diez hábiles" del CER y de la TAMAR cuentan días de
-rueda**, con o sin liquidación (decisión del usuario del 07/11/2026: son
-hábiles de negociación). Un día sin liquidación cuenta; un día sin rueda,
-no.
+**Los rezagos de los índices del BCRA cuentan hábiles bancarios**: un día
+sin liquidación no cuenta (`restarDiasHabilesBancarios`). Vale para los
+"diez días hábiles" del CER y de la TAMAR, el promedio de la TAMAR y el
+A3500 de los dólar linked. Las normas no definen qué es un día hábil; se
+verificó con el mercado (07/11/2026). TZXM6 venció el 31/03/2026 con el
+23/03 en la ventana. Contando ese día, su pago salía del CER del 16/03:
+215,17 por cada 100. Sin contarlo, del 13/03: 214,54. Los precios de sus
+últimas ruedas (213,744 el 20/03, 213,93 el 25, 214,04 el 26 y 214,41 el
+27) convergen a 214,54 a una tasa pareja de 23-25% anual; contra 215,17
+daban de 62% a 266%. Los días sin liquidación de años que BYMA ya no
+publica salen de cruzar sus ruedas con los días sin A3500 del BCRA: 2024
+(6/11, 24/12) y 2025 (6/11, 21/11, 24/12). Ese cruce reproduce los tres de
+2026 que BYMA sí publica.
+
+La liquidación T+1, los días hábiles al vencimiento y la vigilancia de la
+rueda siguen contando días de rueda.

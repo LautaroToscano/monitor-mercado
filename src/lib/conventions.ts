@@ -93,17 +93,66 @@ const HOLIDAY_SET = new Set([...MARKET_HOLIDAYS, ...calendarioByma.sinRueda]);
  * días de rueda (`isBusinessDay`), pero ninguna operación liquida en ellos:
  * la liquidación pasa al siguiente día que sí liquida. El 6/11/2026 (Día del
  * Bancario) fue así, y como el 9 y el 10 no hubo rueda, lo operado a 24
- * horas el 5 y el 6 liquidó el 11. Salen del calendario de BYMA; los días no
- * laborables con fines turísticos y el 24/12 suelen ser de este tipo.
+ * horas el 5 y el 6 liquidó el 11. Los días no laborables con fines
+ * turísticos y el 24/12 suelen ser de este tipo.
+ *
+ * Los del año en curso salen del calendario de BYMA. Los de años anteriores,
+ * que BYMA ya no publica, de cruzar dos calendarios observados: días en que
+ * BYMA operó y el BCRA no publicó el A3500. Ese cruce da exactamente los tres
+ * de 2026 que publica BYMA (23/03, 10/07 y 06/11), y antes de octubre de 2024
+ * no hay serie de BYMA para cruzar.
  */
-export const DIAS_SIN_LIQUIDACION: ReadonlySet<string> = new Set(calendarioByma.sinLiquidacion);
+const SIN_LIQUIDACION_ANTERIORES = ['2024-11-06', '2024-12-24', '2025-11-06', '2025-11-21', '2025-12-24'];
+export const DIAS_SIN_LIQUIDACION: ReadonlySet<string> = new Set([
+  ...SIN_LIQUIDACION_ANTERIORES,
+  ...calendarioByma.sinLiquidacion,
+]);
 
 /** Cuándo se trajo el calendario de BYMA por última vez (lo vigila `scripts/vigilar.ts`). */
 export const CALENDARIO_ACTUALIZADO: string = calendarioByma.generatedAt;
 
-/** Si en ese día liquidan las operaciones: un día de rueda que no sea sin liquidación. */
+/**
+ * Si en ese día liquidan las operaciones: un día de rueda que no sea sin
+ * liquidación. Es también el día hábil bancario, el de los índices que
+ * publica el BCRA (CER, TAMAR, A3500): ver `restarDiasHabilesBancarios`.
+ */
 export function esDiaDeLiquidacion(date: Date): boolean {
   return isBusinessDay(date) && !DIAS_SIN_LIQUIDACION.has(toIsoDate(date));
+}
+
+/**
+ * La fecha que está `n` días hábiles bancarios antes de otra: los días sin
+ * liquidación no cuentan.
+ *
+ * Es el rezago de los índices del BCRA: el CER y la TAMAR de "diez días
+ * hábiles" antes de la emisión, la liquidación o el vencimiento, y el A3500
+ * de los dólar linked. Las normas no dicen qué es un día hábil; lo dice el
+ * mercado. TZXM6 venció el 31/03/2026 con el 23/03 (no laborable turístico,
+ * con rueda y sin liquidación) en la ventana: contando ese día, el pago salía
+ * del CER del 16/03 (215,17 por cada 100); sin contarlo, del 13/03 (214,54).
+ * Los últimos precios (213,74 el 20/03 a 214,41 el 27/03) convergen a 214,54
+ * a una tasa pareja de 23-25% anual; contra 215,17 la tasa daba de 62% a
+ * 266%. El 23/03 no contó.
+ */
+export function restarDiasHabilesBancarios(fecha: Date, n: number): Date {
+  let cursor = fecha;
+  let restantes = n;
+  while (restantes > 0) {
+    cursor = addDays(cursor, -1);
+    if (esDiaDeLiquidacion(cursor)) restantes -= 1;
+  }
+  return cursor;
+}
+
+/** La fecha que está `n` días hábiles bancarios después de otra. */
+export function sumarDiasHabilesBancarios(fecha: Date, n: number): Date {
+  let cursor = fecha;
+  let restantes = n;
+  while (restantes > 0) {
+    cursor = addDays(cursor, 1);
+    if (esDiaDeLiquidacion(cursor)) restantes -= 1;
+  }
+  return cursor;
 }
 
 // ─── Fechas calendario (sin hora, sin timezone) ──────────────────────────
@@ -275,7 +324,8 @@ export function sumarDiasHabiles(fecha: Date, n: number): Date {
 export function ultimoHabilDelMes(mes: string): Date {
   const [y, m] = mes.split('-').map(Number);
   let cursor = new Date(Date.UTC(y, m, 0, 12, 0, 0));
-  while (!isBusinessDay(cursor)) cursor = addDays(cursor, -1);
+  // Hábil bancario: el A3500 no se publica un día sin liquidación.
+  while (!esDiaDeLiquidacion(cursor)) cursor = addDays(cursor, -1);
   return cursor;
 }
 

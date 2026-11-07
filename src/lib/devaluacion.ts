@@ -24,7 +24,7 @@ import {
   DAYS_PER_MONTH,
   daysBetween,
   parseIsoDate,
-  sumarDiasHabiles,
+  sumarDiasHabilesBancarios,
   DL_HABILES_FIJACION_PAGO,
   toIsoDate,
   ultimoHabilDelMes,
@@ -172,7 +172,7 @@ export async function buildDevaluacion(ahora: Date = new Date()): Promise<Devalu
     const directaFut = f.ajuste / spot - 1;
 
     let bonos: MesDevaluacion['bonos'] = null;
-    const vence = sumarDiasHabiles(fijacion, DL_HABILES_FIJACION_PAGO);
+    const vence = sumarDiasHabilesBancarios(fijacion, DL_HABILES_FIJACION_PAGO);
     const diasCurvas = daysBetween(liquidacion, vence);
     if (ajusteDl && ajusteNom && tramoComun && diasCurvas >= tramoComun.desde && diasCurvas <= tramoComun.hasta) {
       const teaNominal = ajusteNom.evaluar(diasCurvas);

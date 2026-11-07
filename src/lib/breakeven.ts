@@ -14,7 +14,7 @@ import {
   DAYS_PER_MONTH,
   daysBetween,
   parseIsoDate,
-  restarDiasHabiles,
+  restarDiasHabilesBancarios,
   toIsoDate,
   type IsoDate,
 } from './conventions';
@@ -264,7 +264,7 @@ export async function buildBreakeven(now: Date = new Date()): Promise<BreakevenR
   }
 
   const fechaL = toIsoDate(
-    restarDiasHabiles(parseIsoDate(cer.settlementDate), CER_LAG_BUSINESS_DAYS),
+    restarDiasHabilesBancarios(parseIsoDate(cer.settlementDate), CER_LAG_BUSINESS_DAYS),
   );
   // El IPC del INDEC es sólo la cifra exacta de los meses conocidos: lo que
   // decide y calcula todo es el CER. Si datos.gob.ar no contesta, esos meses
@@ -334,7 +334,7 @@ export function calcularBreakeven(entrada: EntradaBreakeven): CalculoBreakeven {
   const { serie, ipc } = entrada;
   const warnings: string[] = [];
   const liquidacion = parseIsoDate(entrada.settlementDate);
-  const fechaL = toIsoDate(restarDiasHabiles(liquidacion, CER_LAG_BUSINESS_DAYS));
+  const fechaL = toIsoDate(restarDiasHabilesBancarios(liquidacion, CER_LAG_BUSINESS_DAYS));
 
   const cerEn = (fecha: IsoDate): number => {
     const v = serie.valor(fecha);
@@ -501,7 +501,7 @@ function conModelo(base: BaseCalculo, modelo: ModeloCurva): ResultadoModelo | st
   for (const f of entrada.fija.filter(entraAlControl)) {
     const c = cerPorVencimiento.get(f.maturityDate);
     if (!c || f.tea === null || c.tea === null) continue;
-    const cerHasta = toIsoDate(restarDiasHabiles(parseIsoDate(f.maturityDate), CER_LAG_BUSINESS_DAYS));
+    const cerHasta = toIsoDate(restarDiasHabilesBancarios(parseIsoDate(f.maturityDate), CER_LAG_BUSINESS_DAYS));
     const curva = crecimiento(cerHasta);
     const diasDesdeU = daysBetween(parseIsoDate(U.fecha), parseIsoDate(cerHasta));
     // Sólo donde hay algo que comparar: bastante después de lo publicado y

@@ -4,7 +4,7 @@ import {
   DAYS_PER_MONTH,
   daysBetween,
   parseIsoDate,
-  restarDiasHabiles,
+  restarDiasHabilesBancarios,
   toIsoDate,
 } from '../conventions';
 import type { SerieDiaria } from '../sources/bcra';
@@ -25,7 +25,7 @@ export interface CerValuation {
 
 /** El CER que corresponde a una fecha según las condiciones de emisión. */
 export function cerConRezago(fecha: Date, serie: SerieDiaria): CerPunto | null {
-  const tomada = toIsoDate(restarDiasHabiles(fecha, CER_LAG_BUSINESS_DAYS));
+  const tomada = toIsoDate(restarDiasHabilesBancarios(fecha, CER_LAG_BUSINESS_DAYS));
   const valor = serie.valor(tomada);
   return valor === null ? null : { fecha: tomada, valor };
 }
