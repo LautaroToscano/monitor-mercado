@@ -10,7 +10,7 @@ import { datoQueNoCierra, elegirParaElAjuste, regresionCuadratica, regresionLoga
 import { panelTieneDatos } from '../src/lib/build';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 import { pagoFijado } from '../src/lib/universes/tasa-cer';
-import { seMarcaAparte } from '../src/lib/ajuste';
+import { entraALaCurvaPorDefecto, seMarcaAparte } from '../src/lib/ajuste';
 import type { Quote } from '../src/lib/types';
 
 test('TAMAR TEM: reproduce la TEA que publica el BCRA (variable 137)', () => {
@@ -121,4 +121,14 @@ test('un CER con el pago ya fijado no mide una tasa real (TZXO6, 23/10/2026)', (
   assert.equal(elegirParaElAjuste([papel], () => false, vista).length, 0, 'no define la curva');
   assert.equal(seMarcaAparte(papel, vista), false, 'CER con pago fijado: punto lleno');
   assert.equal(seMarcaAparte({ estructura: 'cero-cupon', cer: null, fueraDelAjuste: true }, vista), true, 'TTD26: hueco');
+});
+
+test('a menos de una semana del vencimiento, fuera de la curva por defecto (S13N6, 06/11/2026)', () => {
+  // Liquidaba el 11 y vencía el 13: 2 días corridos, aunque 3 hábiles.
+  assert.equal(entraALaCurvaPorDefecto({ daysToMaturity: 2, businessDaysToMaturity: 3 }), false, 'S13N6');
+  assert.equal(entraALaCurvaPorDefecto({ daysToMaturity: 19, businessDaysToMaturity: 14 }), true, 'S30N6');
+  // Dólar linked no pide hábiles, pero la semana sí.
+  const dl = { sinMinimoDeHabiles: true };
+  assert.equal(entraALaCurvaPorDefecto({ daysToMaturity: 8, businessDaysToMaturity: 1 }, dl), true);
+  assert.equal(entraALaCurvaPorDefecto({ daysToMaturity: 5, businessDaysToMaturity: 4 }, dl), false);
 });

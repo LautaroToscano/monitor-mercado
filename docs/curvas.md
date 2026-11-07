@@ -74,7 +74,12 @@ distinto del de la norma). Es la misma regla (`elegirParaElAjuste` en
 compartir y el vigilante, que avisa si una curva no se puede dibujar. El
 breakeven sigue con su propia regla: sólo papeles sin marcas.
 
-**Los papeles a un día hábil o menos del vencimiento salen por defecto.** A ese
+**Los papeles a menos de una semana del vencimiento salen por defecto** (siete
+días corridos desde la liquidación, o un hábil o menos; decisión del usuario
+del 07/11/2026). El 6/11/2026 la liquidación saltaba al 11 y S13N6, que
+vencía el 13, quedaba a 2 días con 3 hábiles: once centavos de precio la
+llevaban a 46% de TIR contra 25% de las vecinas, torcía la curva de tasa
+fija y llevaba el breakeven de octubre a 2,08% (sin ella, 1,60%). A ese
 plazo la tasa implícita deja de ser información: la TEM eleva el cociente a la
 potencia 30/días, así que a tres días calendario cualquier ruido de precio se
 multiplica por diez. Medido sobre S31G6: un centavo de precio mueve la TEM 0,8

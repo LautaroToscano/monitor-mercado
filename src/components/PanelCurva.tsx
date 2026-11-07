@@ -4,8 +4,8 @@ import { useCallback, useMemo, useState } from 'react';
 import type { InstrumentRow, VistaUniverso } from '@/lib/types';
 import { escalaLineal, marcasLimpias } from '@/lib/escala';
 import {
-  HABILES_MINIMOS_EN_CURVA,
   ajustarCurva,
+  entraALaCurvaPorDefecto,
   datoQueNoCierra,
   elegirParaElAjuste,
   seMarcaAparte,
@@ -140,7 +140,7 @@ export function PanelCurva({
       (comparacion?.instrumentos ?? []).filter(
         (i) =>
           !excluidos.has(i.ticker) &&
-          (vista.sinMinimoDeHabiles || i.businessDaysToMaturity >= HABILES_MINIMOS_EN_CURVA) &&
+          entraALaCurvaPorDefecto(i, vista) &&
           i[metrica] !== null,
       ),
     [comparacion, excluidos, metrica, vista],

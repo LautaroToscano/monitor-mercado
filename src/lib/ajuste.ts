@@ -329,15 +329,30 @@ function minimosCuadrados3(
 export const HABILES_MINIMOS_EN_CURVA = 2;
 
 /**
- * Si un instrumento está en la curva cuando nadie decidió nada a mano.
+ * Además, una semana corrida desde la liquidación, en todas las curvas.
+ *
+ * Los hábiles solos no alcanzan cuando la liquidación salta: el 6/11/2026
+ * lo operado liquidaba el 11 (Día del Bancario y dos días sin rueda), y a
+ * S13N6, que vence el 13, le quedaban 2 días con 3 hábiles por delante. Once
+ * centavos de precio la llevaban a 46% de TIR, contra 25% de las vecinas, y
+ * eso torcía la curva de tasa fija y el breakeven (octubre daba 2,08%; sin
+ * ella, 1,60%). Decisión del usuario del 07/11/2026.
+ */
+export const DIAS_MINIMOS_EN_CURVA = 7;
+
+/**
+ * Si un instrumento está en la curva cuando nadie decidió nada a mano: a una
+ * semana o más del vencimiento, contada desde la liquidación, y a más de un
+ * hábil.
  *
  * En dólar linked no hay mínimo de hábiles (`sinMinimoDeHabiles`): el papel
- * más corto es el que ancla el tramo corto y se decidió que entre siempre.
+ * más corto es el que ancla el tramo corto. La semana corrida sí cuenta.
  */
 export function entraALaCurvaPorDefecto(
-  i: Pick<InstrumentRow, 'businessDaysToMaturity'>,
+  i: Pick<InstrumentRow, 'businessDaysToMaturity' | 'daysToMaturity'>,
   vista?: Pick<VistaUniverso, 'sinMinimoDeHabiles'>,
 ): boolean {
+  if (i.daysToMaturity < DIAS_MINIMOS_EN_CURVA) return false;
   return vista?.sinMinimoDeHabiles === true || i.businessDaysToMaturity >= HABILES_MINIMOS_EN_CURVA;
 }
 
