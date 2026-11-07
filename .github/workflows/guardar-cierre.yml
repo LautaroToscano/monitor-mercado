@@ -40,6 +40,14 @@ jobs:
 
       - run: npm ci
 
+      # Primero el calendario de BYMA (src/lib/reference/calendario.json): un
+      # feriado o un día sin liquidación decretado sobre la hora entra solo,
+      # y la foto del día ya se arma con él. Si la página no responde, queda
+      # el que había.
+      - name: Traer el calendario de BYMA
+        continue-on-error: true
+        run: npm run refresh:calendario
+
       # Una curva que no se pudo guardar no hace fallar el job: sería un
       # mail de GitHub. Si la foto no aparece, lo anota el vigilante como
       # mantenimiento (BYMA guarda dos años de cierres: se puede rehacer).
@@ -51,14 +59,24 @@ jobs:
       - name: Subir si hay algo nuevo
         if: always()
         run: |
-          if [ -z "$(git status --porcelain -- public/historico)" ]; then
-            echo "Sin fotos nuevas."
-            exit 0
-          fi
           git config user.name 'LautaroToscano'
           # Dirección privada de GitHub: los commits quedan a nombre del usuario
           # sin exponer su mail en el historial público.
           git config user.email '94261012+LautaroToscano@users.noreply.github.com'
+          # El calendario se sube sólo si cambió alguna fecha: el generatedAt
+          # cambia en cada corrida y no es un cambio.
+          cal=src/lib/reference/calendario.json
+          if git diff -U0 -- "$cal" | grep -E '^[+-] ' | grep -qv generatedAt; then
+            git add "$cal"
+            git commit -m "Calendario de BYMA actualizado" -m "$(git diff --cached -U0 -- "$cal" | grep -E '^[+-] ' | grep -v generatedAt)"
+          else
+            git checkout -- "$cal" 2>/dev/null || true
+          fi
+          if [ -z "$(git status --porcelain -- public/historico)" ]; then
+            echo "Sin fotos nuevas."
+            git log origin/main..HEAD --oneline | grep -q . && { git pull --rebase --quiet origin main; git push; }
+            exit 0
+          fi
           git add public/historico
           # La fecha del título es la de la rueda guardada, no la del reloj.
           ruedas=$(git status --porcelain -- public/historico | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | sort -u | paste -sd ' ' -)

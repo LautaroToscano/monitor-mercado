@@ -11,6 +11,7 @@ import {
   dias30360,
   effectiveAnnualRate,
   effectiveMonthlyRate,
+  esDiaDeLiquidacion,
   isBusinessDay,
   parseIsoDate as P,
   restarDiasHabiles,
@@ -18,6 +19,7 @@ import {
   sumarDiasHabiles,
   toIsoDate as I,
 } from '../src/lib/conventions';
+import { parsearCalendarioByma } from '../src/lib/sources/byma-calendario';
 
 test('feriados y fines de semana no son hábiles', () => {
   assert.equal(isBusinessDay(P('2026-10-12')), false, '12/10/2026, feriado');
@@ -29,6 +31,41 @@ test('feriados y fines de semana no son hábiles', () => {
 test('la liquidación T+1 saltea el fin de semana y el feriado', () => {
   assert.equal(I(settlementDate(P('2026-10-09'))), '2026-10-13');
   assert.equal(I(settlementDate(P('2026-10-13'))), '2026-10-14');
+});
+
+test('un día con negociación y sin liquidación no liquida (calendario de BYMA, nov/dic 2026)', () => {
+  // 6/11 Día del Bancario: rueda sin liquidación; 9 y 10/11 sin rueda (visita
+  // del Papa). Lo operado a 24 horas el 5 y el 6 liquidó el 11.
+  assert.equal(isBusinessDay(P('2026-11-06')), true, 'el 6/11 hubo rueda');
+  assert.equal(isBusinessDay(P('2026-11-09')), false, 'el 9/11 no');
+  assert.equal(isBusinessDay(P('2026-11-10')), false, 'el 10/11 no');
+  assert.equal(esDiaDeLiquidacion(P('2026-11-06')), false);
+  assert.equal(I(settlementDate(P('2026-11-05'))), '2026-11-11');
+  assert.equal(I(settlementDate(P('2026-11-06'))), '2026-11-11');
+  assert.equal(I(settlementDate(P('2026-11-11'))), '2026-11-12');
+  // 7/12 no laborable turístico (sin liquidación) y 8/12 feriado.
+  assert.equal(I(settlementDate(P('2026-12-04'))), '2026-12-09');
+  assert.equal(I(settlementDate(P('2026-12-07'))), '2026-12-09');
+});
+
+test('el calendario de BYMA se lee de su página', () => {
+  const fila = (fecha: string, dia: string, motivo: string) =>
+    `<div role="listitem" class="byma_table_row w-dyn-item"><div class="byma_table_cell"><div>${fecha}</div></div><div class="byma_table_cell"><div>${dia}</div></div><div class="byma_table_cell"><div>${motivo}</div></div></div>`;
+  const html = [
+    fila('6 de Noviembre', 'Viernes', 'Día del Bancario (3)'),
+    fila('9 de noviembre', 'Lunes', 'Visita de Su Santidad el Papa León XIV (5)'),
+    fila('31 de Diciembre de 2026', 'Jueves', 'Jornada sin Negociación ni Liquidación (4)'),
+    '<h4>Referencias<br/>‍</h4><ol role="list"><li>Feriado Nacional Inamovible / Ley 27.399 – Art. 1</li>',
+    '<li>Feriado Nacional Trasladable / Ley 27.399 – Art. 1 y 6</li><li>Jornada sin Liquidación | Jornada con Negociación</li>',
+    '<li>Fechas con el criterio dispuesto en el <a href="#"><strong>Comunicado 18897 </strong></a>de BYMA</li>',
+    '<li>Fecha con el criterio dispuesto en el Decreto 1103/26</li></ol>',
+  ].join('');
+  assert.deepEqual(parsearCalendarioByma(html), {
+    anio: 2026,
+    sinRueda: ['2026-11-09', '2026-12-31'],
+    sinLiquidacion: ['2026-11-06'],
+  });
+  assert.throws(() => parsearCalendarioByma(html.replace(/<ol[\s\S]*<\/ol>/, '')), /referencias/);
 });
 
 test('sumar y restar hábiles', () => {

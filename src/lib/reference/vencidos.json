@@ -256,6 +256,20 @@
    }
   },
   {
+   "symbol": "S16O6",
+   "name": "LETRA DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VENCIMIENTO 16 DE OCTUBRE DE 2026",
+   "isin": "AR0183520128",
+   "issueDate": "2026-07-31",
+   "maturityDate": "2026-10-16",
+   "issueTem": 0.020499999999999997,
+   "temSource": "byma-ficha",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "referencia del proyecto antes de vencer (ficha de BYMA)"
+   }
+  },
+  {
    "symbol": "S16Y5",
    "name": "TP LETRAS DEL TESORO NACIONAL CAPITALIZABLES EN PESOS CON VTO 16-05-2025",
    "isin": null,
@@ -463,6 +477,20 @@
     "fuente": "https://www.boletinoficial.gob.ar/pdf/aviso/primera/313047/20240829",
     "fechaEmision": "norma",
     "tem": "A3 ficha de emisión"
+   }
+  },
+  {
+   "symbol": "S30O6",
+   "name": "LETRA DEL TESORO NACIONAL CAPITALIZABLE EN PESOS CON VENCIMIENTO 30 DE OCTUBRE DE 2026",
+   "isin": "AR0475783251",
+   "issueDate": "2025-10-31",
+   "maturityDate": "2026-10-30",
+   "issueTem": 0.0255,
+   "temSource": "byma-ficha",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "referencia del proyecto antes de vencer (ficha de BYMA)"
    }
   },
   {
@@ -786,6 +814,19 @@
    }
   },
   {
+   "symbol": "TZXO6",
+   "name": "BONO DEL TESORO NACIONAL EN PESOS CERO CUPÓN CON AJUSTE POR CER VENCIMIENTO 30 DE OCTUBRE DE 2026",
+   "isin": "AR0881212424",
+   "issueDate": "2024-10-31",
+   "maturityDate": "2026-10-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": null,
+    "fuente": null,
+    "fechaEmision": "referencia del proyecto antes de vencer (ficha de BYMA)"
+   }
+  },
+  {
    "symbol": "TZXY5",
    "name": "TP-BONO DEL TESORO NACIONAL EN PESOS CERO CUPON CON AJUSTE POR CER VTO 30-05-2025",
    "isin": null,
@@ -925,6 +966,21 @@
     "fechaEmision": "norma",
     "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
     "licitacion": "2025-10-15"
+   }
+  },
+  {
+   "symbol": "D30O6",
+   "name": "LETRA DEL TESORO NACIONAL VINCULADA AL DÓLAR ESTADOUNIDENSE CERO CUPÓN CON VENCIMIENTO 30 DE OCTUBRE DE 2026",
+   "isin": "AR0540625909",
+   "issueDate": "2026-08-14",
+   "maturityDate": "2026-10-30",
+   "estructura": "cero-cupon",
+   "origen": {
+    "norma": "Resolución Conjunta 48/2026, art. 1",
+    "fuente": "https://www.argentina.gob.ar/normativa/nacional/norma-428864/texto",
+    "fechaEmision": "referencia del proyecto antes de vencer (ficha de BYMA)",
+    "reglaPago": "A3500 del tercer día hábil previo a la fecha de pago",
+    "licitacion": "2026-08-12"
    }
   },
   {

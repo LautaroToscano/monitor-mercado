@@ -83,6 +83,12 @@ export interface UniverseDefinition<R extends InstrumentReference = InstrumentRe
   prepararValuacion?(
     vigentes: readonly R[],
     liquidacion: Date,
+    /**
+     * La rueda de los precios. No se deduce de la liquidación: con un día
+     * sin liquidación en el medio, dos ruedas liquidan el mismo día (el 5 y
+     * el 6/11/2026 liquidaron los dos el 11).
+     */
+    rueda: Date,
     signal?: AbortSignal,
   ): Promise<C>;
   /**

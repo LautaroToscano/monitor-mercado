@@ -4,7 +4,6 @@ import {
   isBusinessDay,
   MARKET_HOLIDAYS,
   parseIsoDate,
-  restarDiasHabiles,
   toIsoDate,
   ultimaRuedaTerminada,
   type IsoDate,
@@ -118,12 +117,12 @@ export const dolarLinked: UniverseDefinition<DolarLinkedReference, ContextoDolar
   /**
    * El spot es el mayorista de A3 de la misma rueda que los precios. La curva
    * va en vivo como las otras: con la rueda abierta, el último mayorista de
-   * hoy; con el mercado cerrado, el cierre de la rueda de los precios. La
-   * rueda sale de la liquidación, que es su T+1, y el spot de otro día no se
-   * usa: si no está el de esa rueda, los papeles salen sin TIR.
+   * hoy; con el mercado cerrado, el cierre de la rueda de los precios. El
+   * spot de otro día no se usa: si no está el de esa rueda, los papeles salen
+   * sin TIR.
    */
-  async prepararValuacion(vigentes, liquidacion, signal) {
-    const rueda = toIsoDate(restarDiasHabiles(liquidacion, 1));
+  async prepararValuacion(vigentes, _liquidacion, fechaRueda, signal) {
+    const rueda = toIsoDate(fechaRueda);
     const { desde, hasta } = ventana(rueda);
     const [vivo, cierres, a3500] = await Promise.all([
       fetchMayoristaEnVivo(signal).catch(() => null),

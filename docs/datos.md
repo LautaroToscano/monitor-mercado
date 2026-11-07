@@ -279,14 +279,39 @@ lunes y jueves desde GitHub Actions, y sube el cambio si lo hay.
 Un CER nuevo que pague cupón aparece como "sin resolver" hasta que se carguen
 sus condiciones en `CONDICIONES_CER`.
 
-El calendario de feriados bursátiles de `conventions.ts` hay que mantenerlo al
-día: un feriado faltante corre la fecha de liquidación un día y mueve
-visiblemente la tasa de los papeles cortos.
+### El calendario: días sin rueda y días sin liquidación
 
-Está cargado hasta 2028 con la Ley 27.399, más el Jueves Santo y el 31/12,
-que BYMA no operó ningún año. Los días no laborables turísticos no van:
-BYMA opera. Lo que no se puede cargar por adelantado son los trasladables
-que caen sábado o domingo: desde el Decreto 614/2025 pueden pasar al
-viernes anterior o al lunes siguiente a criterio de Jefatura de Gabinete.
-Faltan el 20/11/2027 y el 17/06/2028; se cargan cuando salga la
-resolución.
+Un feriado faltante corre la fecha de liquidación y mueve visiblemente la
+tasa de los papeles cortos. Hay dos clases de días especiales:
+
+- **Sin rueda** (feriados, el 31/12, fechas por decreto): no hay negociación
+  ni liquidación.
+- **Con negociación y sin liquidación** (el Día del Bancario, los no
+  laborables turísticos, el 24/12): BYMA opera, los bancos no, y nada
+  liquida ese día. El 6/11/2026 fue así; como el 9 y el 10 no hubo rueda
+  (visita del Papa, Decreto 1103/26), lo operado a 24 horas el 5 y el 6
+  liquidó el 11. Ese día tampoco hay mercado de cambios: sin mayorista de
+  A3 no hay foto dólar linked (`public/historico/sin-foto.json`).
+
+**Se mantiene solo.** `npm run refresh:calendario` lee el calendario
+bursátil de la página de BYMA (`sources/byma-calendario.ts`; la tabla y sus
+referencias: la que dice "con negociación" es sin liquidación, las demás
+sin rueda) y lo guarda en `src/lib/reference/calendario.json`. Lo corre
+`guardar-cierre.yml` antes de cada foto, dos veces por día hábil, y sube el
+cambio sólo si cambió una fecha. `conventions.ts` suma esos días a su
+lista base, y la liquidación T+1 saltea los días sin liquidación
+(`esDiaDeLiquidacion`). El vigilante compara una vez por hora la página con
+lo que sabe el proyecto y, si difieren, lo anota como mantenimiento.
+
+La lista base de `conventions.ts` cubre los años cerrados (cruzando BYMA y
+el BCRA) y los que vienen con la Ley 27.399, más el Jueves Santo y el
+31/12. BYMA publica sólo el año en curso, así que lo de años futuros sigue
+siendo a mano: los trasladables que caen sábado o domingo pueden pasar al
+viernes anterior o al lunes siguiente (Decreto 614/2025); faltan el
+20/11/2027 y el 17/06/2028.
+
+**Pendiente de decidir:** los rezagos de "diez hábiles" del CER y de la
+TAMAR se cuentan con los días de rueda. Si la norma habla de hábiles
+bancarios, los días sin liquidación (bancos cerrados) tampoco deberían
+contar; cambiaría el CER o la TAMAR de un día en los papeles cuya ventana
+cruza uno de esos días.

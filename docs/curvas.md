@@ -10,7 +10,7 @@ una regla cambia, cambia ahí y en ningún otro archivo.
 | convención | valor |
 |---|---|
 | Base de días | **actual/365** |
-| Liquidación | **T+1 hábil** (con calendario de feriados bursátiles) |
+| Liquidación | **T+1**: el siguiente día que liquida (sin feriados ni días sin liquidación, ver [Datos](datos.md)) |
 | Días al vencimiento | desde la **fecha de liquidación de su rueda**, no desde hoy |
 | Capitalización | meses calendario enteros + remanente / 30 |
 | TEM | `(pagoFinal / precio) ^ (30 / díasAlVencimiento) − 1` |

@@ -34,6 +34,8 @@
  */
 import { appendFileSync } from 'node:fs';
 import {
+  esDiaDeLiquidacion,
+  isBusinessDay,
   isWithinTradingHours,
   MARKET_HOLIDAYS,
   marketToday,
@@ -45,6 +47,7 @@ import {
   MARKET_TIMEZONE,
 } from '../src/lib/conventions';
 import { AVISO_RESPALDO } from '../src/lib/respaldo';
+import { fetchCalendarioByma } from '../src/lib/sources/byma-calendario';
 import {
   ajustarCurva,
   datoQueNoCierra,
@@ -193,6 +196,26 @@ function feriados() {
   }
 }
 
+/**
+ * Que el proyecto sepa lo que dice el calendario de BYMA: los días sin rueda
+ * y los días sin liquidación. Lo trae solo `guardar-cierre.yml` todos los
+ * días; si eso dejó de andar, acá se ve. Una vez por hora, para no pedirle la
+ * página a BYMA cada diez minutos; si no responde, no cuenta.
+ */
+async function calendario() {
+  if (ahora.getUTCMinutes() >= 10 && !process.argv.includes('--calendario')) return;
+  const cal = await fetchCalendarioByma().catch(() => null);
+  if (!cal) return;
+  const dia = (f: string) => parseIsoDate(f);
+  const faltan = [
+    ...cal.sinRueda.filter((f) => isBusinessDay(dia(f))).map((f) => `${f} sin rueda`),
+    ...cal.sinLiquidacion.filter((f) => esDiaDeLiquidacion(dia(f))).map((f) => `${f} sin liquidación`),
+  ];
+  if (faltan.length) {
+    mantenimiento.add(`calendario: BYMA publica ${faltan.join(', ')} y el proyecto no lo sabe (npm run refresh:calendario).`);
+  }
+}
+
 async function main() {
   console.log(`Vigilando ${BASE} · ${ahora.toISOString()} · ${enRueda ? 'en rueda' : 'mercado cerrado'} · última rueda ${ultima}`);
 
@@ -264,6 +287,7 @@ async function main() {
     .then((d) => recogerMantenimiento('devaluación', d.warnings))
     .catch(() => undefined);
   feriados();
+  await calendario();
 
   const informe = [
     fallas.length ? `## ✗ ${fallas.length} control(es) fallaron` : '## ✓ Todo en orden',

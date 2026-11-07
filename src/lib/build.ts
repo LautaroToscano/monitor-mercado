@@ -316,6 +316,7 @@ export async function buildUniverse(
       contexto = await universe.prepararValuacion(
         [...vigentes.values()],
         settlement,
+        tradeDate,
         AbortSignal.timeout(CONTEXTO_TIMEOUT_MS),
       );
     } catch (err) {

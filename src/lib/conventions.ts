@@ -5,6 +5,7 @@
  * conteo de días, de liquidación o de anualización cambia, cambia acá y
  * en ningún otro archivo. Ningún módulo de pricing debe redefinirlas.
  */
+import calendarioByma from './reference/calendario.json' with { type: 'json' };
 
 /** Base de días para anualizar. Actual/365. */
 export const DAY_COUNT_BASIS = 365;
@@ -31,8 +32,13 @@ export const MARKET_TIMEZONE = 'America/Argentina/Buenos_Aires';
  * 2024. Antes de septiembre de 2024 BYMA no tiene serie y manda el BCRA.
  *
  * Los dos calendarios discrepan en días como el del bancario o los puentes
- * turísticos (2026-03-23, 2026-07-10): el BCRA no publica y BYMA opera. Acá
- * cuenta el mercado, que es el que liquida.
+ * turísticos (2026-03-23, 2026-07-10): el BCRA no publica y BYMA opera, pero
+ * no liquida (ver `DIAS_SIN_LIQUIDACION`).
+ *
+ * Esta lista es la base. Encima va el calendario que publica BYMA
+ * (`reference/calendario.json`, lo trae `scripts/refresh-calendario.ts` todos
+ * los días): un feriado decretado sobre la hora entra solo. El 9 y el
+ * 10/11/2026 (visita del Papa, Decreto 1103/26) no estaban acá.
  */
 export const MARKET_HOLIDAYS: readonly string[] = [
   // Ventanas sueltas, las justas para el CER base de los CER con cupón: diez
@@ -80,7 +86,25 @@ export const MARKET_HOLIDAYS: readonly string[] = [
   '2028-11-20', '2028-12-08', '2028-12-25',
 ];
 
-const HOLIDAY_SET = new Set(MARKET_HOLIDAYS);
+const HOLIDAY_SET = new Set([...MARKET_HOLIDAYS, ...calendarioByma.sinRueda]);
+
+/**
+ * Días con negociación pero sin liquidación: BYMA opera, los bancos no. Son
+ * días de rueda (`isBusinessDay`), pero ninguna operación liquida en ellos:
+ * la liquidación pasa al siguiente día que sí liquida. El 6/11/2026 (Día del
+ * Bancario) fue así, y como el 9 y el 10 no hubo rueda, lo operado a 24
+ * horas el 5 y el 6 liquidó el 11. Salen del calendario de BYMA; los días no
+ * laborables con fines turísticos y el 24/12 suelen ser de este tipo.
+ */
+export const DIAS_SIN_LIQUIDACION: ReadonlySet<string> = new Set(calendarioByma.sinLiquidacion);
+
+/** Cuándo se trajo el calendario de BYMA por última vez (lo vigila `scripts/vigilar.ts`). */
+export const CALENDARIO_ACTUALIZADO: string = calendarioByma.generatedAt;
+
+/** Si en ese día liquidan las operaciones: un día de rueda que no sea sin liquidación. */
+export function esDiaDeLiquidacion(date: Date): boolean {
+  return isBusinessDay(date) && !DIAS_SIN_LIQUIDACION.has(toIsoDate(date));
+}
 
 // ─── Fechas calendario (sin hora, sin timezone) ──────────────────────────
 // Trabajamos con strings ISO 'YYYY-MM-DD' y UTC noon internamente para
@@ -256,8 +280,11 @@ export function ultimoHabilDelMes(mes: string): Date {
 }
 
 /**
- * Fecha de liquidación T+1: el siguiente día hábil posterior a la rueda.
- * Si la rueda cae en día no hábil, primero se rolea al hábil anterior.
+ * Fecha de liquidación T+1: el siguiente día de liquidación posterior a la
+ * rueda. Si la rueda cae en día no hábil, primero se rolea al hábil anterior.
+ * Un día de rueda sin liquidación no cuenta: lo operado a 24 horas el
+ * 5/11/2026 liquidó el 11, no el 6 (Día del Bancario) ni el 9 y el 10 (sin
+ * rueda).
  */
 export function settlementDate(tradeDate: Date): Date {
   let cursor = tradeDate;
@@ -265,7 +292,7 @@ export function settlementDate(tradeDate: Date): Date {
   let remaining = SETTLEMENT_LAG_BUSINESS_DAYS;
   while (remaining > 0) {
     cursor = addDays(cursor, 1);
-    if (isBusinessDay(cursor)) remaining -= 1;
+    if (esDiaDeLiquidacion(cursor)) remaining -= 1;
   }
   return cursor;
 }

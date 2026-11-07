@@ -15,7 +15,7 @@
  * caliente (`ReglasDeDescubrimiento`): una sola fuente de verdad por universo.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { isBusinessDay, marketToday } from '../src/lib/conventions';
+import { isBusinessDay, marketToday, toIsoDate } from '../src/lib/conventions';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { fetchFicha, fetchQuotes, type BymaFicha, type BymaPanel } from '../src/lib/sources/byma';
@@ -30,6 +30,7 @@ import { reglasTasaCer } from '../src/lib/universes/tasa-cer-clasificador';
 import { reglasDolarLinked } from '../src/lib/universes/dolar-linked-clasificador';
 import { reglasTamar } from '../src/lib/universes/tamar-clasificador';
 import { EXCLUIDOS } from '../src/lib/universes/excluidos';
+import { CONDICIONES_DOLAR_LINKED } from '../src/lib/universes/dolar-linked-condiciones';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '../src/lib/reference');
 
@@ -106,6 +107,39 @@ async function ficha(symbol: string): Promise<BymaFicha | null> {
   return f;
 }
 
+const VENCIDOS = join(DIR, 'vencidos.json');
+
+/**
+ * Un papel que deja la referencia porque venció pasa a `vencidos.json`, que
+ * es lo que permite rehacer las curvas de días pasados (BYMA borra la ficha
+ * de un vencido). Antes se cargaba a mano y se olvidaba: S16O6, S30O6, TZXO6
+ * y D30O6 vencieron en octubre de 2026 y las fotos rehechas de esos meses
+ * salían sin ellos.
+ */
+function pasarAVencidos(slug: string, anteriores: Map<string, InstrumentReference>, miembros: InstrumentReference[]) {
+  const hoy = toIsoDate(marketToday());
+  const siguen = new Set(miembros.map((m) => m.symbol));
+  const vencidos = JSON.parse(readFileSync(VENCIDOS, 'utf8')) as Record<string, (InstrumentReference & { origen?: unknown })[]>;
+  const lista = vencidos[slug] ?? (vencidos[slug] = []);
+  const ya = new Set(lista.map((r) => r.symbol));
+  const nuevos = [...anteriores.values()].filter((r) => !siguen.has(r.symbol) && !ya.has(r.symbol) && r.maturityDate <= hoy);
+  if (nuevos.length === 0) return;
+  for (const r of nuevos) lista.push({ ...r, origen: origenDe(slug, r) });
+  lista.sort((a, b) => a.symbol.localeCompare(b.symbol));
+  writeFileSync(VENCIDOS, JSON.stringify(vencidos, null, 1) + '\n');
+  console.log(`  pasan a vencidos: ${nuevos.map((r) => r.symbol).join(', ')}`);
+}
+
+/** De dónde salieron sus condiciones: la referencia que tenía antes de vencer. */
+function origenDe(slug: string, r: InstrumentReference) {
+  const desdeReferencia = 'referencia del proyecto antes de vencer (ficha de BYMA)';
+  const dl = slug === 'dolar-linked' ? CONDICIONES_DOLAR_LINKED[r.symbol] : undefined;
+  if (dl) {
+    return { norma: dl.norma, fuente: dl.fuente, fechaEmision: desdeReferencia, reglaPago: dl.reglaPago, licitacion: dl.licitacion };
+  }
+  return { norma: null, fuente: null, fechaEmision: desdeReferencia };
+}
+
 /** Los miembros del archivo actual, por símbolo. */
 function referenciasAnteriores(archivo: string): Map<string, InstrumentReference> {
   if (!existsSync(archivo)) return new Map();
@@ -175,6 +209,7 @@ async function refrescar(spec: Spec<InstrumentReference>) {
     unresolved,
   };
   writeFileSync(archivo, JSON.stringify(out, null, 2) + '\n');
+  pasarAVencidos(spec.slug, anteriores, members);
   console.log(`${members.length} instrumentos, ${nonMembers.length} descartados, ${unresolved.length} sin resolver`);
   console.log(`escrito en ${archivo}`);
 }

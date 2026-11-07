@@ -118,8 +118,8 @@ export const tamar: UniverseDefinition<TamarReference, ContextoTamar> = {
    * rueda: en vivo es lo último publicado, y al rehacer un día pasado es lo
    * que se sabía ese día.
    */
-  async prepararValuacion(vigentes, liquidacion, signal) {
-    const rueda = toIsoDate(restarDiasHabiles(liquidacion, 1));
+  async prepararValuacion(vigentes, _liquidacion, fechaRueda, signal) {
+    const rueda = toIsoDate(fechaRueda);
     const conDolar = vigentes.some((r) => CONDICIONES_TAMAR[r.symbol]?.tipo === 'dual-dolar-linked');
     const [serie, a3500] = await Promise.all([
       fetchTamar(INICIO_TAMAR, signal),

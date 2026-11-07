@@ -68,7 +68,7 @@ export const tasaCer: UniverseDefinition<CerReference, SerieDiaria> = {
    * hábiles antes de la emisión o de la liquidación—, así que siempre están
    * publicados.
    */
-  prepararValuacion(vigentes, liquidacion, signal) {
+  prepararValuacion(vigentes, liquidacion, _rueda, signal) {
     const fechas = vigentes.map((ref) => parseIsoDate(ref.issueDate));
     fechas.push(liquidacion);
     const primera = fechas.reduce((a, b) => (a < b ? a : b));

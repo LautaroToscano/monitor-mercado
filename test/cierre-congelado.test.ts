@@ -139,7 +139,10 @@ test('TAMAR: los 12 papeles, con la TAMAR que se conocía ese día', () => {
 
 test('TAMAR: coincide con la página de referencia del usuario', () => {
   // Con la TAMAR del 08/10 (24,125%), la que proyectaba la página, seis de
-  // los nueve papeles de su tabla dan la misma TIR al centésimo.
+  // los nueve papeles de su tabla daban la misma TIR al centésimo. Hoy dos
+  // difieren en 0,01: el 9 y el 10/11/2026 dejaron de ser hábiles (visita del
+  // Papa, decretada a fines de octubre) y hay dos días menos de TAMAR
+  // proyectada; la página del 13/10 no lo sabía.
   const u = curva('tamar');
   const { datos } = leer<{ datos: { fecha: IsoDate; valor: number }[] }>('tamar-136.json');
   const conocidas = datos.filter((d) => d.fecha <= '2026-10-08');
@@ -156,6 +159,6 @@ test('TAMAR: coincide con la página de referencia del usuario', () => {
     const i = u.instruments.find((x) => x.ticker === ticker)!;
     const ref: TamarReference = { ...base(i), estructura: i.estructura as 'cero-cupon' | 'dual' };
     const v = valuateTamar(ref, i.lastPrice, liquidacion(u, i), CONDICIONES_TAMAR[ticker], tamar, i.tamar!.tcInicial);
-    assert.equal(Number((v!.tea * 100).toFixed(2)), tir, ticker);
+    assert.ok(Math.abs(v!.tea * 100 - tir) <= 0.0151, `${ticker}: ${(v!.tea * 100).toFixed(2)} contra ${tir}`);
   }
 });
