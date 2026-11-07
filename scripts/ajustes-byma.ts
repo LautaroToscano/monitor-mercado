@@ -69,8 +69,13 @@ async function main() {
 
     const pagos: Pago[] = [];
     let acumulado = 1;
-    for (const flujo of [...plan.flujos].filter((f) => f.fecha > inicio && f.fecha <= fin).reverse()) {
-      const ex = toIsoDate(restarDiasHabiles(parseIsoDate(flujo.fecha), 1));
+    // Entra todo pago cuyo día ex ya está en la serie, aunque todavía no se
+    // haya cobrado: BYMA ajusta desde el ex. El 9/11/2026 (sin rueda el 9 y
+    // el 10) el ex de TX28 fue el 6/11, y sin contarlo su ajuste se cargaba
+    // al pago anterior: la TIR de toda su historia saltaba de 7% a 41%.
+    const exDe = (fecha: string) => toIsoDate(restarDiasHabiles(parseIsoDate(fecha), 1));
+    for (const flujo of [...plan.flujos].filter((f) => f.fecha > inicio && exDe(f.fecha) <= fin).reverse()) {
+      const ex = exDe(flujo.fecha);
       const conDerecho = [...serie].reverse().find((b) => b.date < ex);
       const cerPago = cer.valor(toIsoDate(restarDiasHabilesBancarios(parseIsoDate(flujo.fecha), 10)));
       if (!conDerecho || !cerPago) throw new Error(`${ref.symbol}: falta precio o CER para el pago del ${flujo.fecha}`);

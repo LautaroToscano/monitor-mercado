@@ -1,27 +1,27 @@
 {
- "generado": "2026-10-12T22:38:43.161Z",
+ "generado": "2026-11-07T19:52:01.957Z",
  "ajustes": {
   "CUAP": [
    {
     "fecha": "2024-12-31",
     "ex": "2024-12-30",
-    "monto": 804.9135,
-    "precioConDerecho": 27090.8259,
-    "factor": 1.02971167
+    "monto": 802.8707,
+    "precioConDerecho": 27090.2524,
+    "factor": 1.02963689
    },
    {
     "fecha": "2025-06-30",
     "ex": "2025-06-27",
     "monto": 941.1297,
-    "precioConDerecho": 26997.5051,
-    "factor": 1.03485988
+    "precioConDerecho": 26996.9137,
+    "factor": 1.03486064
    },
    {
     "fecha": "2025-12-31",
     "ex": "2025-12-30",
-    "monto": 1056.2471,
+    "monto": 1055.4061,
     "precioConDerecho": 37333.3655,
-    "factor": 1.02829231
+    "factor": 1.02826978
    },
    {
     "fecha": "2026-06-30",
@@ -35,23 +35,23 @@
    {
     "fecha": "2024-12-31",
     "ex": "2024-12-30",
-    "monto": 3455.7118,
-    "precioConDerecho": 35804.3385,
-    "factor": 1.09651657
+    "monto": 3446.9414,
+    "precioConDerecho": 35801.9797,
+    "factor": 1.09627795
    },
    {
     "fecha": "2025-06-30",
     "ex": "2025-06-27",
     "monto": 3964.725,
-    "precioConDerecho": 37031.6397,
-    "factor": 1.10706318
+    "precioConDerecho": 37028.9388,
+    "factor": 1.10707099
    },
    {
     "fecha": "2025-12-31",
     "ex": "2025-12-30",
-    "monto": 4364.6121,
+    "monto": 4361.1369,
     "precioConDerecho": 43283.5583,
-    "factor": 1.10083765
+    "factor": 1.10075736
    },
    {
     "fecha": "2026-06-30",
@@ -65,23 +65,23 @@
    {
     "fecha": "2024-12-31",
     "ex": "2024-12-30",
-    "monto": 3455.7118,
-    "precioConDerecho": 36157.4768,
-    "factor": 1.09557392
+    "monto": 3446.9414,
+    "precioConDerecho": 36155.0873,
+    "factor": 1.09533766
    },
    {
     "fecha": "2025-06-30",
     "ex": "2025-06-27",
     "monto": 3964.725,
-    "precioConDerecho": 37390.2281,
-    "factor": 1.10603639
+    "precioConDerecho": 37387.4951,
+    "factor": 1.10604415
    },
    {
     "fecha": "2025-12-31",
     "ex": "2025-12-30",
-    "monto": 4364.6121,
+    "monto": 4361.1369,
     "precioConDerecho": 43179.5182,
-    "factor": 1.10108061
+    "factor": 1.10100013
    },
    {
     "fecha": "2026-06-30",
@@ -96,22 +96,22 @@
     "fecha": "2025-03-31",
     "ex": "2025-03-28",
     "monto": 332.6374,
-    "precioConDerecho": 21226.6108,
-    "factor": 1.01567077
+    "precioConDerecho": 21225.7811,
+    "factor": 1.01567139
    },
    {
     "fecha": "2025-09-30",
     "ex": "2025-09-29",
     "monto": 382.1087,
-    "precioConDerecho": 19222.7726,
-    "factor": 1.01987792
+    "precioConDerecho": 19222.0063,
+    "factor": 1.01987871
    },
    {
     "fecha": "2026-03-31",
     "ex": "2026-03-30",
-    "monto": 441.0855,
+    "monto": 439.78,
     "precioConDerecho": 32309.4246,
-    "factor": 1.01365192
+    "factor": 1.01361151
    },
    {
     "fecha": "2026-09-30",
@@ -126,22 +126,22 @@
     "fecha": "2025-03-31",
     "ex": "2025-03-28",
     "monto": 332.6374,
-    "precioConDerecho": 20538.6062,
-    "factor": 1.01619572
+    "precioConDerecho": 20537.8017,
+    "factor": 1.01619635
    },
    {
     "fecha": "2025-09-30",
     "ex": "2025-09-29",
     "monto": 382.1087,
-    "precioConDerecho": 19619.1676,
-    "factor": 1.01947629
+    "precioConDerecho": 19618.3842,
+    "factor": 1.01947707
    },
    {
     "fecha": "2026-03-31",
     "ex": "2026-03-30",
-    "monto": 441.0855,
+    "monto": 439.78,
     "precioConDerecho": 32251.7614,
-    "factor": 1.01367632
+    "factor": 1.01363585
    },
    {
     "fecha": "2026-09-30",
@@ -155,23 +155,23 @@
    {
     "fecha": "2024-11-09",
     "ex": "2024-11-08",
-    "monto": 452.762,
-    "precioConDerecho": 1566.5301,
-    "factor": 1.2890222
+    "monto": 451.2572,
+    "precioConDerecho": 1565.722,
+    "factor": 1.28821027
    },
    {
     "fecha": "2025-05-09",
     "ex": "2025-05-08",
     "monto": 522.1417,
-    "precioConDerecho": 1405.8261,
-    "factor": 1.37141273
+    "precioConDerecho": 1404.8315,
+    "factor": 1.37167568
    },
    {
     "fecha": "2025-11-09",
     "ex": "2025-11-07",
-    "monto": 589.3298,
+    "monto": 588.1458,
     "precioConDerecho": 1084.3632,
-    "factor": 1.54348013
+    "factor": 1.54238817
    },
    {
     "fecha": "2026-05-09",
@@ -185,30 +185,37 @@
    {
     "fecha": "2024-11-09",
     "ex": "2024-11-08",
-    "monto": 237.4305,
-    "precioConDerecho": 1490.7668,
-    "factor": 1.15926739
+    "monto": 236.6414,
+    "precioConDerecho": 1489.8819,
+    "factor": 1.15883232
    },
    {
     "fecha": "2025-05-09",
     "ex": "2025-05-08",
     "monto": 273.6223,
-    "precioConDerecho": 1525.87,
-    "factor": 1.17932219
+    "precioConDerecho": 1524.802,
+    "factor": 1.17944778
    },
    {
     "fecha": "2025-11-09",
     "ex": "2025-11-07",
-    "monto": 308.6114,
-    "precioConDerecho": 1575.528,
-    "factor": 1.19587811
+    "monto": 307.9914,
+    "precioConDerecho": 1574.8289,
+    "factor": 1.19557133
    },
    {
     "fecha": "2026-05-09",
     "ex": "2026-05-08",
     "monto": 356.5911,
-    "precioConDerecho": 1618.454,
-    "factor": 1.22032824
+    "precioConDerecho": 1617.5783,
+    "factor": 1.22044752
+   },
+   {
+    "fecha": "2026-11-09",
+    "ex": "2026-11-06",
+    "monto": 402.2881,
+    "precioConDerecho": 1424,
+    "factor": 1.28250569
    }
   ],
   "TX31": [
@@ -216,22 +223,22 @@
     "fecha": "2024-11-30",
     "ex": "2024-11-29",
     "monto": 13.2121,
-    "precioConDerecho": 869.3995,
-    "factor": 1.01519683
+    "precioConDerecho": 869.391,
+    "factor": 1.01519698
    },
    {
     "fecha": "2025-05-30",
     "ex": "2025-05-29",
     "monto": 15.4999,
-    "precioConDerecho": 960.2669,
-    "factor": 1.01614128
+    "precioConDerecho": 960.2573,
+    "factor": 1.01614144
    },
    {
     "fecha": "2025-11-30",
     "ex": "2025-11-28",
-    "monto": 17.3932,
+    "monto": 17.3815,
     "precioConDerecho": 1154.0283,
-    "factor": 1.0150717
+    "factor": 1.0150616
    },
    {
     "fecha": "2026-05-30",

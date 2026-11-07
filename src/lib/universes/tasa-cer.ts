@@ -43,9 +43,28 @@ const knownNonMembers = new Map<string, string>(
  * usuario: no entran a la curva CER ni al breakeven; se dibujan como
  * cualquier punto, sin marca (`seMarcaAparte` en ajuste.ts).
  */
-export function pagoFijado(vencimiento: string, serie: SerieDiaria): boolean {
+export function pagoFijado(vencimiento: string, serie: Pick<SerieDiaria, 'ultimaFecha'>): boolean {
   const fijacion = toIsoDate(restarDiasHabilesBancarios(parseIsoDate(vencimiento), CER_LAG_BUSINESS_DAYS));
   return serie.ultimaFecha !== null && fijacion <= serie.ultimaFecha;
+}
+
+/**
+ * Hasta qué día había CER publicado en una rueda pasada, para rehacerla con
+ * lo que se sabía ese día (si no, `pagoFijado` usa el CER de hoy y marca
+ * como fijados papeles que todavía no lo estaban).
+ *
+ * El BCRA publica el CER hasta el 15 del mes siguiente el día que sale el
+ * IPC, entre el 10 y el 14 de cada mes. Los breakeven guardados lo muestran:
+ * el 09/10/2026 había CER hasta el 15/10, y el 13/10 ya hasta el 15/11. Se
+ * toma el 13 como día de corte; en los días del 10 al 14 puede errar uno.
+ */
+export const DIA_PUBLICACION_IPC = 13;
+
+export function cerPublicadoHasta(rueda: string): string {
+  const [y, m, d] = rueda.split('-').map(Number);
+  const mes = d >= DIA_PUBLICACION_IPC ? m + 1 : m;
+  const fecha = new Date(Date.UTC(y, mes - 1, 15, 12));
+  return fecha.toISOString().slice(0, 10);
 }
 
 export const tasaCer: UniverseDefinition<CerReference, SerieDiaria> = {

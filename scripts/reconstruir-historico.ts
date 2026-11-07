@@ -25,7 +25,7 @@ import { memo } from '../src/lib/cache';
 import { DIAS_SERIE_COMPLETA, precargarSeries, type Cierre } from '../src/lib/sources/byma';
 import { dolarLinked } from '../src/lib/universes/dolar-linked';
 import { tamar } from '../src/lib/universes/tamar';
-import { tasaCer } from '../src/lib/universes/tasa-cer';
+import { cerPublicadoHasta, pagoFijado, tasaCer } from '../src/lib/universes/tasa-cer';
 import { tasaFija } from '../src/lib/universes/tasa-fija';
 
 const TODOS = [tasaFija, tasaCer, dolarLinked, tamar];
@@ -155,6 +155,14 @@ async function main() {
       if (sinCierre.length > 0) {
         console.warn(`${fecha} ${universo.slug}: sin cierre para ${sinCierre.join(', ')}; no se guarda`);
         continue;
+      }
+      // El pago fijado, con el CER que se conocía ese día y no con el de hoy.
+      if (universo === tasaCer) {
+        const serie = { ultimaFecha: cerPublicadoHasta(fecha) };
+        respuesta.instruments = respuesta.instruments.map(({ fueraDelAjuste: _f, ...i }) => ({
+          ...i,
+          ...(pagoFijado(i.maturityDate, serie) && { fueraDelAjuste: true }),
+        }));
       }
       const foto = fotoDesde(respuesta);
       if (foto.instrumentos.length < (MINIMO_INSTRUMENTOS[universo.slug] ?? MINIMO_POR_DEFECTO)) {
