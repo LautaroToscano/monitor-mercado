@@ -16,13 +16,11 @@ De dónde salen los precios, cómo se cuida la fuente, qué se marca como dato d
 Se eligió por ser la única fuente que trae **fecha de vencimiento**, cierre
 anterior y hora del último trade, además de la ficha técnica.
 
-**No hay fuente de respaldo, y es deliberado.** Hubo una (data912) y se dio de
-baja: servía el último precio conocido sin decir de cuándo era. Un precio sin
-fecha no se puede descontar — el rendimiento sale de comparar el precio contra
-el pago final a lo largo de los días que faltan, así que un precio de ayer
-sobre el horizonte de hoy da tasas infladas, y más cuanto más corto el plazo.
-Llegó a invertir la curva entera. Si BYMA no responde, el endpoint devuelve un
-error explícito: preferimos eso a una curva inventada.
+**Si BYMA no responde, la rueda sale de data912** (ver «Reserva: data912»).
+Antes hubo otra reserva con data912 y se dio de baja: servía el último precio
+conocido sin decir de cuándo era, y un precio de ayer descontado sobre el
+horizonte de hoy da tasas infladas (llegó a invertir la curva entera). La
+reserva actual fecha cada precio con su rueda y nunca se mezcla con BYMA.
 
 **Descartada: Primary (Matba ROFEX).** Requiere credenciales y su entorno
 abierto es paper trading, con precios que no son de mercado real.
@@ -272,10 +270,8 @@ BYMA borra la ficha técnica de un papel vencido.
 ## Reserva: data912
 
 El 13/11/2026 a la noche la API pública de BYMA (`open.bymadata.com.ar`) dejó
-de aceptar conexiones desde todos lados, sin aviso. BYMA ofrece ahora el
-"API Market Data - Delay20" (manual del 07/10/2026), pero es sólo para
-agentes miembros, con contrato y homologación. Desde el 20/11/2026, si BYMA
-no responde, la rueda entera sale de data912 (`sources/data912.ts`):
+de aceptar conexiones desde todos lados, sin aviso. Desde el 20/11/2026,
+si BYMA no responde, la rueda entera sale de data912 (`sources/data912.ts`):
 
 - nunca se mezcla con BYMA en una misma curva, y el breakeven exige que las
   dos curvas sean de la misma fuente;
@@ -288,6 +284,13 @@ no responde, la rueda entera sale de data912 (`sources/data912.ts`):
 Al compararlo contra el último cierre de BYMA (13/11), estaban los 50 papeles
 de las cuatro curvas, en las mismas unidades y con un movimiento razonable
 para una semana.
+
+BYMA tiene también la "API Market Data - Delay20" (snapshot con 20 minutos de
+demora, sin homologación; `docs/BYMA_DELAY20_API.md`). Pide credenciales del
+portal de BYMA, que se habilitan con una invitación por mail que todavía no
+llegó. El cliente está escrito (`sources/byma-delay20.ts`, `npm run
+probar:delay20`) pero no se usa: con las credenciales en `.env` se prueba, y
+si cierra pasa a ser la fuente principal, con data912 de reserva.
 
 ## Mantenimiento
 
