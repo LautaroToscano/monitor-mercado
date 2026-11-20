@@ -248,6 +248,11 @@ export async function buildBreakeven(now: Date = new Date()): Promise<BreakevenR
   // cuidar: son los mismos precios los pida quien los pida.
   const fija = await buildUniverse(tasaFija, now, 'cierre');
   const cer = await buildUniverse(tasaCer, now, 'cierre');
+  // Las dos curvas de la misma fuente: si BYMA anduvo para una y no para la
+  // otra, una saldría de data912 y el breakeven mezclaría precios.
+  if (fija.source !== cer.source) {
+    throw new Error(`Las curvas no son de la misma fuente: tasa fija ${fija.source}, CER ${cer.source}.`);
+  }
   if (fija.tradeDate !== cer.tradeDate || fija.settlementDate !== cer.settlementDate) {
     throw new Error(
       `Las curvas no son de la misma rueda: tasa fija ${fija.tradeDate}, CER ${cer.tradeDate}.`,

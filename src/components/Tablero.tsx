@@ -254,7 +254,7 @@ export function Tablero({ slug, universos, conBreakeven, inicial = null, breakev
               )}
               <Dato
                 etiqueta="Fuente"
-                valor={mayorista ? 'BYMA · A3' : tamarVigente ? 'BYMA · BCRA' : datos.source.toUpperCase()}
+                valor={`${datos.source.toUpperCase()}${mayorista ? ' · A3' : tamarVigente ? ' · BCRA' : ''}`}
               />
             </>
           )}

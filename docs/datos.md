@@ -269,6 +269,26 @@ papeles. S13S4 y S30S4 ya no tenían serie (vencieron en septiembre de
 que ya vencieron hace falta sumar sus condiciones a la referencia, porque
 BYMA borra la ficha técnica de un papel vencido.
 
+## Reserva: data912
+
+El 13/11/2026 a la noche la API pública de BYMA (`open.bymadata.com.ar`) dejó
+de aceptar conexiones desde todos lados, sin aviso. BYMA ofrece ahora el
+"API Market Data - Delay20" (manual del 07/10/2026), pero es sólo para
+agentes miembros, con contrato y homologación. Desde el 20/11/2026, si BYMA
+no responde, la rueda entera sale de data912 (`sources/data912.ts`):
+
+- nunca se mezcla con BYMA en una misma curva, y el breakeven exige que las
+  dos curvas sean de la misma fuente;
+- la cabecera dice la fuente real (`source` de la respuesta) y las fotos
+  guardadas con data912 lo anotan (`fuente`);
+- data912 sólo da el último precio: con la rueda abierta, el de hoy; fuera de
+  horario, el cierre de la última rueda. No sirve para el cierre de ayer con
+  la rueda abierta ni para días pasados, y no tiene historia de las LECAP.
+
+Al compararlo contra el último cierre de BYMA (13/11), estaban los 50 papeles
+de las cuatro curvas, en las mismas unidades y con un movimiento razonable
+para una semana.
+
 ## Mantenimiento
 
 `npm run refresh:reference` regenera los archivos versionados. Ya no hace

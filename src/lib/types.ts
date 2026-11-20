@@ -33,7 +33,7 @@ export interface Quote {
   source: SourceId;
 }
 
-export type SourceId = 'byma';
+export type SourceId = 'byma' | 'data912';
 
 /**
  * Cómo paga el instrumento. Decide si entra al ajuste de la curva: sólo los

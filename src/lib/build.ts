@@ -9,15 +9,18 @@ import {
   ruedaDeHoySinCerrar,
   settlementDate,
   toIsoDate,
+  ultimaRuedaTerminada,
 } from './conventions';
 import { evaluateQuote, worstLevel } from './quality';
 import * as byma from './sources/byma';
+import { fetchQuotesData912 } from './sources/data912';
 import type { IsoDate } from './conventions';
 import type {
   InstrumentReference,
   InstrumentRow,
   QualityFlag,
   Quote,
+  SourceId,
   UniverseResponse,
 } from './types';
 import type { AnyUniverse } from './universes/types';
@@ -76,6 +79,7 @@ interface QuoteFetchResult {
   quotes: Map<string, Quote>;
   session: UniverseResponse['session'];
   warnings: string[];
+  source: SourceId;
 }
 
 /** Reloj del presupuesto: cuánto queda antes de tener que responder. */
@@ -116,6 +120,16 @@ function crearPresupuesto(total = PRESUPUESTO_MS) {
  */
 const COBERTURA_MINIMA_PANEL = 0.75;
 
+/**
+ * La reserva no informa la hora de cada operación: alcanza con que tenga
+ * precio la misma proporción de papeles que se le pide al panel.
+ */
+function reservaTieneDatos(quotes: Map<string, Quote>, universe: AnyUniverse, hoyIso: IsoDate): boolean {
+  const vigentes = [...universe.reference.values()].filter((r) => r.maturityDate > hoyIso && r.issueDate <= hoyIso);
+  const conPrecio = vigentes.filter((r) => quotes.get(r.symbol)?.last != null).length;
+  return vigentes.length > 0 && conPrecio >= vigentes.length * COBERTURA_MINIMA_PANEL;
+}
+
 export function panelTieneDatos(
   quotes: Map<string, Quote>,
   universe: AnyUniverse,
@@ -136,7 +150,10 @@ export function panelTieneDatos(
 }
 
 /**
- * BYMA es la única fuente, y eso es deliberado.
+ * BYMA es la fuente, y data912 la reserva cuando BYMA no responde: la rueda
+ * entera sale de una o de la otra, nunca mezcladas en una misma curva
+ * (decisión del usuario del 20/11/2026, después de una semana con la API de
+ * BYMA sin aceptar conexiones). Ver `sources/data912.ts`.
  *
  * El respaldo que había servía el último precio conocido sin decir de cuándo
  * era. Eso no es un dato de mercado: es un número con forma de dato.
@@ -177,7 +194,33 @@ async function fetchQuotes(
   // empezaba a cortar.
   const diasDeSerie = pasado ? byma.DIAS_SERIE_COMPLETA : 20;
 
+  // data912 sirve si su único precio es el que se pide: con la rueda abierta
+  // y precio en vivo, el de hoy; fuera de horario, el cierre de la última
+  // rueda. No sirve para el cierre de ayer con la rueda abierta, ni para un
+  // día pasado.
+  const reservaUsable = pasado === null && (!soloAnteriores || !ruedaEnCurso);
+  const reserva = async (): Promise<QuoteFetchResult | null> => {
+    if (!reservaUsable) return null;
+    try {
+      const fecha = ruedaEnCurso ? null : ultimaRuedaTerminada(ahora);
+      const quotes = await presupuesto.correr(
+        (signal) => fetchQuotesData912(fecha, signal),
+        Math.min(PANEL_TIMEOUT_MS, presupuesto.restante()),
+      );
+      if (!reservaTieneDatos(quotes, universe, hoyIso)) {
+        warnings.push('data912 no tiene precios suficientes de esta curva.');
+        return null;
+      }
+      warnings.push('Precios de data912: BYMA no respondió.');
+      return { quotes, session: ruedaEnCurso ? 'intradiaria' : 'cierre', warnings, source: 'data912' };
+    } catch (err) {
+      warnings.push(`data912 no respondió (${(err as Error).message}).`);
+      return null;
+    }
+  };
+
   let panel: Map<string, Quote> | null = null;
+  let panelFallo = false;
   if (!soloAnteriores) {
     try {
       panel = await presupuesto.correr(
@@ -185,6 +228,7 @@ async function fetchQuotes(
         PANEL_TIMEOUT_MS,
       );
     } catch (err) {
+      panelFallo = true;
       warnings.push(`El panel de BYMA no respondió (${(err as Error).message}).`);
     }
   }
@@ -197,7 +241,15 @@ async function fetchQuotes(
       quotes: panel,
       session: ruedaEnCurso ? 'intradiaria' : 'cierre',
       warnings,
+      source: 'byma',
     };
+  }
+
+  // BYMA no contestó: la serie histórica está en el mismo servidor y tampoco
+  // va a contestar. Se va directo a la reserva.
+  if (panelFallo) {
+    const alternativa = await reserva();
+    if (alternativa) return alternativa;
   }
 
   // Mercado cerrado, o se pidieron cierres: los precios son los de cierre de
@@ -225,13 +277,17 @@ async function fetchQuotes(
   }
 
   if (cierres.size === 0) {
+    if (!panelFallo) {
+      const alternativa = await reserva();
+      if (alternativa) return alternativa;
+    }
     // El mensaje arrastra todo lo que falló, no sólo el último paso: sin eso
     // el error dice "no hubo cierres" y esconde que BYMA no contestó nunca.
     throw new Error(
       ['No se pudieron traer datos de BYMA.', ...warnings].join(' '),
     );
   }
-  return { quotes: cierres, session: 'cierre', warnings };
+  return { quotes: cierres, session: 'cierre', warnings, source: 'byma' };
 }
 
 export async function buildUniverse(
@@ -239,7 +295,7 @@ export async function buildUniverse(
   now: Date = new Date(),
   precios: Precios = 'vivo',
 ): Promise<UniverseResponse> {
-  const { quotes, session, warnings } = await fetchQuotes(universe, now, precios);
+  const { quotes, session, warnings, source } = await fetchQuotes(universe, now, precios);
 
   // Con el mercado cerrado la rueda de referencia no es hoy: es la última
   // rueda con datos. La liquidación T+1 y el conteo de días cuelgan de ahí,
@@ -448,7 +504,7 @@ export async function buildUniverse(
     session,
     settlementDate: toIsoDate(settlement),
     fetchedAt: now.toISOString(),
-    source: 'byma',
+    source,
     conventions: universe.conventions,
     instruments,
     warnings,

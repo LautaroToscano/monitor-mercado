@@ -43,6 +43,8 @@ export interface FotoCurva {
   tradeDate: string;
   settlementDate: string;
   ejeX: VistaUniverso['ejeX'];
+  /** De dónde salieron los precios, si no fue BYMA (la reserva, data912). */
+  fuente?: 'data912';
   instrumentos: FotoInstrumento[];
 }
 
@@ -55,6 +57,7 @@ export function fotoDesde(u: UniverseResponse): FotoCurva {
     tradeDate: u.tradeDate,
     settlementDate: u.settlementDate,
     ejeX: u.vista.ejeX,
+    ...(u.source === 'data912' && { fuente: 'data912' as const }),
     instrumentos: u.instruments
       .filter((i) => i.tea !== null)
       .map((i) => ({
