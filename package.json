@@ -10,6 +10,7 @@
     "test": "node --import tsx --test \"test/**/*.test.ts\"",
     "refresh:reference": "tsx scripts/refresh-reference.ts",
     "refresh:calendario": "tsx scripts/refresh-calendario.ts",
+    "probar:delay20": "node --env-file=.env --import tsx scripts/probar-delay20.ts",
     "validate": "tsx scripts/validate.ts",
     "validate:breakeven": "tsx scripts/validate-breakeven.ts",
     "validate:modelos": "tsx scripts/comparar-modelos.ts",
